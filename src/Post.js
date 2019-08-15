@@ -159,7 +159,7 @@ const EmojiPicker = ({
           outline: "none",
           fontSize: 20,
           padding: "0 5px",
-          backgroundColor: isSelected ? "#ddefff" : "",
+          backgroundColor: isSelected ? "#ddefff" : "transparent",
           border: isSelected ? "1px solid #e1e4e8" : "1px solid transparent"
         }}
         key={reaction}
