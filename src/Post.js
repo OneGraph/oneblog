@@ -1,13 +1,14 @@
 // @flow
 
-import React from "react";
+import * as React from "react";
 import graphql from "babel-plugin-relay/macro";
 import {
   createFragmentContainer,
-  type RelayProp,
-  commitMutation
+  commitMutation,
+  fetchQuery,
+  type RelayProp
 } from "react-relay";
-import ReactMarkdown from "react-markdown";
+import MarkdownRenderer from "./MarkdownRenderer";
 import formatDate from "date-fns/format";
 // $FlowFixMe: https://facebook.github.io/create-react-app/docs/adding-images-fonts-and-files
 import { ReactComponent as EmojiIcon } from "./emojiIcon.svg";
@@ -15,6 +16,11 @@ import { ReactComponent as EmojiIcon } from "./emojiIcon.svg";
 import { ReactComponent as AddIcon } from "./addIcon.svg";
 import Tippy from "@tippy.js/react";
 import "tippy.js/themes/light-border.css";
+import { Link } from "react-router-dom";
+import { postRootQuery } from "./App";
+import GitHubLoginButton from "./GitHubLoginButton";
+import { NotificationManager } from "react-notifications";
+import { Box, Heading, Text } from "grommet";
 
 import type { Post_post } from "./__generated__/Post_post.graphql";
 
@@ -137,7 +143,13 @@ const reactions = [
   "EYES"
 ];
 
-const EmojiPicker = ({ viewerReactions, onSelect, onDeselect }) => {
+const EmojiPicker = ({
+  viewerReactions,
+  onSelect,
+  onDeselect,
+  isLoggedIn,
+  login
+}) => {
   const reactionContent = reaction => {
     const isSelected = viewerReactions.includes(reaction);
     return (
@@ -161,10 +173,18 @@ const EmojiPicker = ({ viewerReactions, onSelect, onDeselect }) => {
     <>
       <p style={{ textAlign: "left", margin: "5px 0 0" }}>Pick your reaction</p>
       <div style={{ height: 1, background: "#ddd", margin: "5px 0" }} />
-      <div>
-        {reactions.slice(0, 4).map(reaction => reactionContent(reaction))}
-      </div>
-      <div>{reactions.slice(4).map(reaction => reactionContent(reaction))}</div>
+      {isLoggedIn ? (
+        <>
+          <div>
+            {reactions.slice(0, 4).map(reaction => reactionContent(reaction))}
+          </div>
+          <div>
+            {reactions.slice(4).map(reaction => reactionContent(reaction))}
+          </div>
+        </>
+      ) : (
+        <GitHubLoginButton onClick={login} />
+      )}
     </>
   );
 };
@@ -177,79 +197,98 @@ type Props = {
   logout: any
 };
 
+function PostBox({ children }: { children: React.Node }) {
+  return (
+    <Box
+      margin="medium"
+      style={{
+        maxWidth: 704,
+        borderRadius: 2,
+        boxShadow: "0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0,0,0,0.2)"
+      }}
+    >
+      {children}
+    </Box>
+  );
+}
+
 const Post = ({ relay, post, isLoggedIn, login, logout }: Props) => {
   const [showReactionPopover, setShowReactionPopover] = React.useState(false);
   const popoverInstance = React.useRef();
 
-  const handleAddReaction = () => {
-    if (isLoggedIn) {
-      console.log("logged in!");
-    } else {
-      login();
-    }
-  };
   const usedReactions = (post.reactionGroups || []).filter(
     g => g.users.totalCount > 0
   );
+  const authors = post.assignees.nodes || [];
   return (
-    <section
-      style={{
-        width: 704,
-        margin: 32,
-        marginBottom: 0,
-        paddingBottom: 0,
-        borderRadius: 2,
-        boxShadow: "0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0,0,0,0.24)"
-      }}
-    >
-      <div style={{ padding: 32, paddingTop: 16 }}>
-        <h2>{post.title}</h2>
+    <PostBox>
+      <Box pad="medium">
+        <Heading level={3} margin="none">
+          <Link
+            style={{ color: "inherit" }}
+            to={`/post/${post.number}`}
+            onMouseOver={() =>
+              fetchQuery(relay.environment, postRootQuery, {
+                issueNumber: post.number
+              })
+            }
+          >
+            {post.title}
+          </Link>
+        </Heading>
 
-        <span style={{ fontSize: "0.8em", fontWeight: "300" }}>
+        <Text size="xsmall">
           {formatDate(new Date(post.createdAt), "MMM Do, YYYY")}
-        </span>
-        <div>
-          <ReactMarkdown source={post.body} escapeHtml={false} />
-        </div>
-      </div>
-      <div style={{ borderTop: "1px solid rgba(0,0,0,0.12)", padding: 32 }}>
-        {(post.assignees.nodes || []).map(node =>
-          node ? (
-            <div style={{ display: "flex", alignItems: "center" }}>
-              <img
-                alt={node.name}
-                src={node.avatarUrl}
-                style={{ width: 45, height: 45, borderRadius: "50%" }}
-              />
-              <span style={{ marginLeft: 8, fontWeight: "600" }}>
-                {node.name}
-              </span>
-            </div>
-          ) : null
-        )}
-      </div>
-      <div
-        style={{
-          borderTop: "1px solid rgba(0,0,0,0.12)",
-          fontSize: 24,
-          display: "flex",
-          alignItems: "center"
-        }}
+        </Text>
+        <Text size="small">
+          <MarkdownRenderer source={post.body} />
+        </Text>
+      </Box>
+      {authors.length > 0 ? (
+        //style={{ borderTop: "1px solid rgba(0,0,0,0.12)", padding: 16 }}>
+        <Box
+          pad="medium"
+          border={{ size: "xsmall", side: "top", color: "rgba(0,0,0,0.1)" }}
+        >
+          {authors.map(node =>
+            node ? (
+              <Box align="center" direction="row">
+                <img
+                  alt={node.name}
+                  src={node.avatarUrl}
+                  style={{
+                    width: 36,
+                    height: 36,
+                    borderRadius: "50%",
+                    marginRight: 8
+                  }}
+                />
+                <Text size="small">{node.name}</Text>
+              </Box>
+            ) : null
+          )}
+        </Box>
+      ) : null}
+      <Box
+        pad="xsmall"
+        direction="row"
+        wrap={true}
+        border={{ size: "xsmall", side: "top", color: "rgba(0,0,0,0.1)" }}
       >
         {usedReactions.map(g => (
-          <span
+          <Text
             style={{
-              padding: "8px 16px",
+              padding: "0 16px",
               borderRight: "1px solid rgba(0,0,0,0.12)",
               display: "flex",
               alignItems: "center"
             }}
           >
             {emojiForContent(g.content)}{" "}
-            <span style={{ fontSize: 12, marginLeft: 12 }}>
+            <Text size="small" style={{ marginLeft: 8 }}>
               {g.users.totalCount}
-            </span>
-          </span>
+            </Text>
+          </Text>
         ))}
         <Tippy
           onCreate={instance => (popoverInstance.current = instance)}
@@ -264,24 +303,34 @@ const Post = ({ relay, post, isLoggedIn, login, logout }: Props) => {
           content={
             <div>
               <EmojiPicker
+                isLoggedIn={isLoggedIn}
+                login={login}
                 viewerReactions={usedReactions
                   .filter(x => x.viewerHasReacted)
                   .map(x => x.content)}
-                onDeselect={content => {
+                onDeselect={async content => {
                   popoverInstance.current && popoverInstance.current.hide();
-                  removeReaction({
-                    environment: relay.environment,
-                    content,
-                    postId: post.id
-                  });
+                  try {
+                    await removeReaction({
+                      environment: relay.environment,
+                      content,
+                      postId: post.id
+                    });
+                  } catch (e) {
+                    NotificationManager.error("Error removing reaction.");
+                  }
                 }}
-                onSelect={content => {
+                onSelect={async content => {
                   popoverInstance.current && popoverInstance.current.hide();
-                  addReaction({
-                    environment: relay.environment,
-                    content,
-                    postId: post.id
-                  });
+                  try {
+                    await addReaction({
+                      environment: relay.environment,
+                      content,
+                      postId: post.id
+                    });
+                  } catch (e) {
+                    NotificationManager.error("Error adding reaction.");
+                  }
                 }}
               />
             </div>
@@ -291,14 +340,13 @@ const Post = ({ relay, post, isLoggedIn, login, logout }: Props) => {
             style={{ padding: "8px 16px" }}
             className="add-reaction-emoji"
             onClick={() => setShowReactionPopover(!showReactionPopover)}
-            // onClick={handleAddReaction}
           >
             <AddIcon width="12" />
             <EmojiIcon width="24" style={{ stroke: "rgba(0,0,0,0)" }} />
           </span>
         </Tippy>
-      </div>
-    </section>
+      </Box>
+    </PostBox>
   );
 };
 
@@ -306,6 +354,7 @@ export default createFragmentContainer(Post, {
   post: graphql`
     fragment Post_post on GitHubIssue {
       id
+      number
       title
       body
       createdAt
@@ -334,3 +383,109 @@ export default createFragmentContainer(Post, {
     }
   `
 });
+
+const WORDS = [
+  "people",
+  "see",
+  "one",
+  "make",
+  "day",
+  "it’s",
+  "man",
+  "old",
+  "out",
+  "dog",
+  "guy",
+  "new",
+  "video",
+  "things",
+  "life",
+  "made",
+  "year",
+  "never",
+  "facebook",
+  "awesome",
+  "girl",
+  "look",
+  "photos",
+  "love",
+  "know",
+  "best",
+  "way",
+  "thing",
+  "beautiful",
+  "time",
+  "little",
+  "more",
+  "first",
+  "happened",
+  "heart",
+  "now",
+  "you’ll",
+  "being",
+  "ways",
+  "want",
+  "think",
+  "something",
+  "years",
+  "found",
+  "better",
+  "seen",
+  "baby",
+  "really",
+  "world",
+  "actually",
+  "valentine’s",
+  "down",
+  "reasons",
+  "watch",
+  "need",
+  "here",
+  "good",
+  "media",
+  "makes",
+  "boy",
+  "mind",
+  "right",
+  "social"
+];
+
+function randInt(x: number): number {
+  return Math.floor(Math.random() * x);
+}
+
+function randomWord() {
+  return WORDS[randInt(WORDS.length)];
+}
+
+function capitalize(s: string): string {
+  return s.charAt(0).toUpperCase() + s.slice(1);
+}
+
+export class LoadingPost extends React.PureComponent<*, *> {
+  render() {
+    return (
+      <PostBox>
+        <Box pad="medium" style={{ filter: "blur(4px)" }} className="shimmer">
+          <Heading level={3} margin="none">
+            {capitalize(randomWord())}{" "}
+            {[...new Array(randInt(5) + 2)].map(_x => randomWord()).join(" ")}
+          </Heading>
+          <Text size="xsmall">{formatDate(new Date(), "MMM Do, YYYY")}</Text>
+          <Text size="small">
+            <MarkdownRenderer
+              source={[...new Array(randInt(5) + 1)]
+                .map(_p =>
+                  [...new Array(randInt(200) + 25)]
+                    .map(_w => randomWord())
+                    .join(" ")
+                )
+                .join("\n\n")}
+              escapeHtml={false}
+            />
+          </Text>
+        </Box>
+      </PostBox>
+    );
+  }
+}

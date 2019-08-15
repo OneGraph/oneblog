@@ -78,6 +78,13 @@ const node/*: ReaderFragment*/ = {
       "storageKey": null,
       "args": [
         {
+          "kind": "Literal",
+          "name": "labels",
+          "value": [
+            "publish"
+          ]
+        },
+        {
           "kind": "Variable",
           "name": "orderBy",
           "variableName": "orderBy"
@@ -164,5 +171,5 @@ const node/*: ReaderFragment*/ = {
   ]
 };
 // prettier-ignore
-(node/*: any*/).hash = '9621d3948c6b1ec3876b859361335984';
+(node/*: any*/).hash = '2c3d40f990b05f9138cf469446bd1e6d';
 module.exports = node;

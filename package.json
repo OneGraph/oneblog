@@ -8,20 +8,28 @@
     "date-fns": "^1.30.1",
     "flow-bin": "^0.105.1",
     "graphql": "^14.4.2",
+    "grommet": "^2.7.6",
+    "idx.macro": "^4.0.0",
     "onegraph-auth": "^2.0.0",
+    "polished": "^3.4.1",
     "prettier": "^1.18.2",
     "react": "^16.9.0",
     "react-dom": "^16.9.0",
     "react-markdown": "^4.1.0",
+    "react-notifications": "^1.4.3",
     "react-relay": "^5.0.0",
-    "react-scripts": "3.1.0"
+    "react-router-dom": "^5.0.1",
+    "react-router-scroll-memory": "^2.0.3",
+    "react-scripts": "3.1.0",
+    "react-syntax-highlighter": "^11.0.2",
+    "styled-components": "^4.3.2"
   },
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "relay": "relay-compiler --verbose --src ./src --schema ./schema.json --persistFunction scripts/persistQuery.js",
+    "relay": "relay-compiler --src ./src --schema ./schema.graphql --persistFunction scripts/persistQuery.js",
     "flow": "flow",
     "fetch-schema": "node scripts/fetchSchema.js --path schema.graphql"
   },
@@ -41,6 +49,9 @@
     ]
   },
   "devDependencies": {
-    "relay-compiler": "^5.0.0"
+    "@dwwoelfel/relay-compiler": "5.0.1-alpha1"
+  },
+  "babelMacros": {
+    "relay": {}
   }
 }

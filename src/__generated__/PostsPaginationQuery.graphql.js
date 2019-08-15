@@ -1,6 +1,6 @@
 /**
  * @flow
- * @relayHash 9ba9f0e6ca7835eba5ba7b9c7a99666c
+ * @relayHash d008929cea55444ebbab67bc287b543b
  */
 
 /* eslint-disable */
@@ -24,7 +24,8 @@ export type PostsPaginationQueryVariables = {|
 export type PostsPaginationQueryResponse = {|
   +gitHub: ?{|
     +repository: ?{|
-      +$fragmentRefs: Posts_repository$ref
+      +__typename: string,
+      +$fragmentRefs: Posts_repository$ref,
     |}
   |}
 |};
@@ -40,9 +41,10 @@ query PostsPaginationQuery(
   $count: Int!
   $cursor: String
   $orderBy: GitHubIssueOrder
-) {
+) @persistedQueryConfiguration(accessToken: {environmentVariable: "OG_GITHUB_TOKEN"}) {
   gitHub {
-    repository(name: "changelog-blog", owner: "dwwoelfel") {
+    repository(name: "onegraph-changelog", owner: "onegraph") {
+      __typename
       ...Posts_repository_32czeo
       id
     }
@@ -50,7 +52,7 @@ query PostsPaginationQuery(
 }
 
 fragment Posts_repository_32czeo on GitHubRepository {
-  issues(first: $count, after: $cursor, orderBy: $orderBy) {
+  issues(first: $count, after: $cursor, orderBy: $orderBy, labels: ["publish"]) {
     edges {
       node {
         id
@@ -68,6 +70,7 @@ fragment Posts_repository_32czeo on GitHubRepository {
 
 fragment Post_post on GitHubIssue {
   id
+  number
   title
   body
   createdAt
@@ -135,20 +138,27 @@ v1 = [
   {
     "kind": "Literal",
     "name": "name",
-    "value": "changelog-blog"
+    "value": "onegraph-changelog"
   },
   {
     "kind": "Literal",
     "name": "owner",
-    "value": "dwwoelfel"
+    "value": "onegraph"
   }
 ],
 v2 = {
+  "kind": "ScalarField",
+  "alias": null,
+  "name": "__typename",
+  "args": null,
+  "storageKey": null
+},
+v3 = {
   "kind": "Variable",
   "name": "orderBy",
   "variableName": "orderBy"
 },
-v3 = [
+v4 = [
   {
     "kind": "Variable",
     "name": "after",
@@ -159,19 +169,19 @@ v3 = [
     "name": "first",
     "variableName": "count"
   },
-  (v2/*: any*/)
+  {
+    "kind": "Literal",
+    "name": "labels",
+    "value": [
+      "publish"
+    ]
+  },
+  (v3/*: any*/)
 ],
-v4 = {
-  "kind": "ScalarField",
-  "alias": null,
-  "name": "id",
-  "args": null,
-  "storageKey": null
-},
 v5 = {
   "kind": "ScalarField",
   "alias": null,
-  "name": "__typename",
+  "name": "id",
   "args": null,
   "storageKey": null
 },
@@ -190,7 +200,7 @@ v7 = {
   "storageKey": null
 },
 v8 = [
-  (v4/*: any*/)
+  (v5/*: any*/)
 ],
 v9 = [
   {
@@ -223,11 +233,12 @@ return {
             "kind": "LinkedField",
             "alias": null,
             "name": "repository",
-            "storageKey": "repository(name:\"changelog-blog\",owner:\"dwwoelfel\")",
+            "storageKey": "repository(name:\"onegraph-changelog\",owner:\"onegraph\")",
             "args": (v1/*: any*/),
             "concreteType": "GitHubRepository",
             "plural": false,
             "selections": [
+              (v2/*: any*/),
               {
                 "kind": "FragmentSpread",
                 "name": "Posts_repository",
@@ -242,7 +253,7 @@ return {
                     "name": "cursor",
                     "variableName": "cursor"
                   },
-                  (v2/*: any*/)
+                  (v3/*: any*/)
                 ]
               }
             ]
@@ -269,17 +280,18 @@ return {
             "kind": "LinkedField",
             "alias": null,
             "name": "repository",
-            "storageKey": "repository(name:\"changelog-blog\",owner:\"dwwoelfel\")",
+            "storageKey": "repository(name:\"onegraph-changelog\",owner:\"onegraph\")",
             "args": (v1/*: any*/),
             "concreteType": "GitHubRepository",
             "plural": false,
             "selections": [
+              (v2/*: any*/),
               {
                 "kind": "LinkedField",
                 "alias": null,
                 "name": "issues",
                 "storageKey": null,
-                "args": (v3/*: any*/),
+                "args": (v4/*: any*/),
                 "concreteType": "GitHubIssueConnection",
                 "plural": false,
                 "selections": [
@@ -301,7 +313,14 @@ return {
                         "concreteType": "GitHubIssue",
                         "plural": false,
                         "selections": [
-                          (v4/*: any*/),
+                          (v5/*: any*/),
+                          {
+                            "kind": "ScalarField",
+                            "alias": null,
+                            "name": "number",
+                            "args": null,
+                            "storageKey": null
+                          },
                           {
                             "kind": "ScalarField",
                             "alias": null,
@@ -332,7 +351,7 @@ return {
                             "concreteType": null,
                             "plural": false,
                             "selections": [
-                              (v5/*: any*/),
+                              (v2/*: any*/),
                               (v6/*: any*/),
                               (v7/*: any*/),
                               {
@@ -397,7 +416,7 @@ return {
                                   },
                                   (v6/*: any*/),
                                   (v7/*: any*/),
-                                  (v4/*: any*/)
+                                  (v5/*: any*/)
                                 ]
                               }
                             ]
@@ -447,7 +466,7 @@ return {
                             "plural": false,
                             "selections": (v9/*: any*/)
                           },
-                          (v5/*: any*/)
+                          (v2/*: any*/)
                         ]
                       },
                       {
@@ -490,14 +509,15 @@ return {
                 "kind": "LinkedHandle",
                 "alias": null,
                 "name": "issues",
-                "args": (v3/*: any*/),
+                "args": (v4/*: any*/),
                 "handle": "connection",
                 "key": "Posts_posts_issues",
                 "filters": [
-                  "orderBy"
+                  "orderBy",
+                  "labels"
                 ]
               },
-              (v4/*: any*/)
+              (v5/*: any*/)
             ]
           }
         ]
@@ -507,12 +527,12 @@ return {
   "params": {
     "operationKind": "query",
     "name": "PostsPaginationQuery",
-    "id": "e8e955d9-226e-4590-ba14-c8bffdadc516",
+    "id": "544b098f-f07a-4ff9-aaf9-aae78f79acf4",
     "text": null,
     "metadata": {}
   }
 };
 })();
 // prettier-ignore
-(node/*: any*/).hash = '44acd7c0edaf9a383cc37bb9b3a39140';
+(node/*: any*/).hash = '5e9134d187035768ad63a6d1c19d821b';
 module.exports = node;

@@ -12,3 +12,16 @@
   fill: #0366d6;
   stroke: #0366d6;
 }
+
+a {
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+pre {
+  overflow: scroll;
+  font-size: 11.9px;
+}

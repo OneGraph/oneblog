@@ -80,20 +80,22 @@ async function persistQuery(queryText) {
     }
   });
 
+  const variables = {
+    query: print(transformedAst),
+    appId: "570a3d6b-6ff3-4b7a-9b0d-fe4cf6384388",
+    accessToken: accessToken || null,
+    freeVariables: [...freeVariables]
+  };
+
   const body = JSON.stringify({
     query: PERSIST_QUERY_MUTATION,
-    variables: {
-      query: print(transformedAst),
-      appId: "d3715c55-faa9-42b8-921f-688ce0efd230",
-      accessToken,
-      freeVariables: [...freeVariables]
-    }
+    variables
   });
   return new Promise((resolve, reject) => {
     let data = "";
     const req = https.request(
       {
-        hostname: "serve.onegraph.io",
+        hostname: "serve.onegraph.com",
         port: 443,
         path: "/graphql?app_id=0b066ba6-ed39-4db8-a497-ba0be34d5b2a",
         method: "POST",

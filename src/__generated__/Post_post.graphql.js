@@ -14,6 +14,7 @@ declare export opaque type Post_post$ref: FragmentReference;
 declare export opaque type Post_post$fragmentType: Post_post$ref;
 export type Post_post = {|
   +id: string,
+  +number: number,
   +title: string,
   +body: string,
   +createdAt: string,
@@ -84,6 +85,13 @@ return {
       "kind": "ScalarField",
       "alias": null,
       "name": "id",
+      "args": null,
+      "storageKey": null
+    },
+    {
+      "kind": "ScalarField",
+      "alias": null,
+      "name": "number",
       "args": null,
       "storageKey": null
     },
@@ -214,5 +222,5 @@ return {
 };
 })();
 // prettier-ignore
-(node/*: any*/).hash = 'ad2e4cdeee1fe090dc502dd8c7c670c5';
+(node/*: any*/).hash = '3e300d95432ddef7c1f17630a2a88264';
 module.exports = node;
