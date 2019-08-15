@@ -210,6 +210,7 @@ export default class App extends React.Component<*, { isLoggedIn: boolean }> {
               align="center"
               justify="between"
               pad={{ horizontal: "medium", vertical: "medium" }}
+              wrap={true}
             >
               <Box align="center" direction="row">
                 <OneGraphLogo width="96px" height="96px" />{" "}
