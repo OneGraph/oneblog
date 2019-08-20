@@ -1,12 +1,42 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
-import './index.css';
-import App from './App';
-import * as serviceWorker from './serviceWorker';
+import http from "http";
+import fetch from "node-fetch";
+// Allows us to use fetch on node side
+global.fetch = fetch;
 
-ReactDOM.render(<App />, document.getElementById('root'));
+let app = require("./server").default;
 
-// If you want your app to work offline and load faster, you can change
-// unregister() to register() below. Note this comes with some pitfalls.
-// Learn more about service workers: https://bit.ly/CRA-PWA
-serviceWorker.unregister();
+const server = http.createServer(app);
+
+let currentApp = app;
+
+function startServer() {
+  server.listen(process.env.PORT || 3000, error => {
+    if (error) {
+      console.log(error);
+    }
+    console.log("🚀 started");
+  });
+}
+
+// Don't start server if we're called inside of a firebase function
+if (!process.env.FIREBASE_CONFIG) {
+  startServer();
+  if (module.hot) {
+    console.log("✅  Server-side HMR Enabled!");
+
+    module.hot.accept("./server", () => {
+      console.log("🔁  HMR Reloading `./server`...");
+
+      try {
+        app = require("./server").default;
+        server.removeListener("request", currentApp);
+        server.on("request", app);
+        currentApp = app;
+      } catch (error) {
+        console.error(error);
+      }
+    });
+  }
+}
+
+export default { app, startServer };

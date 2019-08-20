@@ -1,6 +1,6 @@
 /**
  * @flow
- * @relayHash d008929cea55444ebbab67bc287b543b
+ * @relayHash e4aae4be929e69e098dfffafd4f7c2d2
  */
 
 /* eslint-disable */
@@ -94,10 +94,10 @@ fragment Post_post on GitHubIssue {
   updatedAt
   assignees(first: 10) {
     nodes {
+      id
       name
       login
       avatarUrl
-      id
     }
   }
   reactionGroups {
@@ -407,6 +407,7 @@ return {
                                 "concreteType": "GitHubUser",
                                 "plural": true,
                                 "selections": [
+                                  (v5/*: any*/),
                                   {
                                     "kind": "ScalarField",
                                     "alias": null,
@@ -415,8 +416,7 @@ return {
                                     "storageKey": null
                                   },
                                   (v6/*: any*/),
-                                  (v7/*: any*/),
-                                  (v5/*: any*/)
+                                  (v7/*: any*/)
                                 ]
                               }
                             ]
@@ -527,7 +527,7 @@ return {
   "params": {
     "operationKind": "query",
     "name": "PostsPaginationQuery",
-    "id": "544b098f-f07a-4ff9-aaf9-aae78f79acf4",
+    "id": "2587c1d3-4778-42a0-929a-f01e304153e7",
     "text": null,
     "metadata": {}
   }

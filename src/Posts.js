@@ -1,25 +1,21 @@
 // @flow
 
-import React from "react";
-import graphql from "babel-plugin-relay/macro";
-import { createPaginationContainer, type RelayProp } from "react-relay";
-import Post from "./Post";
-import type { Posts_repository } from "./__generated__/Posts_repository.graphql";
-// $FlowFixMe: https://facebook.github.io/create-react-app/docs/adding-images-fonts-and-files
-import { ReactComponent as LoadingSpinner } from "./loadingSpinner.svg";
-import idx from "idx.macro";
-import { Box } from "grommet";
+import React from 'react';
+import graphql from 'babel-plugin-relay/macro';
+import {createPaginationContainer, type RelayProp} from 'react-relay';
+import Post from './Post';
+import type {Posts_repository} from './__generated__/Posts_repository.graphql';
+import LoadingSpinner from './loadingSpinner';
+import idx from 'idx.macro';
+import {Box} from 'grommet';
 
 type Props = {|
   relay: RelayProp,
   repository: Posts_repository,
-  isLoggedIn: boolean,
-  login: any,
-  logout: any
 |};
 
 // TODO: pagination. Can do pages or infinite scroll
-const Posts = ({ relay, repository, isLoggedIn, login, logout }: Props) => {
+const Posts = ({relay, repository}: Props) => {
   const [isLoading, setIsLoading] = React.useState(false);
   const scheduledRef = React.useRef(false);
   const handleScroll = React.useCallback(() => {
@@ -34,9 +30,9 @@ const Posts = ({ relay, repository, isLoggedIn, login, logout }: Props) => {
         ) {
           if (!isLoading && !relay.isLoading() && relay.hasMore()) {
             setIsLoading(true);
-            console.log("setting isLoading to true");
+            console.log('setting isLoading to true');
             relay.loadMore(10, x => {
-              console.log("setting isLoading to false", x);
+              console.log('setting isLoading to false', x);
               setIsLoading(false);
             });
           }
@@ -45,35 +41,26 @@ const Posts = ({ relay, repository, isLoggedIn, login, logout }: Props) => {
     }
   }, [relay, isLoading, setIsLoading]);
   React.useEffect(() => {
-    console.log("adding new listener");
-    window.addEventListener("scroll", handleScroll);
+    console.log('adding new listener');
+    window.addEventListener('scroll', handleScroll);
     return () => {
-      console.log("remove listener");
-      window.removeEventListener("scroll", handleScroll);
+      console.log('remove listener');
+      window.removeEventListener('scroll', handleScroll);
     };
   }, [handleScroll]);
 
   return (
     <Box>
       {(repository.issues.edges || []).map(e =>
-        e && e.node ? (
-          <Post
-            key={e.node.id}
-            post={e.node}
-            isLoggedIn={isLoggedIn}
-            login={login}
-            logout={logout}
-          />
-        ) : null
+        e && e.node ? <Post key={e.node.id} post={e.node} /> : null,
       )}
       {isLoading ? (
         <Box
           align="center"
           margin="medium"
           style={{
-            maxWidth: 704
-          }}
-        >
+            maxWidth: 704,
+          }}>
           <LoadingSpinner width="48px" height="48px" />
         </Box>
       ) : null}
@@ -87,11 +74,11 @@ export default createPaginationContainer(
     repository: graphql`
       fragment Posts_repository on GitHubRepository
         @argumentDefinitions(
-          count: { type: "Int", defaultValue: 10 }
-          cursor: { type: "String" }
+          count: {type: "Int", defaultValue: 10}
+          cursor: {type: "String"}
           orderBy: {
             type: "GitHubIssueOrder"
-            defaultValue: { direction: DESC, field: CREATED_AT }
+            defaultValue: {direction: DESC, field: CREATED_AT}
           }
         ) {
         issues(
@@ -108,19 +95,18 @@ export default createPaginationContainer(
           }
         }
       }
-    `
+    `,
   },
   {
-    direction: "forward",
+    direction: 'forward',
     getConnectionFromProps(props) {
-      // XXX How to get the refetch query to work?
       return props.repository && props.repository.issues;
     },
-    getVariables(props, { count, cursor }, fragmentVariables) {
+    getVariables(props, {count, cursor}, fragmentVariables) {
       return {
         count: count,
         cursor,
-        orderBy: fragmentVariables.orderBy
+        orderBy: fragmentVariables.orderBy,
       };
     },
 
@@ -131,7 +117,7 @@ export default createPaginationContainer(
         $orderBy: GitHubIssueOrder
       )
         @persistedQueryConfiguration(
-          accessToken: { environmentVariable: "OG_GITHUB_TOKEN" }
+          accessToken: {environmentVariable: "OG_GITHUB_TOKEN"}
         ) {
         gitHub {
           repository(name: "onegraph-changelog", owner: "onegraph") {
@@ -141,6 +127,6 @@ export default createPaginationContainer(
           }
         }
       }
-    `
-  }
+    `,
+  },
 );

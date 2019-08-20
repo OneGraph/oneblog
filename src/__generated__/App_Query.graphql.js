@@ -1,6 +1,6 @@
 /**
  * @flow
- * @relayHash 53cf7318ebde32a32245267ce58166d2
+ * @relayHash e2bebd4a9dc54eb343ece8b4e98a6a2f
  */
 
 /* eslint-disable */
@@ -78,10 +78,10 @@ fragment Post_post on GitHubIssue {
   updatedAt
   assignees(first: 10) {
     nodes {
+      id
       name
       login
       avatarUrl
-      id
     }
   }
   reactionGroups {
@@ -351,6 +351,7 @@ return {
                                 "concreteType": "GitHubUser",
                                 "plural": true,
                                 "selections": [
+                                  (v3/*: any*/),
                                   {
                                     "kind": "ScalarField",
                                     "alias": null,
@@ -359,8 +360,7 @@ return {
                                     "storageKey": null
                                   },
                                   (v5/*: any*/),
-                                  (v6/*: any*/),
-                                  (v3/*: any*/)
+                                  (v6/*: any*/)
                                 ]
                               }
                             ]
@@ -471,7 +471,7 @@ return {
   "params": {
     "operationKind": "query",
     "name": "App_Query",
-    "id": "53f7dd5d-fcc0-48cf-b997-ce8d8cfbb477",
+    "id": "9955c9b4-c8a6-47a3-9e76-26747692bfcb",
     "text": null,
     "metadata": {}
   }
