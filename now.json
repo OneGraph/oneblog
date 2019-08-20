@@ -17,11 +17,23 @@
     },
     {
       "src": "/favicon.ico",
-      "dest": "favicon.ico"
+      "dest": "build/public/favicon.ico"
+    },
+    {
+      "src": "/favicon-16x16.png",
+      "dest": "build/public/favicon-16x16.png"
+    },
+    {
+      "src": "/favicon-32x32.png",
+      "dest": "build/public/favicon-32x32.png"
     },
     {
       "src": "/robots.txt",
-      "dest": "robots.txt"
+      "dest": "build/public/robots.txt"
+    },
+    {
+      "src": "/manifest.json",
+      "dest": "build/public/manifest.json"
     },
     {
       "src": "/(.*)",
