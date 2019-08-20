@@ -1,0 +1,18 @@
+[build]
+  command = "yarn install && yarn build"
+  publish = "build/public"
+  functions = "build-netlify-functions/"
+  environment = { NETLIFY = "true" }
+
+[context]
+  environment = { NETLIFY = "true" }
+
+[[redirects]]
+  from = "/"
+  to = "/.netlify/functions/index/"
+  status = 200
+
+[[redirects]]
+  from = "/post/*"
+  to = "/.netlify/functions/index/post/:splat"
+  status = 200

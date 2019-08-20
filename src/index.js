@@ -19,7 +19,7 @@ function startServer() {
 }
 
 // Don't start server if we're called inside of a firebase function
-if (!process.env.FIREBASE_CONFIG) {
+if (!process.env.FIREBASE_CONFIG && !process.env.NETLIFY) {
   startServer();
   if (module.hot) {
     console.log("✅  Server-side HMR Enabled!");

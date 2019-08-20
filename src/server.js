@@ -5,13 +5,10 @@ import { ServerStyleSheet } from "styled-components";
 import express from "express";
 import { renderToString } from "react-dom/server";
 import { fetchQuery } from "react-relay";
-import fetch from "node-fetch";
 import { createEnvironment } from "./Environment";
 import serialize from "serialize-javascript";
 import { RecordSource } from "relay-runtime";
 import RelayQueryResponseCache from "./relayResponseCache";
-
-global.fetch = fetch;
 
 const assets = require(process.env.RAZZLE_ASSETS_MANIFEST);
 

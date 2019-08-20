@@ -7,6 +7,8 @@
     "babel-plugin-relay": "^5.0.0",
     "date-fns": "^1.30.1",
     "express": "^4.17.1",
+    "firebase-admin": "^8.3.0",
+    "firebase-functions": "^3.2.0",
     "graphql": "^14.4.2",
     "grommet": "^2.7.6",
     "highlightjs-graphql": "^1.0.1",
@@ -23,6 +25,7 @@
     "react-router-scroll-memory": "^2.0.3",
     "react-syntax-highlighter": "^11.0.2",
     "serialize-javascript": "^1.7.0",
+    "serverless-http": "^2.2.0",
     "styled-components": "^4.3.2"
   },
   "scripts": {
@@ -35,17 +38,16 @@
     "fetch-schema": "node scripts/fetchSchema.js --path schema.graphql",
     "analyze": "source-map-explorer 'build/public/static/js/*.js'",
     "deploy:firebase": "firebase deploy",
-    "deploy:now": "now"
+    "deploy:now": "now",
+    "build:netlify-functions": "NODE_ENV=production netlify-lambda build netlify-functions",
+    "deploy:netlify": "netlify deploy",
+    "netlify:serve": "NODE_ENV=development netlify-lambda serve netlify-functions"
   },
   "eslintConfig": {
     "extends": "react-app"
   },
   "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
+    "production": [">0.2%", "not dead", "not op_mini all"],
     "development": [
       "last 1 chrome version",
       "last 1 firefox version",
@@ -56,9 +58,9 @@
     "@babel/preset-flow": "^7.0.0",
     "@dwwoelfel/relay-compiler": "5.0.1-alpha1",
     "babel-plugin-macros": "^2.6.1",
-    "firebase-admin": "^8.3.0",
-    "firebase-functions": "^3.2.0",
     "flow-bin": "^0.105.1",
+    "netlify-cli": "^2.4.8",
+    "netlify-lambda": "^1.6.2",
     "now": "^16.1.1",
     "prettier": "^1.18.2",
     "razzle": "^3.0.0",
