@@ -3,10 +3,11 @@ import fetch from "node-fetch";
 // Allows us to use fetch on node side
 global.fetch = fetch;
 
-let app = require("./server").default;
+const app = require("./server").default;
 
 const server = http.createServer(app);
 
+let nextApp = app;
 let currentApp = app;
 
 function startServer() {
@@ -28,10 +29,10 @@ if (!process.env.FIREBASE_CONFIG && !process.env.NETLIFY) {
       console.log("🔁  HMR Reloading `./server`...");
 
       try {
-        app = require("./server").default;
+        nextApp = require("./server").default;
         server.removeListener("request", currentApp);
-        server.on("request", app);
-        currentApp = app;
+        server.on("request", nextApp);
+        currentApp = nextApp;
       } catch (error) {
         console.error(error);
       }

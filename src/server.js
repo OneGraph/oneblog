@@ -22,35 +22,36 @@ function buildHtml({ markup, styleTags, bootstrapData }) {
   </script>`
     : "";
   return `<!doctype html>
-<html lang="">
-<head>
-<meta http-equiv="X-UA-Compatible" content="IE=edge" />
-<meta charset="utf-8" />
-<link rel="shortcut icon" href="/favicon.ico" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<meta name="theme-color" content="#000000" />
-<meta
-  name="description"
-  content="Follow along with OneGraph as we take over the world with GraphQL."
-/>
-<link rel="manifest" href="/manifest.json" />
+<html lang="en">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta charset="utf-8" />
+    <link rel="shortcut icon" href="/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#000000" />
+    <meta
+      name="description"
+      content="Follow along with OneGraph as we take over the world with GraphQL."
+    />
+    <link rel="manifest" href="/manifest.json" />
 
-<title>OneGraph Product Updates</title>
-${styleTags ? styleTags : ""}
-<meta name="viewport" content="width=device-width, initial-scale=1">
-${
-  assets.client.css ? `<link rel="stylesheet" href="${assets.client.css}">` : ""
-}
-${
-  process.env.NODE_ENV === "production"
-    ? `<script src="${assets.client.js}" defer></script>`
-    : `<script src="${assets.client.js}" defer crossorigin></script>`
-}
-</head>
-<body>
-<div id="root">${markup ? markup : ""}</div>
-${bootstrapScript ? bootstrapScript : ""}
-</body>
+    <title>OneGraph Product Updates</title>
+    ${styleTags ? styleTags : ""}
+    ${
+      assets.client.css
+        ? `<link rel="stylesheet" href="${assets.client.css}">`
+        : ""
+    }
+    ${
+      process.env.NODE_ENV === "production"
+        ? `<script src="${assets.client.js}" defer></script>`
+        : `<script src="${assets.client.js}" defer crossorigin></script>`
+    }
+  </head>
+  <body>
+    <div id="root">${markup ? markup : ""}</div>
+    ${bootstrapScript ? bootstrapScript : ""}
+  </body>
 </html>`;
 }
 

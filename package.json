@@ -39,7 +39,7 @@
     "analyze": "source-map-explorer 'build/public/static/js/*.js'",
     "deploy:firebase": "firebase deploy -P default",
     "deploy:now": "now",
-    "build:netlify-functions": "NODE_ENV=production netlify-lambda build netlify-functions",
+    "build:netlify-functions": "NODE_ENV=development netlify-lambda build netlify-functions",
     "deploy:netlify": "netlify deploy",
     "netlify:serve": "NODE_ENV=development netlify-lambda serve netlify-functions"
   },
@@ -47,7 +47,11 @@
     "extends": "react-app"
   },
   "browserslist": {
-    "production": [">0.2%", "not dead", "not op_mini all"],
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
     "development": [
       "last 1 chrome version",
       "last 1 firefox version",
