@@ -37,7 +37,7 @@
     "flow": "flow",
     "fetch-schema": "node scripts/fetchSchema.js --path schema.graphql",
     "analyze": "source-map-explorer 'build/public/static/js/*.js'",
-    "deploy:firebase": "firebase deploy",
+    "deploy:firebase": "firebase deploy -P default",
     "deploy:now": "now",
     "build:netlify-functions": "NODE_ENV=production netlify-lambda build netlify-functions",
     "deploy:netlify": "netlify deploy",
