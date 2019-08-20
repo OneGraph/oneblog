@@ -25,6 +25,7 @@ export type Post_post = {|
   +updatedAt: string,
   +assignees: {|
     +nodes: ?$ReadOnlyArray<?{|
+      +id: string,
       +name: ?string,
       +login: string,
       +avatarUrl: string,
@@ -54,18 +55,25 @@ const node/*: ReaderFragment*/ = (function(){
 var v0 = {
   "kind": "ScalarField",
   "alias": null,
-  "name": "login",
+  "name": "id",
   "args": null,
   "storageKey": null
 },
 v1 = {
   "kind": "ScalarField",
   "alias": null,
+  "name": "login",
+  "args": null,
+  "storageKey": null
+},
+v2 = {
+  "kind": "ScalarField",
+  "alias": null,
   "name": "avatarUrl",
   "args": null,
   "storageKey": null
 },
-v2 = [
+v3 = [
   {
     "kind": "ScalarField",
     "alias": null,
@@ -81,13 +89,7 @@ return {
   "metadata": null,
   "argumentDefinitions": [],
   "selections": [
-    {
-      "kind": "ScalarField",
-      "alias": null,
-      "name": "id",
-      "args": null,
-      "storageKey": null
-    },
+    (v0/*: any*/),
     {
       "kind": "ScalarField",
       "alias": null,
@@ -125,8 +127,8 @@ return {
       "concreteType": null,
       "plural": false,
       "selections": [
-        (v0/*: any*/),
-        (v1/*: any*/)
+        (v1/*: any*/),
+        (v2/*: any*/)
       ]
     },
     {
@@ -160,6 +162,7 @@ return {
           "concreteType": "GitHubUser",
           "plural": true,
           "selections": [
+            (v0/*: any*/),
             {
               "kind": "ScalarField",
               "alias": null,
@@ -167,8 +170,8 @@ return {
               "args": null,
               "storageKey": null
             },
-            (v0/*: any*/),
-            (v1/*: any*/)
+            (v1/*: any*/),
+            (v2/*: any*/)
           ]
         }
       ]
@@ -204,7 +207,7 @@ return {
           "args": null,
           "concreteType": "GitHubReactingUserConnection",
           "plural": false,
-          "selections": (v2/*: any*/)
+          "selections": (v3/*: any*/)
         }
       ]
     },
@@ -216,11 +219,11 @@ return {
       "args": null,
       "concreteType": "GitHubIssueCommentConnection",
       "plural": false,
-      "selections": (v2/*: any*/)
+      "selections": (v3/*: any*/)
     }
   ]
 };
 })();
 // prettier-ignore
-(node/*: any*/).hash = '3e300d95432ddef7c1f17630a2a88264';
+(node/*: any*/).hash = '283a6ba37b66ccd75c356d2bef8073c2';
 module.exports = node;

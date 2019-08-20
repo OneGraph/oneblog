@@ -1,0 +1,7 @@
+{
+  "plugins": ["macros"],
+  "presets": [
+    "razzle/babel",
+    "@babel/preset-flow",
+  ]
+}

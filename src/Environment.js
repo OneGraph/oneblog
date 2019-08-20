@@ -7,64 +7,100 @@ import OneGraphAuth from "onegraph-auth";
 
 const ONEGRAPH_APP_ID = "570a3d6b-6ff3-4b7a-9b0d-fe4cf6384388";
 
-export const onegraphAuth = new OneGraphAuth({
-  appId: ONEGRAPH_APP_ID,
-  communicationMode: "post_message"
-});
-
-const cache = new RelayQueryResponseCache({ size: 250, ttl: 1000 * 60 * 10 });
-
-function fetchQuery(operation, variables, cacheConfig) {
-  const queryId = operation.id || operation.text;
-  const forceFetch = cacheConfig && cacheConfig.force;
-  const fromCache = cache.get(queryId, variables);
-  const isMutation = operation.operationKind === "mutation";
-  const isQuery = operation.operationKind === "query";
-
-  if (isQuery && fromCache !== null && !forceFetch) {
-    console.log("fromCache", fromCache);
-    return fromCache;
+class AuthDummy {
+  isLoggedIn(x: any) {
+    return Promise.resolve(false);
   }
-
-  const resp = fetch(
-    "https://serve.onegraph.com/graphql?app_id=" + ONEGRAPH_APP_ID,
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-        ...onegraphAuth.authHeaders()
-      },
-      body: JSON.stringify({
-        doc_id: operation.id,
-        query: operation.text,
-        variables
-      })
-    }
-  ).then(response =>
-    response.json().then(json => {
-      // Clear full cache on mutation or if we get an error
-      if (isMutation || !json.data || !json.data.gitHub) {
-        cache.clear();
-      }
-      if (json.data.gitHub == null) {
-        return {
-          ...json,
-          data: null
-        };
-      }
-      return json;
-    })
-  );
-
-  // TODO: clear auth on 401
-  if (isQuery) {
-    cache.set(queryId, variables, resp);
+  authHeaders() {
+    return {};
   }
-  return resp;
+  login(x: any) {
+    return Promise.resolve(null);
+  }
+  logout(x: any) {
+    return Promise.resolve(null);
+  }
 }
 
-export const environment = new Environment({
-  network: Network.create(fetchQuery),
-  store: new Store(new RecordSource())
-});
+export const onegraphAuth = global.window
+  ? new OneGraphAuth({
+      appId: ONEGRAPH_APP_ID,
+      communicationMode: "post_message"
+    })
+  : new AuthDummy();
+
+function getQueryId(operation) {
+  return operation.id || operation.text;
+}
+
+function makeFetchQuery(cache) {
+  return async function fetchQuery(operation, variables, cacheConfig) {
+    const queryId = getQueryId(operation);
+    const forceFetch = cacheConfig && cacheConfig.force;
+    const fromCache = cache.get(queryId, variables);
+    const isMutation = operation.operationKind === "mutation";
+    const isQuery = operation.operationKind === "query";
+
+    if (isQuery && fromCache !== null && !forceFetch) {
+      return fromCache;
+    }
+
+    const requestBody = JSON.stringify({
+      doc_id: operation.id,
+      query: operation.text,
+      variables
+    });
+
+    const resp = fetch(
+      "https://serve.onegraph.com/graphql?app_id=" + ONEGRAPH_APP_ID,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+          ...onegraphAuth.authHeaders()
+        },
+        body: requestBody
+      }
+    ).then(response =>
+      response.json().then(json => {
+        // Clear full cache on mutation or if we get an error
+        if (isMutation || !json.data || !json.data.gitHub) {
+          cache.clear();
+        }
+        if (json.data.gitHub == null) {
+          return {
+            ...json,
+            data: null
+          };
+        }
+        return json;
+      })
+    );
+
+    // TODO: clear auth on 401
+    if (isQuery) {
+      cache.set(queryId, variables, resp);
+    }
+    return await resp;
+  };
+}
+
+export function createEnvironment(
+  recordSource: RecordSource,
+  cache: RelayQueryResponseCache
+) {
+  return new Environment({
+    network: Network.create(makeFetchQuery(cache)),
+    store: new Store(recordSource)
+  });
+}
+
+const recordSource =
+  typeof window !== "undefined" && window.__RELAY_BOOTSTRAP_DATA__
+    ? new RecordSource(window.__RELAY_BOOTSTRAP_DATA__)
+    : new RecordSource();
+
+const defaultCache = new RelayQueryResponseCache({ size: 250, ttl: 1000 * 60 * 10 });
+
+export const environment = createEnvironment(recordSource, defaultCache);

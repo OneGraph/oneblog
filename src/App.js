@@ -6,17 +6,19 @@ import graphql from "babel-plugin-relay/macro";
 import { QueryRenderer, fetchQuery } from "react-relay";
 import Posts from "./Posts";
 import Post, { LoadingPost } from "./Post";
-import { environment, onegraphAuth } from "./Environment";
-import { BrowserRouter as Router, Route, Link } from "react-router-dom";
+import { onegraphAuth } from "./Environment";
+import { Route, Link, Switch } from "react-router-dom";
 import idx from "idx.macro";
 import "react-notifications/lib/notifications.css";
 import { NotificationContainer } from "react-notifications";
-// $FlowFixMe: https://facebook.github.io/create-react-app/docs/adding-images-fonts-and-files
-import { ReactComponent as OneGraphLogo } from "./oneGraphLogo.svg";
+import OneGraphLogo from "./oneGraphLogo";
 import { Grommet, Grid, Box, Heading, Text, Anchor } from "grommet";
 import ScrollMemory from "react-router-scroll-memory";
+import { matchPath } from "react-router-dom";
+import UserContext from "./UserContext";
 
 import type { App_ViewerQueryResponse } from "./__generated__/App_Query.graphql";
+import type { Environment } from "relay-runtime";
 
 const theme = {
   global: {
@@ -41,64 +43,27 @@ const postsRootQuery = graphql`
   }
 `;
 
-if (window.location.pathname === "/") {
-  // Prep cache
-  fetchQuery(environment, postsRootQuery, {});
-}
-
 const PostsRoot = ({
-  isLoggedIn,
-  login,
-  logout
+  error,
+  props
 }: {
-  isLoggedIn: boolean,
-  login: any,
-  logout: any
+  error: ?Error,
+  props: ?App_ViewerQueryResponse
 }) => {
-  return (
-    <QueryRenderer
-      environment={environment}
-      query={postsRootQuery}
-      variables={{}}
-      render={({
-        error,
-        props
-      }: {
-        error: ?Error,
-        props: ?App_ViewerQueryResponse
-      }) => {
-        if (error) {
-          // XXX: better errors
-          return <div>Error!</div>;
-        }
-        if (!props) {
-          return (
-            <>
-              <LoadingPost />
-              <LoadingPost />
-              <LoadingPost />
-              <LoadingPost />
-              <LoadingPost />
-            </>
-          );
-        }
-        const respository = props.gitHub ? props.gitHub.repository : null;
-        if (!respository) {
-          // XXX: better errors
-          return <div>repository not found</div>;
-        } else {
-          return (
-            <Posts
-              repository={respository}
-              isLoggedIn={isLoggedIn}
-              login={login}
-              logout={logout}
-            />
-          );
-        }
-      }}
-    />
-  );
+  if (error) {
+    // TODO: better errors
+    return <div>Error!</div>;
+  }
+  if (!props) {
+    return null;
+  }
+  const respository = props.gitHub ? props.gitHub.repository : null;
+  if (!respository) {
+    // TODO: better errors
+    return <div>repository not found</div>;
+  } else {
+    return <Posts repository={respository} />;
+  }
 };
 
 export const postRootQuery = graphql`
@@ -117,54 +82,63 @@ export const postRootQuery = graphql`
 `;
 
 const PostRoot = ({
-  isLoggedIn,
-  login,
-  logout,
-  issueNumber
+  error,
+  props
 }: {
-  isLoggedIn: boolean,
-  login: any,
-  logout: any,
-  issueNumber: number
+  error: ?Error,
+  props: ?App_ViewerQueryResponse
 }) => {
-  return (
-    <QueryRenderer
-      environment={environment}
-      query={postRootQuery}
-      variables={{ issueNumber: issueNumber }}
-      render={({
-        error,
-        props
-      }: {
-        error: ?Error,
-        props: ?App_ViewerQueryResponse
-      }) => {
-        if (error) {
-          return <div>Error!</div>;
-        }
-        if (!props) {
-          return <LoadingPost />;
-        }
-        const post = idx(props, _ => _.gitHub.repository.issue);
-        if (!post) {
-          // XXX: better errors
-          return <div>Post not found</div>;
-        } else {
-          return (
-            <Post
-              post={post}
-              isLoggedIn={isLoggedIn}
-              login={login}
-              logout={logout}
-            />
-          );
-        }
-      }}
-    />
-  );
+  if (error) {
+    return <div>Error!</div>;
+  }
+  if (!props) {
+    return null;
+  }
+  const post = idx(props, _ => _.gitHub.repository.issue);
+  if (!post) {
+    // TODO: better errors
+    return <div>Post not found</div>;
+  } else {
+    return <Post post={post} />;
+  }
 };
 
-export default class App extends React.Component<*, { isLoggedIn: boolean }> {
+const RenderRoute = ({ routeConfig, environment, match }) => (
+  <QueryRenderer
+    dataFrom="STORE_THEN_NETWORK"
+    fetchPolicy="store-and-network"
+    environment={environment}
+    query={routeConfig.query}
+    variables={routeConfig.getVariables(match)}
+    render={routeConfig.component}
+  />
+);
+
+export const routes = [
+  {
+    path: "/",
+    exact: true,
+    strict: false,
+    query: postsRootQuery,
+    getVariables: (match: any) => ({}),
+    component: PostsRoot
+  },
+  {
+    path: "/post/:issueNumber",
+    exact: true,
+    strict: false,
+    query: postRootQuery,
+    getVariables: (match: any) => ({
+      issueNumber: parseInt(match.params.issueNumber, 10)
+    }),
+    component: PostRoot
+  }
+];
+
+export default class App extends React.Component<
+  { environment: Environment },
+  { isLoggedIn: boolean }
+> {
   state = {
     isLoggedIn: false
   };
@@ -193,7 +167,13 @@ export default class App extends React.Component<*, { isLoggedIn: boolean }> {
   };
   render() {
     return (
-      <Router>
+      <UserContext.Provider
+        value={{
+          isLoggedIn: this.state.isLoggedIn,
+          login: this._login,
+          logout: this._logout
+        }}
+      >
         <Grommet theme={theme}>
           <Grid
             fill
@@ -226,35 +206,29 @@ export default class App extends React.Component<*, { isLoggedIn: boolean }> {
             </Box>
             <Box gridArea="main">
               <ScrollMemory />
-              <Route
-                path="/"
-                exact
-                render={() => (
-                  <PostsRoot
-                    isLoggedIn={this.state.isLoggedIn}
-                    login={this._login}
-                    logout={this._logout}
+              <Switch>
+                {routes.map((routeConfig, i) => (
+                  <Route
+                    key={i}
+                    path={routeConfig.path}
+                    exact={routeConfig.exact}
+                    strict={routeConfig.strict}
+                    render={props => (
+                      <RenderRoute
+                        environment={this.props.environment}
+                        match={props.match}
+                        routeConfig={routeConfig}
+                      />
+                    )}
                   />
-                )}
-              />
-              <Route
-                path="/post/:issueNumber"
-                exact
-                render={props => (
-                  <PostRoot
-                    isLoggedIn={this.state.isLoggedIn}
-                    login={this._login}
-                    logout={this._logout}
-                    issueNumber={parseInt(props.match.params.issueNumber, 10)}
-                  />
-                )}
-              />
+                ))}
+              </Switch>
 
               <NotificationContainer />
             </Box>
           </Grid>
         </Grommet>
-      </Router>
+      </UserContext.Provider>
     );
   }
 }

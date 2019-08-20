@@ -10,10 +10,8 @@ import {
 } from "react-relay";
 import MarkdownRenderer from "./MarkdownRenderer";
 import formatDate from "date-fns/format";
-// $FlowFixMe: https://facebook.github.io/create-react-app/docs/adding-images-fonts-and-files
-import { ReactComponent as EmojiIcon } from "./emojiIcon.svg";
-// $FlowFixMe: https://facebook.github.io/create-react-app/docs/adding-images-fonts-and-files
-import { ReactComponent as AddIcon } from "./addIcon.svg";
+import EmojiIcon from "./emojiIcon";
+import AddIcon from "./addIcon";
 import Tippy from "@tippy.js/react";
 import "tippy.js/themes/light-border.css";
 import { Link } from "react-router-dom";
@@ -21,6 +19,7 @@ import { postRootQuery } from "./App";
 import GitHubLoginButton from "./GitHubLoginButton";
 import { NotificationManager } from "react-notifications";
 import { Box, Heading, Text } from "grommet";
+import UserContext from "./UserContext";
 
 import type { Post_post } from "./__generated__/Post_post.graphql";
 
@@ -191,10 +190,7 @@ const EmojiPicker = ({
 
 type Props = {
   relay: RelayProp,
-  isLoggedIn: boolean,
-  post: Post_post,
-  login: any,
-  logout: any
+  post: Post_post
 };
 
 function PostBox({ children }: { children: React.Node }) {
@@ -212,9 +208,10 @@ function PostBox({ children }: { children: React.Node }) {
   );
 }
 
-const Post = ({ relay, post, isLoggedIn, login, logout }: Props) => {
+const Post = ({ relay, post }: Props) => {
   const [showReactionPopover, setShowReactionPopover] = React.useState(false);
   const popoverInstance = React.useRef();
+  const { isLoggedIn, login } = React.useContext(UserContext);
 
   const usedReactions = (post.reactionGroups || []).filter(
     g => g.users.totalCount > 0
@@ -252,7 +249,7 @@ const Post = ({ relay, post, isLoggedIn, login, logout }: Props) => {
         >
           {authors.map(node =>
             node ? (
-              <Box align="center" direction="row">
+              <Box key={node.id} align="center" direction="row">
                 <img
                   alt={node.name}
                   src={node.avatarUrl}
@@ -277,6 +274,7 @@ const Post = ({ relay, post, isLoggedIn, login, logout }: Props) => {
       >
         {usedReactions.map(g => (
           <Text
+            key={g.content}
             style={{
               padding: "0 16px",
               borderRight: "1px solid rgba(0,0,0,0.12)",
@@ -365,6 +363,7 @@ export default createFragmentContainer(Post, {
       updatedAt
       assignees(first: 10) {
         nodes {
+          id
           name
           login
           avatarUrl
@@ -450,12 +449,21 @@ const WORDS = [
   "social"
 ];
 
+function blockWord(size: number): string {
+  let res = "";
+  for (let i = 0; i < size; i++) {
+    res += "█";
+  }
+  return res;
+}
+
 function randInt(x: number): number {
   return Math.floor(Math.random() * x);
 }
 
 function randomWord() {
-  return WORDS[randInt(WORDS.length)];
+  // return WORDS[randInt(WORDS.length)];
+  return blockWord(randInt(4) + 1);
 }
 
 function capitalize(s: string): string {
@@ -466,22 +474,18 @@ export class LoadingPost extends React.PureComponent<*, *> {
   render() {
     return (
       <PostBox>
-        <Box pad="medium" style={{ filter: "blur(4px)" }} className="shimmer">
+        <Box pad="medium" style={{ opacity: "0.6" }} className="shimmer">
           <Heading level={3} margin="none">
-            {capitalize(randomWord())}{" "}
-            {[...new Array(randInt(5) + 2)].map(_x => randomWord()).join(" ")}
+            ██ ██ ██
           </Heading>
-          <Text size="xsmall">{formatDate(new Date(), "MMM Do, YYYY")}</Text>
+          <Text size="xsmall">█ █ ██</Text>
           <Text size="small">
             <MarkdownRenderer
-              source={[...new Array(randInt(5) + 1)]
-                .map(_p =>
-                  [...new Array(randInt(200) + 25)]
-                    .map(_w => randomWord())
-                    .join(" ")
-                )
-                .join("\n\n")}
-              escapeHtml={false}
+              source={`█ ██ █ █ ██ ██ █ ██ ██ ██ ██ █ █ ██ █ ██ █ ██ █ █ █ █ ██ ██ ██ ██ █ █ ██ █ ██ ██ █ █ ██ █ █ █ ██ █ ██ █ ██ ██ ██ █ ██ ██ █ ██ ██ █ █ ██ █ █ ██ ██ ██ █ █ ██ █ █ █ █ █ █ ██ ██ █ ██ ██ █ ██ ██ ██ ██ █ ██ █ █ █ ██ █ █ ██ ██ ██ ██ █ █ ██ █ █ ██ █ ██ █ █ ██ ██ █ █ █ █ ██ █ ██ █ ██ █ █ █ ██ ██ █ █ █ █ ██ ██
+
+██ ██ ██ █ █ █ █ █ ██ ██ ██ █ ██ ██ ██ ██ █ ██ █ █ █ █ ██ █ ██ █ █ █ █ █ █ █ ██ ██ █ █ █ █ █ █ ██ ██ █ █ ██ ██ ██ █ ██ ██ █ █ █ ██ █ █ █ ██ █ █ ██ ██ █ █ █ ██ ██ █ █ █ █ ██ ██ ██ ██ █ █ ██ ██ ██ █ █ █ █ █ █ ██ █ ██ █ █ ██ █ █ █ █ █ ██ █ ██ ██ ██ ██ █ ██ ██ ██ █ █ █ ██ █ ██ █ ██ █ ██ █ ██ ██ ██ █ █ ██ ██ █ ██ ██ ██ ██ █ ██ █ █ ██ ██ █ ██ ██ █ ██ █ █ ██ █ █ ██ █ █ █ ██ █ ██ █ ██ █ █ █ █ █ ██ █ █ ██ █ ██ ██ ██ █ █ █ ██ █ ██ ██ ██ █ ██ █ █ ██ ██ ██ █ █ █ █ ██ ██ █ ██ ██ █ ██ ██ ██ █ ██ █
+
+██ █ █ █ ██ ██ ██ █ ██ ██ ██ ██ █ ██ ██ ██ ██ █ ██ ██ █ ██ █ ██ ██ ██ ██ ██ ██ ██ █ ██ ██ █ ██ ██ ██ ██ ██ █ █ ██ ██ █ █ ██ █ ██ █ ██ █ ██ █ █ ██ ██ █ ██ ██ █ ██ ██ █ ██ █ ██ ██ ██ █ █ █ ██ ██ ██ ██ ██ ██ █ █ ██ █ ██ █ ██ █ ██ █ ██ █ █ ██ ██ ██ ██ ██ ██ ██ █ █ █ █ ██ █ █ █ █ █ █ ██ █ █ ██ █ █ ██ █ ██ █ ██ ██ ██ █ █ █ █ █ ██ ██ █ █ ██ █ █ █ █ ██ ██ █ █`}
             />
           </Text>
         </Box>
