@@ -16,3 +16,8 @@
   from = "/post/*"
   to = "/.netlify/functions/index/post/:splat"
   status = 200
+
+[[redirects]]
+  from = "/feed*"
+  to = "/.netlify/functions/index/feed:splat"
+  status = 200

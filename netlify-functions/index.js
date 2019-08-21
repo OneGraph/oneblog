@@ -2,6 +2,8 @@ const serverless = require('serverless-http');
 
 const {createApp} = require('../build/server').default;
 
-const app = createApp('/.netlify/functions/index');
+const app = createApp();
 
-module.exports.handler = serverless(app);
+module.exports.handler = serverless(app, {
+  basePath: '/.netlify/functions/index',
+});
