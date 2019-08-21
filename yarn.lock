@@ -2146,6 +2146,11 @@ babel-plugin-dynamic-import-node@^2.3.0:
   dependencies:
     object.assign "^4.1.0"
 
+babel-plugin-idx@^2.4.0:
+  version "2.4.0"
+  resolved "https://registry.yarnpkg.com/babel-plugin-idx/-/babel-plugin-idx-2.4.0.tgz#5d144eb337fb22c4bf1ff75cb2e1c051a76a0323"
+  integrity sha512-+rEYZgSCLh0suJDlgZ64isSLhDW7Qxu6AnUMGhl/mW1kyYvfwqLqsDmgj3e5QXH0oX7A4Hq2x0BgqdU8tiuo5A==
+
 babel-plugin-istanbul@^4.1.6:
   version "4.1.6"
   resolved "https://registry.yarnpkg.com/babel-plugin-istanbul/-/babel-plugin-istanbul-4.1.6.tgz#36c59b2192efce81c5b378321b74175add1c9a45"
@@ -4992,6 +4997,13 @@ fd-slicer@~1.1.0:
   dependencies:
     pend "~1.2.0"
 
+feed@^4.0.0:
+  version "4.0.0"
+  resolved "https://registry.yarnpkg.com/feed/-/feed-4.0.0.tgz#d3c2bfb9aba3c0efacab1ed15be06b67f5c02539"
+  integrity sha512-VWtvINgG7cA91BtrGychMvxHj84nc8xS9W/PuAHlY62I8owZtcoxNaKFN+zkGl8tBsaYbxrrp4yB9DhqKNQSPw==
+  dependencies:
+    xml-js "^1.6.11"
+
 figgy-pudding@^3.5.1:
   version "3.5.1"
   resolved "https://registry.yarnpkg.com/figgy-pudding/-/figgy-pudding-3.5.1.tgz#862470112901c727a0e495a80744bd5baa1d6790"
@@ -6217,7 +6229,7 @@ idx.macro@^4.0.0:
     "@babel/types" "^7.4.0"
     babel-plugin-macros "^2.4.2"
 
-idx@^2.2.0:
+idx@^2.2.0, idx@^2.5.6:
   version "2.5.6"
   resolved "https://registry.yarnpkg.com/idx/-/idx-2.5.6.tgz#1f824595070100ae9ad585c86db08dc74f83a59d"
   integrity sha512-WFXLF7JgPytbMgelpRY46nHz5tyDcedJ76pLV+RJWdb8h33bxFq4bdZau38DhNSzk5eVniBf1K3jwfK+Lb5nYA==
@@ -13300,6 +13312,13 @@ xdg-basedir@^4.0.0:
   version "4.0.0"
   resolved "https://registry.yarnpkg.com/xdg-basedir/-/xdg-basedir-4.0.0.tgz#4bc8d9984403696225ef83a1573cbbcb4e79db13"
   integrity sha512-PSNhEJDejZYV7h50BohL09Er9VaIefr2LMAf3OEmpCkjOi34eYyQYAXUTjEQtZJTKcF0E2UKTh+osDLsgNim9Q==
+
+xml-js@^1.6.11:
+  version "1.6.11"
+  resolved "https://registry.yarnpkg.com/xml-js/-/xml-js-1.6.11.tgz#927d2f6947f7f1c19a316dd8eea3614e8b18f8e9"
+  integrity sha512-7rVi2KMfwfWFl+GpPg6m80IVMWXLRjO+PxTq7V2CDhoGak0wzYzFgUY2m4XJ47OGdXd8eLE8EmwfAmdjw7lC1g==
+  dependencies:
+    sax "^1.2.4"
 
 xml-name-validator@^3.0.0:
   version "3.0.0"

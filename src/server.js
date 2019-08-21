@@ -1,3 +1,5 @@
+// @flow
+
 import App, {routes} from './App';
 import React from 'react';
 import {StaticRouter, matchPath} from 'react-router-dom';
@@ -9,7 +11,9 @@ import {createEnvironment} from './Environment';
 import serialize from 'serialize-javascript';
 import {RecordSource} from 'relay-runtime';
 import RelayQueryResponseCache from './relayResponseCache';
+import {buildFeed} from './RssFeed';
 
+// $FlowFixMe
 const assets = require(process.env.RAZZLE_ASSETS_MANIFEST);
 
 function buildHtml({markup, styleTags, bootstrapData, basePath}) {
@@ -56,67 +60,93 @@ function buildHtml({markup, styleTags, bootstrapData, basePath}) {
 </html>`;
 }
 
-function createApp(basePath) {
-  const appRouter = express.Router();
-  appRouter.get('/*', async (req, res) => {
-    try {
-      res.set('Cache-Control', 'public, max-age=300, s-maxage=300');
-      const recordSource = new RecordSource();
-      const cache = new RelayQueryResponseCache({
-        size: 250,
-        ttl: 1000 * 60 * 10,
-      });
-      const environment = createEnvironment(recordSource, cache);
+const SUPPORTED_FEED_EXTENSIONS = ['rss', 'atom', 'json'];
 
-      // Prep cache
-      for (const routeConfig of routes) {
-        const match = matchPath(req.path, routeConfig);
-        if (match) {
-          // Makes relay put result of the query into the record store
-          await fetchQuery(
-            environment,
-            routeConfig.query,
-            routeConfig.getVariables(match),
-          );
-          break;
-        }
+function createApp(basePath: ?string) {
+  const appRouter = express.Router();
+  appRouter
+    .get('/feed.:ext', async (req, res) => {
+      const extension = req.params.ext;
+      if (!SUPPORTED_FEED_EXTENSIONS.includes(extension)) {
+        res
+          .status(404)
+          .send('Unknown feed URL. Try feed.json, feed.rss, or feed.atom');
+        return;
       }
 
-      const sheet = new ServerStyleSheet();
-      const context = {};
-
-      const markup = renderToString(
-        sheet.collectStyles(
-          <StaticRouter context={context} location={req.url}>
-            <App environment={environment} />
-          </StaticRouter>,
-        ),
+      const feed = await buildFeed();
+      const body =
+        extension === 'rss'
+          ? feed.rss2()
+          : extension === 'atom'
+          ? feed.atom1()
+          : feed.json1();
+      res.set('Cache-Control', 'public, max-age=300, s-maxage=300');
+      res.set(
+        'Content-Type',
+        extension === 'json' ? 'application/json' : 'application/xml',
       );
-      const styleTags = sheet.getStyleTags();
-      if (context.url) {
-        res.redirect(context.url);
-      } else {
+      res.status(200).send(body);
+    })
+    .get('/*', async (req, res) => {
+      try {
+        res.set('Cache-Control', 'public, max-age=300, s-maxage=300');
+        const recordSource = new RecordSource();
+        const cache = new RelayQueryResponseCache({
+          size: 250,
+          ttl: 1000 * 60 * 10,
+        });
+        const environment = createEnvironment(recordSource, cache);
+
+        // Prep cache
+        for (const routeConfig of routes) {
+          const match = matchPath(req.path, routeConfig);
+          if (match) {
+            // Makes relay put result of the query into the record store
+            await fetchQuery(
+              environment,
+              routeConfig.query,
+              routeConfig.getVariables(match),
+            );
+            break;
+          }
+        }
+
+        const sheet = new ServerStyleSheet();
+        const context = {};
+
+        const markup = renderToString(
+          sheet.collectStyles(
+            <StaticRouter context={context} location={req.url}>
+              <App environment={environment} />
+            </StaticRouter>,
+          ),
+        );
+        const styleTags = sheet.getStyleTags();
+        if (context.url) {
+          res.redirect(context.url);
+        } else {
+          res.status(200).send(
+            buildHtml({
+              markup,
+              styleTags,
+              bootstrapData: recordSource.toJSON(),
+              basePath,
+            }),
+          );
+        }
+      } catch (e) {
+        console.error(e);
         res.status(200).send(
           buildHtml({
-            markup,
-            styleTags,
-            bootstrapData: recordSource.toJSON(),
+            markup: null,
+            styleTags: null,
+            bootstrapData: null,
             basePath,
           }),
         );
       }
-    } catch (e) {
-      console.error(e);
-      res.status(200).send(
-        buildHtml({
-          markup: null,
-          styleTags: null,
-          bootstrapData: null,
-          basePath,
-        }),
-      );
-    }
-  });
+    });
 
   const server = express();
   return server
