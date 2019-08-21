@@ -1,11 +1,11 @@
 // @flow
 
-import React from "react";
+import React from 'react';
 
 const UserContext = React.createContext<*>({
   isLoggedIn: false,
   login: () => undefined,
-  logout: () => undefined
+  logout: () => undefined,
 });
 
 export default UserContext;

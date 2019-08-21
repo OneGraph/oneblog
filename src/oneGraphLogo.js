@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react';
 
 const svg = props => (
   <svg
@@ -7,8 +7,7 @@ const svg = props => (
     viewBox="0 0 163 163"
     fill="none"
     xmlns="http://www.w3.org/2000/svg"
-    {...props}
-  >
+    {...props}>
     <path
       d="M12.9932 32.7178L59.6621 5.7735L106.331 32.7178V86.6065L59.6621 113.551L12.9932 86.6065V32.7178Z"
       transform="translate(0 103.338) rotate(-60)"

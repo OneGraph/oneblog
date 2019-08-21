@@ -1,13 +1,12 @@
-import React from "react";
+import React from 'react';
 
 const svg = props => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     viewBox="0 0 100 100"
     preserveAspectRatio="xMidYMid"
-    style={{ background: "none" }}
-    {...props}
-  >
+    style={{background: 'none'}}
+    {...props}>
     <circle
       cx="50"
       cy="50"
@@ -16,8 +15,7 @@ const svg = props => (
       stroke-width="8"
       r="24"
       stroke-dasharray="112 40"
-      transform="rotate(138.553 50 50)"
-    >
+      transform="rotate(138.553 50 50)">
       <animateTransform
         attributeName="transform"
         type="rotate"
@@ -26,8 +24,7 @@ const svg = props => (
         keyTimes="0;1"
         dur="1s"
         begin="0s"
-        repeatCount="indefinite"
-      ></animateTransform>
+        repeatCount="indefinite"></animateTransform>
     </circle>
   </svg>
 );

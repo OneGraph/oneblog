@@ -1,13 +1,13 @@
 // @flow
 
-import stableCopy from "relay-runtime/lib/stableCopy";
+import stableCopy from 'relay-runtime/lib/stableCopy';
 
-import type { Variables } from "relay-runtime/lib/RelayRuntimeTypes";
-import type { GraphQLResponse } from "relay-runtime/lib/RelayNetworkTypes";
+import type {Variables} from 'relay-runtime/lib/RelayRuntimeTypes';
+import type {GraphQLResponse} from 'relay-runtime/lib/RelayNetworkTypes';
 
 type Response = {
   fetchTime: number,
-  payload: Promise<GraphQLResponse>
+  payload: Promise<GraphQLResponse>,
 };
 
 /**
@@ -20,7 +20,7 @@ export default class RelayQueryResponseCache {
   _size: number;
   _ttl: number;
 
-  constructor({ size, ttl }: { size: number, ttl: number }) {
+  constructor({size, ttl}: {size: number, ttl: number}) {
     this._responses = new Map();
     this._size = Math.max(1, size);
     this._ttl = Math.max(1, ttl);
@@ -45,9 +45,9 @@ export default class RelayQueryResponseCache {
               ...payload,
               extensions: {
                 ...payload.extensions,
-                cacheTimestamp: response.fetchTime
-              }
-            }: GraphQLResponse)
+                cacheTimestamp: response.fetchTime,
+              },
+            }: GraphQLResponse),
         )
       : null;
   }
@@ -55,14 +55,14 @@ export default class RelayQueryResponseCache {
   set(
     queryID: string,
     variables: Variables,
-    payload: Promise<GraphQLResponse>
+    payload: Promise<GraphQLResponse>,
   ): void {
     const fetchTime = Date.now();
     const cacheKey = getCacheKey(queryID, variables);
     this._responses.delete(cacheKey); // deletion resets key ordering
     this._responses.set(cacheKey, {
       fetchTime,
-      payload
+      payload,
     });
     // Purge least-recently updated key when max size reached
     if (this._responses.size > this._size) {
@@ -75,7 +75,7 @@ export default class RelayQueryResponseCache {
 }
 
 function getCacheKey(queryID: string, variables: Variables): string {
-  return JSON.stringify(stableCopy({ queryID, variables }));
+  return JSON.stringify(stableCopy({queryID, variables}));
 }
 
 /**

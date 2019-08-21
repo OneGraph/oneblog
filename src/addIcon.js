@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react';
 
 const svg = props => (
   <svg aria-label="Add" viewBox="0 0 24 24" {...props}>

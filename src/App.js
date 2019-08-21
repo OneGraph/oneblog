@@ -1,39 +1,39 @@
 // @flow
 
-import React from "react";
-import "./App.css";
-import graphql from "babel-plugin-relay/macro";
-import { QueryRenderer, fetchQuery } from "react-relay";
-import Posts from "./Posts";
-import Post, { LoadingPost } from "./Post";
-import { onegraphAuth } from "./Environment";
-import { Route, Link, Switch } from "react-router-dom";
-import idx from "idx.macro";
-import "react-notifications/lib/notifications.css";
-import { NotificationContainer } from "react-notifications";
-import OneGraphLogo from "./oneGraphLogo";
-import { Grommet, Grid, Box, Heading, Text, Anchor } from "grommet";
-import ScrollMemory from "react-router-scroll-memory";
-import { matchPath } from "react-router-dom";
-import UserContext from "./UserContext";
+import React from 'react';
+import './App.css';
+import graphql from 'babel-plugin-relay/macro';
+import {QueryRenderer, fetchQuery} from 'react-relay';
+import Posts from './Posts';
+import Post, {LoadingPost} from './Post';
+import {onegraphAuth} from './Environment';
+import {Route, Link, Switch} from 'react-router-dom';
+import idx from 'idx.macro';
+import 'react-notifications/lib/notifications.css';
+import {NotificationContainer} from 'react-notifications';
+import OneGraphLogo from './oneGraphLogo';
+import {Grommet, Grid, Box, Heading, Text, Anchor} from 'grommet';
+import ScrollMemory from 'react-router-scroll-memory';
+import {matchPath} from 'react-router-dom';
+import UserContext from './UserContext';
 
-import type { App_ViewerQueryResponse } from "./__generated__/App_Query.graphql";
-import type { Environment } from "relay-runtime";
+import type {App_ViewerQueryResponse} from './__generated__/App_Query.graphql';
+import type {Environment} from 'relay-runtime';
 
 const theme = {
   global: {
     font: {
-      family: "Helvetica,Arial,sans-serif",
-      size: "14px",
-      height: "20px"
-    }
-  }
+      family: 'Helvetica,Arial,sans-serif',
+      size: '14px',
+      height: '20px',
+    },
+  },
 };
 
 const postsRootQuery = graphql`
   query App_Query
     @persistedQueryConfiguration(
-      accessToken: { environmentVariable: "OG_GITHUB_TOKEN" }
+      accessToken: {environmentVariable: "OG_GITHUB_TOKEN"}
     ) {
     gitHub {
       repository(name: "onegraph-changelog", owner: "onegraph") {
@@ -45,10 +45,10 @@ const postsRootQuery = graphql`
 
 const PostsRoot = ({
   error,
-  props
+  props,
 }: {
   error: ?Error,
-  props: ?App_ViewerQueryResponse
+  props: ?App_ViewerQueryResponse,
 }) => {
   if (error) {
     // TODO: better errors
@@ -69,7 +69,7 @@ const PostsRoot = ({
 export const postRootQuery = graphql`
   query App_Post_Query($issueNumber: Int!)
     @persistedQueryConfiguration(
-      accessToken: { environmentVariable: "OG_GITHUB_TOKEN" }
+      accessToken: {environmentVariable: "OG_GITHUB_TOKEN"}
     ) {
     gitHub {
       repository(name: "onegraph-changelog", owner: "onegraph") {
@@ -83,10 +83,10 @@ export const postRootQuery = graphql`
 
 const PostRoot = ({
   error,
-  props
+  props,
 }: {
   error: ?Error,
-  props: ?App_ViewerQueryResponse
+  props: ?App_ViewerQueryResponse,
 }) => {
   if (error) {
     return <div>Error!</div>;
@@ -103,7 +103,7 @@ const PostRoot = ({
   }
 };
 
-const RenderRoute = ({ routeConfig, environment, match }) => (
+const RenderRoute = ({routeConfig, environment, match}) => (
   <QueryRenderer
     dataFrom="STORE_THEN_NETWORK"
     fetchPolicy="store-and-network"
@@ -116,53 +116,53 @@ const RenderRoute = ({ routeConfig, environment, match }) => (
 
 export const routes = [
   {
-    path: "/",
+    path: '/',
     exact: true,
     strict: false,
     query: postsRootQuery,
     getVariables: (match: any) => ({}),
-    component: PostsRoot
+    component: PostsRoot,
   },
   {
-    path: "/post/:issueNumber",
+    path: '/post/:issueNumber',
     exact: true,
     strict: false,
     query: postRootQuery,
     getVariables: (match: any) => ({
-      issueNumber: parseInt(match.params.issueNumber, 10)
+      issueNumber: parseInt(match.params.issueNumber, 10),
     }),
-    component: PostRoot
-  }
+    component: PostRoot,
+  },
 ];
 
 export default class App extends React.Component<
-  { environment: Environment },
-  { isLoggedIn: boolean }
+  {environment: Environment},
+  {isLoggedIn: boolean},
 > {
   state = {
-    isLoggedIn: false
+    isLoggedIn: false,
   };
   componentDidMount() {
     onegraphAuth
-      .isLoggedIn("github")
-      .then(isLoggedIn => this.setState({ isLoggedIn }));
+      .isLoggedIn('github')
+      .then(isLoggedIn => this.setState({isLoggedIn}));
   }
   _login = () => {
     onegraphAuth
-      .login("github")
+      .login('github')
       .then(() =>
         onegraphAuth
-          .isLoggedIn("github")
-          .then(isLoggedIn => this.setState({ isLoggedIn }))
+          .isLoggedIn('github')
+          .then(isLoggedIn => this.setState({isLoggedIn})),
       );
   };
   _logout = () => {
     onegraphAuth
-      .logout("github")
+      .logout('github')
       .then(() =>
         onegraphAuth
-          .isLoggedIn("github")
-          .then(isLoggedIn => this.setState({ isLoggedIn }))
+          .isLoggedIn('github')
+          .then(isLoggedIn => this.setState({isLoggedIn})),
       );
   };
   render() {
@@ -171,31 +171,28 @@ export default class App extends React.Component<
         value={{
           isLoggedIn: this.state.isLoggedIn,
           login: this._login,
-          logout: this._logout
-        }}
-      >
+          logout: this._logout,
+        }}>
         <Grommet theme={theme}>
           <Grid
             fill
-            rows={["auto", "flex"]}
-            columns={["flex"]}
+            rows={['auto', 'flex']}
+            columns={['flex']}
             areas={[
-              { name: "header", start: [0, 0], end: [1, 0] },
-              { name: "main", start: [0, 1], end: [1, 1] }
-            ]}
-          >
+              {name: 'header', start: [0, 0], end: [1, 0]},
+              {name: 'main', start: [0, 1], end: [1, 1]},
+            ]}>
             <Box
               gridArea="header"
               direction="row"
               align="center"
               justify="between"
-              pad={{ horizontal: "medium", vertical: "medium" }}
-              wrap={true}
-            >
+              pad={{horizontal: 'medium', vertical: 'medium'}}
+              wrap={true}>
               <Box align="center" direction="row">
-                <OneGraphLogo width="96px" height="96px" />{" "}
+                <OneGraphLogo width="96px" height="96px" />{' '}
                 <Heading level={2}>
-                  <Link style={{ color: "inherit" }} to="/">
+                  <Link style={{color: 'inherit'}} to="/">
                     OneGraph Product Updates
                   </Link>
                 </Heading>
