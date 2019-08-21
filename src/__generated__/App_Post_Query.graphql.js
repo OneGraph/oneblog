@@ -1,6 +1,6 @@
 /**
  * @flow
- * @relayHash fc8f30251db05d3173f031f7e014b557
+ * @relayHash b749e2f1abfed9958e4b7478468829b3
  */
 
 /* eslint-disable */
@@ -17,7 +17,12 @@ export type App_Post_QueryResponse = {|
   +gitHub: ?{|
     +repository: ?{|
       +issue: ?{|
-        +$fragmentRefs: Post_post$ref
+        +labels: ?{|
+          +nodes: ?$ReadOnlyArray<?{|
+            +name: string
+          |}>
+        |},
+        +$fragmentRefs: Post_post$ref,
       |}
     |}
   |}
@@ -36,6 +41,12 @@ query App_Post_Query(
   gitHub {
     repository(name: "onegraph-changelog", owner: "onegraph") {
       issue(number: $issueNumber) {
+        labels(first: 100) {
+          nodes {
+            name
+            id
+          }
+        }
         ...Post_post
         id
       }
@@ -117,31 +128,45 @@ v2 = [
     "variableName": "issueNumber"
   }
 ],
-v3 = {
-  "kind": "ScalarField",
-  "alias": null,
-  "name": "id",
-  "args": null,
-  "storageKey": null
-},
+v3 = [
+  {
+    "kind": "Literal",
+    "name": "first",
+    "value": 100
+  }
+],
 v4 = {
   "kind": "ScalarField",
   "alias": null,
-  "name": "login",
+  "name": "name",
   "args": null,
   "storageKey": null
 },
 v5 = {
   "kind": "ScalarField",
   "alias": null,
+  "name": "id",
+  "args": null,
+  "storageKey": null
+},
+v6 = {
+  "kind": "ScalarField",
+  "alias": null,
+  "name": "login",
+  "args": null,
+  "storageKey": null
+},
+v7 = {
+  "kind": "ScalarField",
+  "alias": null,
   "name": "avatarUrl",
   "args": null,
   "storageKey": null
 },
-v6 = [
-  (v3/*: any*/)
+v8 = [
+  (v5/*: any*/)
 ],
-v7 = [
+v9 = [
   {
     "kind": "ScalarField",
     "alias": null,
@@ -187,6 +212,29 @@ return {
                 "plural": false,
                 "selections": [
                   {
+                    "kind": "LinkedField",
+                    "alias": null,
+                    "name": "labels",
+                    "storageKey": "labels(first:100)",
+                    "args": (v3/*: any*/),
+                    "concreteType": "GitHubLabelConnection",
+                    "plural": false,
+                    "selections": [
+                      {
+                        "kind": "LinkedField",
+                        "alias": null,
+                        "name": "nodes",
+                        "storageKey": null,
+                        "args": null,
+                        "concreteType": "GitHubLabel",
+                        "plural": true,
+                        "selections": [
+                          (v4/*: any*/)
+                        ]
+                      }
+                    ]
+                  },
+                  {
                     "kind": "FragmentSpread",
                     "name": "Post_post",
                     "args": null
@@ -231,7 +279,31 @@ return {
                 "concreteType": "GitHubIssue",
                 "plural": false,
                 "selections": [
-                  (v3/*: any*/),
+                  {
+                    "kind": "LinkedField",
+                    "alias": null,
+                    "name": "labels",
+                    "storageKey": "labels(first:100)",
+                    "args": (v3/*: any*/),
+                    "concreteType": "GitHubLabelConnection",
+                    "plural": false,
+                    "selections": [
+                      {
+                        "kind": "LinkedField",
+                        "alias": null,
+                        "name": "nodes",
+                        "storageKey": null,
+                        "args": null,
+                        "concreteType": "GitHubLabel",
+                        "plural": true,
+                        "selections": [
+                          (v4/*: any*/),
+                          (v5/*: any*/)
+                        ]
+                      }
+                    ]
+                  },
+                  (v5/*: any*/),
                   {
                     "kind": "ScalarField",
                     "alias": null,
@@ -276,27 +348,27 @@ return {
                         "args": null,
                         "storageKey": null
                       },
-                      (v4/*: any*/),
-                      (v5/*: any*/),
+                      (v6/*: any*/),
+                      (v7/*: any*/),
                       {
                         "kind": "InlineFragment",
                         "type": "GitHubUser",
-                        "selections": (v6/*: any*/)
+                        "selections": (v8/*: any*/)
                       },
                       {
                         "kind": "InlineFragment",
                         "type": "GitHubMannequin",
-                        "selections": (v6/*: any*/)
+                        "selections": (v8/*: any*/)
                       },
                       {
                         "kind": "InlineFragment",
                         "type": "GitHubOrganization",
-                        "selections": (v6/*: any*/)
+                        "selections": (v8/*: any*/)
                       },
                       {
                         "kind": "InlineFragment",
                         "type": "GitHubBot",
-                        "selections": (v6/*: any*/)
+                        "selections": (v8/*: any*/)
                       }
                     ]
                   },
@@ -331,16 +403,10 @@ return {
                         "concreteType": "GitHubUser",
                         "plural": true,
                         "selections": [
-                          (v3/*: any*/),
-                          {
-                            "kind": "ScalarField",
-                            "alias": null,
-                            "name": "name",
-                            "args": null,
-                            "storageKey": null
-                          },
+                          (v5/*: any*/),
                           (v4/*: any*/),
-                          (v5/*: any*/)
+                          (v6/*: any*/),
+                          (v7/*: any*/)
                         ]
                       }
                     ]
@@ -376,7 +442,7 @@ return {
                         "args": null,
                         "concreteType": "GitHubReactingUserConnection",
                         "plural": false,
-                        "selections": (v7/*: any*/)
+                        "selections": (v9/*: any*/)
                       }
                     ]
                   },
@@ -388,11 +454,11 @@ return {
                     "args": null,
                     "concreteType": "GitHubIssueCommentConnection",
                     "plural": false,
-                    "selections": (v7/*: any*/)
+                    "selections": (v9/*: any*/)
                   }
                 ]
               },
-              (v3/*: any*/)
+              (v5/*: any*/)
             ]
           }
         ]
@@ -402,12 +468,12 @@ return {
   "params": {
     "operationKind": "query",
     "name": "App_Post_Query",
-    "id": "4a9eef9e-1073-4027-a18d-a4617d91d478",
+    "id": "4d417ebf-d1b6-4dbb-a252-597ead69cdff",
     "text": null,
     "metadata": {}
   }
 };
 })();
 // prettier-ignore
-(node/*: any*/).hash = '753183d0fab6064dc2de3df6888f222a';
+(node/*: any*/).hash = 'c5c353646fc89c67ae25daac48474c82';
 module.exports = node;

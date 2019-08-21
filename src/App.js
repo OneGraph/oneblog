@@ -74,6 +74,11 @@ export const postRootQuery = graphql`
     gitHub {
       repository(name: "onegraph-changelog", owner: "onegraph") {
         issue(number: $issueNumber) {
+          labels(first: 100) {
+            nodes {
+              name
+            }
+          }
           ...Post_post
         }
       }
@@ -95,7 +100,8 @@ const PostRoot = ({
     return null;
   }
   const post = idx(props, _ => _.gitHub.repository.issue);
-  if (!post) {
+  const labels = idx(post, _ => _.labels.nodes) || [];
+  if (!post || !labels.map(l => l.name).includes('publish')) {
     // TODO: better errors
     return <div>Post not found</div>;
   } else {
