@@ -25,3 +25,4 @@ yarn-error.log*
 /.firebase/
 /firebase-debug.log
 /build-netlify-functions/
+/.runtimeconfig.json

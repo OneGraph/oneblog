@@ -1,37 +1,38 @@
-import http from "http";
-import fetch from "node-fetch";
+import http from 'http';
+import fetch from 'node-fetch';
 // Allows us to use fetch on node side
 global.fetch = fetch;
 
-const app = require("./server").default;
+const createApp = require('./server').default;
 
-const server = http.createServer(app);
-
-let nextApp = app;
-let currentApp = app;
-
-function startServer() {
+function startServer(basePath) {
+  const app = createApp(basePath);
+  const server = http.createServer(app);
   server.listen(process.env.PORT || 3000, error => {
     if (error) {
       console.log(error);
     }
-    console.log("🚀 started");
+    console.log('🚀 started');
   });
+  return {app, server};
 }
 
 // Don't start server if we're called inside of a firebase function
 if (!process.env.FIREBASE_CONFIG && !process.env.NETLIFY) {
-  startServer();
-  if (module.hot) {
-    console.log("✅  Server-side HMR Enabled!");
+  let {server, app} = startServer();
+  let nextApp = app;
+  let currentApp = app;
 
-    module.hot.accept("./server", () => {
-      console.log("🔁  HMR Reloading `./server`...");
+  if (module.hot) {
+    console.log('✅  Server-side HMR Enabled!');
+
+    module.hot.accept('./server', () => {
+      console.log('🔁  HMR Reloading `./server`...');
 
       try {
-        nextApp = require("./server").default;
-        server.removeListener("request", currentApp);
-        server.on("request", nextApp);
+        nextApp = require('./server').default();
+        server.removeListener('request', currentApp);
+        server.on('request', nextApp);
         currentApp = nextApp;
       } catch (error) {
         console.error(error);
@@ -40,4 +41,4 @@ if (!process.env.FIREBASE_CONFIG && !process.env.NETLIFY) {
   }
 }
 
-export default { app, startServer };
+export default {createApp, startServer};

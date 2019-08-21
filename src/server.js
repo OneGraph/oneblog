@@ -1,26 +1,26 @@
-import App, { routes } from "./App";
-import React from "react";
-import { StaticRouter, matchPath } from "react-router-dom";
-import { ServerStyleSheet } from "styled-components";
-import express from "express";
-import { renderToString } from "react-dom/server";
-import { fetchQuery } from "react-relay";
-import { createEnvironment } from "./Environment";
-import serialize from "serialize-javascript";
-import { RecordSource } from "relay-runtime";
-import RelayQueryResponseCache from "./relayResponseCache";
+import App, {routes} from './App';
+import React from 'react';
+import {StaticRouter, matchPath} from 'react-router-dom';
+import {ServerStyleSheet} from 'styled-components';
+import express from 'express';
+import {renderToString} from 'react-dom/server';
+import {fetchQuery} from 'react-relay';
+import {createEnvironment} from './Environment';
+import serialize from 'serialize-javascript';
+import {RecordSource} from 'relay-runtime';
+import RelayQueryResponseCache from './relayResponseCache';
 
 const assets = require(process.env.RAZZLE_ASSETS_MANIFEST);
 
-function buildHtml({ markup, styleTags, bootstrapData }) {
+function buildHtml({markup, styleTags, bootstrapData, basePath}) {
   const bootstrapScript = bootstrapData
     ? `<script>
     window.__RELAY_BOOTSTRAP_DATA__ = JSON.parse(${serialize(
       JSON.stringify(bootstrapData),
-      { isJSON: true }
+      {isJSON: true},
     )})
   </script>`
-    : "";
+    : '';
   return `<!doctype html>
 <html lang="en">
   <head>
@@ -36,36 +36,35 @@ function buildHtml({ markup, styleTags, bootstrapData }) {
     <link rel="manifest" href="/manifest.json" />
 
     <title>OneGraph Product Updates</title>
-    ${styleTags ? styleTags : ""}
+    ${styleTags ? styleTags : ''}
     ${
       assets.client.css
         ? `<link rel="stylesheet" href="${assets.client.css}">`
-        : ""
+        : ''
     }
     ${
-      process.env.NODE_ENV === "production"
+      process.env.NODE_ENV === 'production'
         ? `<script src="${assets.client.js}" defer></script>`
         : `<script src="${assets.client.js}" defer crossorigin></script>`
     }
   </head>
   <body>
-    <div id="root">${markup ? markup : ""}</div>
-    ${bootstrapScript ? bootstrapScript : ""}
+    <div id="root">${markup ? markup : ''}</div>
+    <script>window.__basename__ = "${basePath || '/'}";</script>
+    ${bootstrapScript ? bootstrapScript : ''}
   </body>
 </html>`;
 }
 
-const server = express();
-server
-  .disable("x-powered-by")
-  .use(express.static(process.env.RAZZLE_PUBLIC_DIR))
-  .get("/*", async (req, res) => {
+function createApp(basePath) {
+  const appRouter = express.Router();
+  appRouter.get('/*', async (req, res) => {
     try {
-      res.set("Cache-Control", "public, max-age=300, s-maxage=300");
+      res.set('Cache-Control', 'public, max-age=300, s-maxage=300');
       const recordSource = new RecordSource();
       const cache = new RelayQueryResponseCache({
         size: 250,
-        ttl: 1000 * 60 * 10
+        ttl: 1000 * 60 * 10,
       });
       const environment = createEnvironment(recordSource, cache);
 
@@ -77,7 +76,7 @@ server
           await fetchQuery(
             environment,
             routeConfig.query,
-            routeConfig.getVariables(match)
+            routeConfig.getVariables(match),
           );
           break;
         }
@@ -90,8 +89,8 @@ server
         sheet.collectStyles(
           <StaticRouter context={context} location={req.url}>
             <App environment={environment} />
-          </StaticRouter>
-        )
+          </StaticRouter>,
+        ),
       );
       const styleTags = sheet.getStyleTags();
       if (context.url) {
@@ -101,18 +100,29 @@ server
           buildHtml({
             markup,
             styleTags,
-            bootstrapData: recordSource.toJSON()
-          })
+            bootstrapData: recordSource.toJSON(),
+            basePath,
+          }),
         );
       }
     } catch (e) {
       console.error(e);
-      res
-        .status(200)
-        .send(
-          buildHtml({ markup: null, styleTags: null, bootstrapData: null })
-        );
+      res.status(200).send(
+        buildHtml({
+          markup: null,
+          styleTags: null,
+          bootstrapData: null,
+          basePath,
+        }),
+      );
     }
   });
 
-export default server;
+  const server = express();
+  return server
+    .disable('x-powered-by')
+    .use(express.static(process.env.RAZZLE_PUBLIC_DIR))
+    .use(basePath || '/', appRouter);
+}
+
+export default createApp;
