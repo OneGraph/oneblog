@@ -1,1 +1,6 @@
 /src/__generated__/
+/node_modules/
+/.git/
+/.netlify/
+/.firebase/
+/build

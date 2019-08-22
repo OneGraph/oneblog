@@ -10,7 +10,7 @@ function startServer(basePath) {
   const server = http.createServer(app);
   server.listen(process.env.PORT || 3000, error => {
     if (error) {
-      console.log(error);
+      console.error(error);
     }
     console.log('🚀 started');
   });

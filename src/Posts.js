@@ -30,9 +30,7 @@ const Posts = ({relay, repository}: Props) => {
         ) {
           if (!isLoading && !relay.isLoading() && relay.hasMore()) {
             setIsLoading(true);
-            console.log('setting isLoading to true');
             relay.loadMore(10, x => {
-              console.log('setting isLoading to false', x);
               setIsLoading(false);
             });
           }
@@ -41,10 +39,8 @@ const Posts = ({relay, repository}: Props) => {
     }
   }, [relay, isLoading, setIsLoading]);
   React.useEffect(() => {
-    console.log('adding new listener');
     window.addEventListener('scroll', handleScroll);
     return () => {
-      console.log('remove listener');
       window.removeEventListener('scroll', handleScroll);
     };
   }, [handleScroll]);

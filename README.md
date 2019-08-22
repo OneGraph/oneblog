@@ -112,7 +112,6 @@ That function will parse the query and pull out the `@persistedQueryConfiguratio
 
 The `@persistedQueryConfiguration` directive is stripped from the query and it is uploaded to OneGraph via a GraphQL mutation. Then the id for the persisted query is returned from the function. Relay stores the id in its generated file and it's used the next time the query is sent to the server.
 
-
 ### Server
 
 The server uses [Razzle](https://github.com/jaredpalmer/razzle) to allow us to render the content on the server. This helps with SEO and allows people to view the blog with Javascript turned off.
