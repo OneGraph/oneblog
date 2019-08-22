@@ -5,7 +5,11 @@ import RelayQueryResponseCache from './relayResponseCache';
 
 import OneGraphAuth from 'onegraph-auth';
 
-const ONEGRAPH_APP_ID = '570a3d6b-6ff3-4b7a-9b0d-fe4cf6384388';
+const ONEGRAPH_APP_ID = process.env.RAZZLE_ONEGRAPH_APP_ID;
+
+if (!ONEGRAPH_APP_ID) {
+  throw new Error('Must add RAZZLE_ONEGRAPH_APP_ID to .env');
+}
 
 class AuthDummy {
   isLoggedIn(x: any) {
