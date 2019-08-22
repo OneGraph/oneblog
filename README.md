@@ -1,8 +1,10 @@
+# Build a blog powered by GitHub issues
+
 This repo powers the OneGraph Product Updates blog at [onegraph.com/changelog](https://www.onegraph.com/changelog).
 
 All of the posts on the changelog are stored as [issues on this very repo](https://github.com/OneGraph/onegraph-changelog/issues?utf8=%E2%9C%93&q=is%3Aissue+label%3Apublish+).
 
-When you visit the page at onegraph.com/changelog, a GraphQL query fetches the issues from GitHub via OneGraph's persisted queries and renders them as blog posts.
+When you visit the page at [onegraph.com/changelog](https://www.onegraph.com/changelog), a GraphQL query fetches the issues from GitHub via OneGraph's persisted queries and renders them as blog posts.
 
 The persisted queries are stored with authentication credentials for GitHub that allows them to make authenticated requests. Persisting the queries locks them down so that they can't be made to send arbitrary requests to GitHub.
 
@@ -31,20 +33,22 @@ You'll also need to get an API token for OneGraph itself to store persisted quer
 In another terminal window, start the relay compiler
 
 ```
-OG_GITHUB_TOKEN=':your-github-token' OG_DASHBOARD_ACCESS_TOKEN=':your-onegraph-access-token' yarn relay --watch
+OG_GITHUB_TOKEN=':your-github-token' \
+  OG_DASHBOARD_ACCESS_TOKEN=':your-onegraph-access-token' \
+  yarn relay --watch
 ```
 
 ## Deploying
 
 The project comes with setups for deploying to Google's Firebase, Zeit's Now, and Netlify.
 
-For each of these, you'll have to add the site that you're deploying from to the CORS origins on the OneGraph dashboard.
+For each of these, you'll have to add the site that you're deploying to on the CORS origins on the OneGraph dashboard.
 
 ### Deploying with Firebase
 
 The project can use Firebase Hosting for static files and a Firebase Function to do server-side rendering.
 
-The Firebase config lives in `/firebase.json` and `/.firebaserc`. You'll want to edit `/.firebaserc to use your firebase project.
+The Firebase config lives in `/firebase.json` and `/.firebaserc`. You'll want to edit `/.firebaserc` to use your firebase project.
 
 To deploy
 
@@ -80,7 +84,7 @@ yarn build:netlify-functions
 yarn deploy:netlify
 ```
 
-If everything looks good at the preview site (note that you might have to add )
+If everything looks good at the preview site, deploy to production
 
 ```
 yarn deploy:netlify --prod
@@ -92,7 +96,7 @@ If you see an error when you visit the site, make sure the site's origin is list
 
 ### Client
 
-The client is an ordinary React app. The best to place to start is /src/App.js.
+The client is an ordinary React app. The best to place to start is `/src/App.js`.
 
 It uses Grommet as the UI library. Visit [https://v2.grommet.io/components](https://v2.grommet.io/components) to view the documentation for Grommet.
 
@@ -117,6 +121,6 @@ Most of the work for the server-side rendering happens in `/src/server.js`.
 
 When a request comes in to the server, the server creates a mock Relay environment and prefetches the query for the route using `fetchQuery` from `relay-runtime`. This populates the record source that Relay uses to render.
 
-React renders the app to a string, which is sent as HTML.
+React renders the app to a string, which is sent to the client.
 
-On the client, React rehydates the app. To prevent Relay from showing a loading state, we inject the serialized record source in a global `window.__RELAY_BOOTSTRAP_DATA__` variable. That data is stored in the environment before Relay makes its first query. The `dataFrom` (which will move to `fetchConfig` in the next Relay release) prop on the QueryRenderer is set to "STORE_THEN_NETWORK" so that it uses the data from the store instead of showing a loading state.
+On the client, React rehydates the app. To prevent Relay from showing a loading state, we inject the serialized record source in a global `window.__RELAY_BOOTSTRAP_DATA__` variable. That data is stored in the environment before Relay makes its first query. The `dataFrom` prop (which will move to `fetchConfig` in the next Relay release) on the QueryRenderer is set to "STORE_THEN_NETWORK" so that it uses the data from the store instead of showing a loading state.
