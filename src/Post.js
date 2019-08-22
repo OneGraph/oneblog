@@ -17,7 +17,7 @@ import 'tippy.js/themes/light-border.css';
 import {Link} from 'react-router-dom';
 import {postRootQuery} from './App';
 import GitHubLoginButton from './GitHubLoginButton';
-import {NotificationManager} from 'react-notifications';
+import {NotificationContext} from './Notifications';
 import {Box, Heading, Text} from 'grommet';
 import UserContext from './UserContext';
 
@@ -209,6 +209,7 @@ function PostBox({children}: {children: React.Node}) {
 }
 
 const Post = ({relay, post}: Props) => {
+  const {error: notifyError} = React.useContext(NotificationContext);
   const [showReactionPopover, setShowReactionPopover] = React.useState(false);
   const popoverInstance = React.useRef();
   const {isLoggedIn, login} = React.useContext(UserContext);
@@ -311,7 +312,7 @@ const Post = ({relay, post}: Props) => {
                       postId: post.id,
                     });
                   } catch (e) {
-                    NotificationManager.error('Error removing reaction.');
+                    notifyError('Error removing reaction.');
                   }
                 }}
                 onSelect={async content => {
@@ -323,7 +324,7 @@ const Post = ({relay, post}: Props) => {
                       postId: post.id,
                     });
                   } catch (e) {
-                    NotificationManager.error('Error adding reaction.');
+                    notifyError('Error adding reaction.');
                   }
                 }}
               />

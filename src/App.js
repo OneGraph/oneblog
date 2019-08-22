@@ -8,9 +8,8 @@ import Posts from './Posts';
 import Post, {LoadingPost} from './Post';
 import {onegraphAuth} from './Environment';
 import {Route, Link, Switch} from 'react-router-dom';
-import idx from 'idx.macro';
-import 'react-notifications/lib/notifications.css';
-import {NotificationContainer} from 'react-notifications';
+import idx from 'idx';
+import {NotificationContainer} from './Notifications';
 import OneGraphLogo from './oneGraphLogo';
 import {Grommet, Grid, Box, Heading, Text, Anchor} from 'grommet';
 import ScrollMemory from 'react-router-scroll-memory';
@@ -179,58 +178,58 @@ export default class App extends React.Component<
           login: this._login,
           logout: this._logout,
         }}>
-        <Grommet theme={theme}>
-          <Grid
-            fill
-            rows={['auto', 'flex']}
-            columns={['flex']}
-            areas={[
-              {name: 'header', start: [0, 0], end: [1, 0]},
-              {name: 'main', start: [0, 1], end: [1, 1]},
-            ]}>
-            <Box
-              gridArea="header"
-              direction="row"
-              align="center"
-              justify="between"
-              pad={{horizontal: 'medium', vertical: 'medium'}}
-              wrap={true}>
-              <Box align="center" direction="row">
-                <OneGraphLogo width="96px" height="96px" />{' '}
-                <Heading level={2}>
-                  <Link style={{color: 'inherit'}} to="/">
-                    OneGraph Product Updates
-                  </Link>
-                </Heading>
+        <NotificationContainer>
+          <Grommet theme={theme}>
+            <Grid
+              fill
+              rows={['auto', 'flex']}
+              columns={['flex']}
+              areas={[
+                {name: 'header', start: [0, 0], end: [1, 0]},
+                {name: 'main', start: [0, 1], end: [1, 1]},
+              ]}>
+              <Box
+                gridArea="header"
+                direction="row"
+                align="center"
+                justify="between"
+                pad={{horizontal: 'medium', vertical: 'medium'}}
+                wrap={true}>
+                <Box align="center" direction="row">
+                  <OneGraphLogo width="96px" height="96px" />{' '}
+                  <Heading level={2}>
+                    <Link style={{color: 'inherit'}} to="/">
+                      OneGraph Product Updates
+                    </Link>
+                  </Heading>
+                </Box>
+                <Anchor href="https://onegraph.com">
+                  <Text size="small">Learn more about OneGraph</Text>
+                </Anchor>
               </Box>
-              <Anchor href="https://onegraph.com">
-                <Text size="small">Learn more about OneGraph</Text>
-              </Anchor>
-            </Box>
-            <Box gridArea="main">
-              <ScrollMemory />
-              <Switch>
-                {routes.map((routeConfig, i) => (
-                  <Route
-                    key={i}
-                    path={routeConfig.path}
-                    exact={routeConfig.exact}
-                    strict={routeConfig.strict}
-                    render={props => (
-                      <RenderRoute
-                        environment={this.props.environment}
-                        match={props.match}
-                        routeConfig={routeConfig}
-                      />
-                    )}
-                  />
-                ))}
-              </Switch>
-
-              <NotificationContainer />
-            </Box>
-          </Grid>
-        </Grommet>
+              <Box gridArea="main">
+                <ScrollMemory />
+                <Switch>
+                  {routes.map((routeConfig, i) => (
+                    <Route
+                      key={i}
+                      path={routeConfig.path}
+                      exact={routeConfig.exact}
+                      strict={routeConfig.strict}
+                      render={props => (
+                        <RenderRoute
+                          environment={this.props.environment}
+                          match={props.match}
+                          routeConfig={routeConfig}
+                        />
+                      )}
+                    />
+                  ))}
+                </Switch>
+              </Box>
+            </Grid>
+          </Grommet>
+        </NotificationContainer>
       </UserContext.Provider>
     );
   }
