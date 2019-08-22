@@ -12,6 +12,8 @@ If you'd like to learn more about persisted queries, email [persit@onegraph.com]
 
 ## Setup
 
+Sign up at [OneGraph](https://www.onegraph.com) and update the `/.env` file with your app's id.
+
 Install dependencies
 
 ```
