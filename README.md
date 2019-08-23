@@ -14,6 +14,12 @@ If you'd like to learn more about persisted queries, email [persist@onegraph.com
 
 Sign up at [OneGraph](https://www.onegraph.com) and update the `/.env` file with your app's id.
 
+Remove the generated files (they're tied to the OneGraph app they were generated with)
+
+```
+rm -r src/__generated__
+```
+
 Install dependencies
 
 ```
@@ -26,6 +32,10 @@ Start the server
 yarn start
 ```
 
+The project will load at [http://localhost:3000](http://localhost:3000).
+
+### Running the Relay compiler
+
 This project uses Relay as its GraphQL client because of its high-quality compiler and great support for persisted queries.
 
 To create the token that's stored with the persisted query, you'll need to get a OneGraph token with GitHub credentials. Create a new app at [onegraph.com](https://www.onegraph.com), go the "Server-side Auth", click the "Create Token" button, and add GitHub to the services. Export `OG_GITHUB_TOKEN` when you run the Relay compiler.
@@ -35,10 +45,12 @@ You'll also need to get an API token for OneGraph itself to store persisted quer
 In another terminal window, start the relay compiler
 
 ```
-OG_GITHUB_TOKEN=':your-github-token' \
-  OG_DASHBOARD_ACCESS_TOKEN=':your-onegraph-access-token' \
+OG_GITHUB_TOKEN='<your-github-token>' \
+  OG_DASHBOARD_ACCESS_TOKEN='<your-onegraph-access-token>' \
   yarn relay --watch
 ```
+
+You may need to install [watchman](https://facebook.github.io/watchman/), a file watching service. On mac, do `brew install watchman`. On Windows or Linux, follow the instructions at [https://facebook.github.io/watchman/docs/install.html](https://facebook.github.io/watchman/docs/install.html).
 
 ## Deploying
 
