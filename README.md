@@ -8,7 +8,7 @@ When you visit the page at [onegraph.com/changelog](https://www.onegraph.com/cha
 
 The persisted queries are stored with authentication credentials for GitHub that allows them to make authenticated requests. Persisting the queries locks them down so that they can't be made to send arbitrary requests to GitHub.
 
-If you'd like to learn more about persisted queries, email [persit@onegraph.com](mailto:persist@onegraph.com) or hop in our [Spectrum chat](https://onegraph.com/chat).
+If you'd like to learn more about persisted queries, email [persist@onegraph.com](mailto:persist@onegraph.com) or hop in our [Spectrum chat](https://onegraph.com/chat).
 
 ## Setup
 
