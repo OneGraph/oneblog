@@ -32,8 +32,12 @@ function buildHtml({markup, styleTags, bootstrapData, basePath}) {
     <meta charset="utf-8" />
     <link rel="shortcut icon" href="/favicon.ico" />
     <link rel="alternate" type="application/rss+xml" 
-          title="RSS Feed for petefreitag.com" 
+          title="RSS Feed" 
           href="${basePath ? basePath : ''}/feed.rss" />
+    <link rel="alternate" 
+          href="${basePath ? basePath : ''}/feed.atom" 
+          title="Atom feed" 
+          type="application/atom+xml" />
 
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#000000" />
