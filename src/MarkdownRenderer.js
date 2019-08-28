@@ -66,6 +66,10 @@ class CodeBlock extends React.PureComponent<
   }
 }
 
+function Image(props) {
+  return <img src={props.src} alt={props.alt} style={{maxWidth: 600}} />;
+}
+
 export default class MarkdownRenderer extends React.PureComponent<Props> {
   render() {
     return (
@@ -73,6 +77,7 @@ export default class MarkdownRenderer extends React.PureComponent<Props> {
         source={this.props.source}
         renderers={{
           code: CodeBlock,
+          image: Image,
         }}
       />
     );
@@ -80,8 +85,11 @@ export default class MarkdownRenderer extends React.PureComponent<Props> {
 }
 
 function importLanguage(
-  language: string,
-): Promise<?{default: (hljs: any) => any}> {
+  language: ?string,
+): ?Promise<?{default: (hljs: any) => any}> {
+  if (!language) {
+    return null;
+  }
   switch (language) {
     case '1c':
       return import('react-syntax-highlighter/dist/esm/languages/hljs/1c');
@@ -283,6 +291,8 @@ function importLanguage(
       return import('react-syntax-highlighter/dist/esm/languages/hljs/isbl');
     case 'java':
       return import('react-syntax-highlighter/dist/esm/languages/hljs/java');
+    case 'js':
+    case 'jsx':
     case 'javascript':
       return import(
         'react-syntax-highlighter/dist/esm/languages/hljs/javascript'
@@ -391,6 +401,7 @@ function importLanguage(
       return import('react-syntax-highlighter/dist/esm/languages/hljs/pgsql');
     case 'php':
       return import('react-syntax-highlighter/dist/esm/languages/hljs/php');
+    case 'txt':
     case 'plaintext':
       return import(
         'react-syntax-highlighter/dist/esm/languages/hljs/plaintext'
@@ -465,6 +476,7 @@ function importLanguage(
       return import('react-syntax-highlighter/dist/esm/languages/hljs/scilab');
     case 'scss':
       return import('react-syntax-highlighter/dist/esm/languages/hljs/scss');
+    case 'console':
     case 'shell':
       return import('react-syntax-highlighter/dist/esm/languages/hljs/shell');
     case 'smali':
@@ -507,6 +519,7 @@ function importLanguage(
       return import('react-syntax-highlighter/dist/esm/languages/hljs/tp');
     case 'twig':
       return import('react-syntax-highlighter/dist/esm/languages/hljs/twig');
+    case 'ts':
     case 'typescript':
       return import(
         'react-syntax-highlighter/dist/esm/languages/hljs/typescript'
