@@ -18,10 +18,6 @@ export type Post_post = {|
   +title: string,
   +body: string,
   +createdAt: string,
-  +author: ?{|
-    +login: string,
-    +avatarUrl: string,
-  |},
   +updatedAt: string,
   +assignees: {|
     +nodes: ?$ReadOnlyArray<?{|
@@ -29,6 +25,7 @@ export type Post_post = {|
       +name: ?string,
       +login: string,
       +avatarUrl: string,
+      +url: string,
     |}>
   |},
   +reactionGroups: ?$ReadOnlyArray<{|
@@ -59,21 +56,7 @@ var v0 = {
   "args": null,
   "storageKey": null
 },
-v1 = {
-  "kind": "ScalarField",
-  "alias": null,
-  "name": "login",
-  "args": null,
-  "storageKey": null
-},
-v2 = {
-  "kind": "ScalarField",
-  "alias": null,
-  "name": "avatarUrl",
-  "args": null,
-  "storageKey": null
-},
-v3 = [
+v1 = [
   {
     "kind": "ScalarField",
     "alias": null,
@@ -119,19 +102,6 @@ return {
       "storageKey": null
     },
     {
-      "kind": "LinkedField",
-      "alias": null,
-      "name": "author",
-      "storageKey": null,
-      "args": null,
-      "concreteType": null,
-      "plural": false,
-      "selections": [
-        (v1/*: any*/),
-        (v2/*: any*/)
-      ]
-    },
-    {
       "kind": "ScalarField",
       "alias": null,
       "name": "updatedAt",
@@ -170,8 +140,27 @@ return {
               "args": null,
               "storageKey": null
             },
-            (v1/*: any*/),
-            (v2/*: any*/)
+            {
+              "kind": "ScalarField",
+              "alias": null,
+              "name": "login",
+              "args": null,
+              "storageKey": null
+            },
+            {
+              "kind": "ScalarField",
+              "alias": null,
+              "name": "avatarUrl",
+              "args": null,
+              "storageKey": null
+            },
+            {
+              "kind": "ScalarField",
+              "alias": null,
+              "name": "url",
+              "args": null,
+              "storageKey": null
+            }
           ]
         }
       ]
@@ -207,7 +196,7 @@ return {
           "args": null,
           "concreteType": "GitHubReactingUserConnection",
           "plural": false,
-          "selections": (v3/*: any*/)
+          "selections": (v1/*: any*/)
         }
       ]
     },
@@ -219,11 +208,11 @@ return {
       "args": null,
       "concreteType": "GitHubIssueCommentConnection",
       "plural": false,
-      "selections": (v3/*: any*/)
+      "selections": (v1/*: any*/)
     }
   ]
 };
 })();
 // prettier-ignore
-(node/*: any*/).hash = '283a6ba37b66ccd75c356d2bef8073c2';
+(node/*: any*/).hash = '5c708b3c7a2f3d2a589596e27b4fcc3f';
 module.exports = node;

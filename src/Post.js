@@ -245,22 +245,26 @@ const Post = ({relay, post}: Props) => {
         //style={{ borderTop: "1px solid rgba(0,0,0,0.12)", padding: 16 }}>
         <Box
           pad="medium"
+          direction="row"
+          gap="medium"
           border={{size: 'xsmall', side: 'top', color: 'rgba(0,0,0,0.1)'}}>
           {authors.map(node =>
             node ? (
-              <Box key={node.id} align="center" direction="row">
-                <img
-                  alt={node.name}
-                  src={node.avatarUrl}
-                  style={{
-                    width: 36,
-                    height: 36,
-                    borderRadius: '50%',
-                    marginRight: 8,
-                  }}
-                />
-                <Text size="small">{node.name}</Text>
-              </Box>
+              <a href={node.url}>
+                <Box key={node.id} align="center" direction="row">
+                  <img
+                    alt={node.name}
+                    src={node.avatarUrl}
+                    style={{
+                      width: 36,
+                      height: 36,
+                      borderRadius: '50%',
+                      marginRight: 8,
+                    }}
+                  />
+                  <Text size="small">{node.name}</Text>
+                </Box>
+              </a>
             ) : null,
           )}
         </Box>
@@ -351,10 +355,6 @@ export default createFragmentContainer(Post, {
       title
       body
       createdAt
-      author {
-        login
-        avatarUrl
-      }
       updatedAt
       assignees(first: 10) {
         nodes {
@@ -362,6 +362,7 @@ export default createFragmentContainer(Post, {
           name
           login
           avatarUrl
+          url
         }
       }
       reactionGroups {

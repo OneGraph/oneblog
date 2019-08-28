@@ -1,6 +1,6 @@
 /**
  * @flow
- * @relayHash e4aae4be929e69e098dfffafd4f7c2d2
+ * @relayHash dc21a74b3a4c052801f72e5c98f5fa2d
  */
 
 /* eslint-disable */
@@ -74,23 +74,6 @@ fragment Post_post on GitHubIssue {
   title
   body
   createdAt
-  author {
-    __typename
-    login
-    avatarUrl
-    ... on GitHubUser {
-      id
-    }
-    ... on GitHubMannequin {
-      id
-    }
-    ... on GitHubOrganization {
-      id
-    }
-    ... on GitHubBot {
-      id
-    }
-  }
   updatedAt
   assignees(first: 10) {
     nodes {
@@ -98,6 +81,7 @@ fragment Post_post on GitHubIssue {
       name
       login
       avatarUrl
+      url
     }
   }
   reactionGroups {
@@ -185,24 +169,7 @@ v5 = {
   "args": null,
   "storageKey": null
 },
-v6 = {
-  "kind": "ScalarField",
-  "alias": null,
-  "name": "login",
-  "args": null,
-  "storageKey": null
-},
-v7 = {
-  "kind": "ScalarField",
-  "alias": null,
-  "name": "avatarUrl",
-  "args": null,
-  "storageKey": null
-},
-v8 = [
-  (v5/*: any*/)
-],
-v9 = [
+v6 = [
   {
     "kind": "ScalarField",
     "alias": null,
@@ -343,40 +310,6 @@ return {
                             "storageKey": null
                           },
                           {
-                            "kind": "LinkedField",
-                            "alias": null,
-                            "name": "author",
-                            "storageKey": null,
-                            "args": null,
-                            "concreteType": null,
-                            "plural": false,
-                            "selections": [
-                              (v2/*: any*/),
-                              (v6/*: any*/),
-                              (v7/*: any*/),
-                              {
-                                "kind": "InlineFragment",
-                                "type": "GitHubUser",
-                                "selections": (v8/*: any*/)
-                              },
-                              {
-                                "kind": "InlineFragment",
-                                "type": "GitHubMannequin",
-                                "selections": (v8/*: any*/)
-                              },
-                              {
-                                "kind": "InlineFragment",
-                                "type": "GitHubOrganization",
-                                "selections": (v8/*: any*/)
-                              },
-                              {
-                                "kind": "InlineFragment",
-                                "type": "GitHubBot",
-                                "selections": (v8/*: any*/)
-                              }
-                            ]
-                          },
-                          {
                             "kind": "ScalarField",
                             "alias": null,
                             "name": "updatedAt",
@@ -415,8 +348,27 @@ return {
                                     "args": null,
                                     "storageKey": null
                                   },
-                                  (v6/*: any*/),
-                                  (v7/*: any*/)
+                                  {
+                                    "kind": "ScalarField",
+                                    "alias": null,
+                                    "name": "login",
+                                    "args": null,
+                                    "storageKey": null
+                                  },
+                                  {
+                                    "kind": "ScalarField",
+                                    "alias": null,
+                                    "name": "avatarUrl",
+                                    "args": null,
+                                    "storageKey": null
+                                  },
+                                  {
+                                    "kind": "ScalarField",
+                                    "alias": null,
+                                    "name": "url",
+                                    "args": null,
+                                    "storageKey": null
+                                  }
                                 ]
                               }
                             ]
@@ -452,7 +404,7 @@ return {
                                 "args": null,
                                 "concreteType": "GitHubReactingUserConnection",
                                 "plural": false,
-                                "selections": (v9/*: any*/)
+                                "selections": (v6/*: any*/)
                               }
                             ]
                           },
@@ -464,7 +416,7 @@ return {
                             "args": null,
                             "concreteType": "GitHubIssueCommentConnection",
                             "plural": false,
-                            "selections": (v9/*: any*/)
+                            "selections": (v6/*: any*/)
                           },
                           (v2/*: any*/)
                         ]
@@ -527,7 +479,7 @@ return {
   "params": {
     "operationKind": "query",
     "name": "PostsPaginationQuery",
-    "id": "2587c1d3-4778-42a0-929a-f01e304153e7",
+    "id": "81cd83f4-9fa3-4d81-91d9-e038bf19386a",
     "text": null,
     "metadata": {}
   }
