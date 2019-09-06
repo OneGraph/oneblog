@@ -25,13 +25,3 @@ pre {
   overflow: scroll;
   font-size: 11.9px;
 }
-
-.post-image {
-  max-width: 600px;
-}
-
-@media (max-width: 768px) {
-  .post-image {
-    max-width: 80vw;
-  }
-}

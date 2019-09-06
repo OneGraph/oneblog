@@ -69,9 +69,9 @@ class CodeBlock extends React.PureComponent<
 
 function Image(props) {
   if (props.src && props.src.endsWith('gif')) {
-    return <GifPlayer className="post-image" src={props.src} />;
+    return <GifPlayer style={{maxWidth: '100%'}} src={props.src} />;
   }
-  return <img className="post-image" src={props.src} alt={props.alt} />;
+  return <img style={{maxWidth: '100%'}} src={props.src} alt={props.alt} />;
 }
 
 export default class MarkdownRenderer extends React.PureComponent<Props> {
