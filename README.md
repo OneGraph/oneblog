@@ -54,7 +54,7 @@ You may need to install [watchman](https://facebook.github.io/watchman/), a file
 
 ## Deploying
 
-The project comes with setups for deploying to Google's Firebase, Zeit's Now, and Netlify.
+The project comes with setups for deploying to Google's Firebase, Zeit's Now, Netlify, and Fly.io.
 
 For each of these, you'll have to add the site that you're deploying to on the CORS origins on the OneGraph dashboard.
 
@@ -103,6 +103,26 @@ If everything looks good at the preview site, deploy to production
 ```
 yarn deploy:netlify --prod
 ```
+
+If you see an error when you visit the site, make sure the site's origin is listed in the CORS origins for your app on the OneGraph dashboard.
+
+### Deploying with Fly.io
+
+The project can be deployed with [Fly.io](https://fly.io). Create a new app at [Fly.io](https://fly.io), then update the `/fly.toml` file to use your app.
+
+You'll need to have the flyctl installed on your machine. Install the cli with
+
+```
+curl https://get.fly.io/flyctl.sh | sh
+```
+
+Then run
+
+```
+yarn deploy:fly
+```
+
+That will build a Docker image and upload it to Fly.io. You do not have to have Docker running on your machine. If it is not running Fly.io, will build the Docker file for you with their hosted builders.
 
 If you see an error when you visit the site, make sure the site's origin is listed in the CORS origins for your app on the OneGraph dashboard.
 

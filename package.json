@@ -42,6 +42,7 @@
     "deploy:now": "now",
     "build:netlify-functions": "NODE_ENV=development netlify-lambda build netlify-functions",
     "deploy:netlify": "netlify deploy",
+    "deploy:fly": "flyctl deploy .",
     "netlify:serve": "NODE_ENV=development netlify-lambda serve netlify-functions",
     "prettier": "prettier --write \"src/**/*.js\" README.md"
   },
