@@ -3,6 +3,7 @@
 import React from 'react';
 import ReactMarkdown from 'react-markdown';
 import type SyntaxHighlighter from 'react-syntax-highlighter';
+import GifPlayer from './GifPlayer';
 
 type Props = {
   source: string,
@@ -67,7 +68,10 @@ class CodeBlock extends React.PureComponent<
 }
 
 function Image(props) {
-  return <img src={props.src} alt={props.alt} style={{maxWidth: 600}} />;
+  if (props.src && props.src.endsWith('gif')) {
+    return <GifPlayer className="post-image" src={props.src} />;
+  }
+  return <img className="post-image" src={props.src} alt={props.alt} />;
 }
 
 export default class MarkdownRenderer extends React.PureComponent<Props> {

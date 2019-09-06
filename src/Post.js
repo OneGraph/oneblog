@@ -250,7 +250,7 @@ const Post = ({relay, post}: Props) => {
           border={{size: 'xsmall', side: 'top', color: 'rgba(0,0,0,0.1)'}}>
           {authors.map(node =>
             node ? (
-              <a href={node.url}>
+              <a key={node.id} href={node.url}>
                 <Box key={node.id} align="center" direction="row">
                   <img
                     alt={node.name}

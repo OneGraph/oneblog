@@ -64,14 +64,14 @@
     "@babel/preset-flow": "^7.0.0",
     "@dwwoelfel/relay-compiler": "5.0.1-alpha1",
     "babel-plugin-macros": "^2.6.1",
+    "firebase-tools": "7.2.4",
     "flow-bin": "^0.105.1",
     "netlify-cli": "^2.4.8",
     "netlify-lambda": "^1.6.2",
     "now": "^16.1.1",
     "prettier": "^1.18.2",
     "razzle": "^3.0.0",
-    "source-map-explorer": "^2.0.1",
-    "firebase-tools": "7.2.4"
+    "source-map-explorer": "^2.0.1"
   },
   "babelMacros": {
     "relay": {}
