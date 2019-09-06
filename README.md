@@ -73,6 +73,8 @@ yarn deploy:firebase
 
 If you see an error when you visit the site, make sure the site's origin is listed in the CORS origins for your app on the OneGraph dashboard.
 
+To see it in action, visit [https://onechangelog.web.app](https://onechangelog.web.app).
+
 ### Deploying with Zeit
 
 The project can be deployed with Now v2. The config lives in `/now.json`.
@@ -85,6 +87,8 @@ yarn deploy:now
 ```
 
 If you see an error when you visit the site, make sure the site's origin is listed in the CORS origins for your app on the OneGraph dashboard.
+
+To see it in action, visit [https://onechangelog.now.sh](https://onechangelog.now.sh).
 
 ### Deploying with Netlify
 
@@ -106,6 +110,8 @@ yarn deploy:netlify --prod
 
 If you see an error when you visit the site, make sure the site's origin is listed in the CORS origins for your app on the OneGraph dashboard.
 
+To see it in action, visit [https://onechangelog.netlify.com](https://onechangelog.netlify.com).
+
 ### Deploying with Fly.io
 
 The project can be deployed with [Fly.io](https://fly.io). Create a new app at [Fly.io](https://fly.io), then update the `/fly.toml` file to use your app.
@@ -125,6 +131,8 @@ yarn deploy:fly
 That will build a Docker image and upload it to Fly.io. You do not have to have Docker running on your machine. If it is not running Fly.io, will build the Docker file for you with their hosted builders.
 
 If you see an error when you visit the site, make sure the site's origin is listed in the CORS origins for your app on the OneGraph dashboard.
+
+To see it in action, visit [https://onechangelog.fly.dev](https://onechangelog.fly.dev).
 
 ## Project setup
 
