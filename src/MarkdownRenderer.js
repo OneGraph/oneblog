@@ -1,7 +1,8 @@
 // @flow
 
 import React from 'react';
-import ReactMarkdown from 'react-markdown';
+import ReactMarkdown from 'react-markdown/with-html';
+import htmlParser from 'react-markdown/plugins/html-parser';
 import type SyntaxHighlighter from 'react-syntax-highlighter';
 import GifPlayer from './GifPlayer';
 
@@ -74,15 +75,21 @@ function Image(props) {
   return <img style={{maxWidth: '100%'}} src={props.src} alt={props.alt} />;
 }
 
+const parseHtml = htmlParser({
+  isValidNode: node => node.type !== 'script',
+});
+
 export default class MarkdownRenderer extends React.PureComponent<Props> {
   render() {
     return (
       <ReactMarkdown
+        escapeHtml={false}
         source={this.props.source}
         renderers={{
           code: CodeBlock,
           image: Image,
         }}
+        astPlugins={[parseHtml]}
       />
     );
   }
