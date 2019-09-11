@@ -40,7 +40,7 @@ This project uses Relay as its GraphQL client because of its high-quality compil
 
 To create the token that's stored with the persisted query, you'll need to get a OneGraph token with GitHub credentials. Create a new app at [onegraph.com](https://www.onegraph.com), go the "Server-side Auth", click the "Create Token" button, and add GitHub to the services. Export `OG_GITHUB_TOKEN` when you run the Relay compiler.
 
-You'll also need to get an API token for OneGraph itself to store persisted queries. At the moment, there is no built-in way to do this, so you'll have to go to onegraph.com, open the network tab in the developer tools, refresh the page, find the first request to `/dynamic`, and copy the Bearer token from the Authentication header.
+You'll also need to get an API token for OneGraph itself to store persisted queries. Go to the "Persisted queries" tab on the OneGraph dashboard, scroll down, and click "Create token". This will create a scoped token for your app that can create persisted queries on your behalf. Use the token as `OG_DASHBOARD_ACCESS_TOKEN` below.
 
 In another terminal window, start the relay compiler
 
