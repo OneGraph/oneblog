@@ -12,6 +12,7 @@ import idx from 'idx';
 import {NotificationContainer} from './Notifications';
 import OneGraphLogo from './oneGraphLogo';
 import {Grommet, Grid, Box, Heading, Text, Anchor} from 'grommet';
+import {StatusCritical} from 'grommet-icons';
 import ScrollMemory from 'react-router-scroll-memory';
 import {matchPath} from 'react-router-dom';
 import UserContext from './UserContext';
@@ -42,6 +43,16 @@ const postsRootQuery = graphql`
   }
 `;
 
+const ErrorBox = ({error}) => {
+  const relayError = idx(error, _ => _.source.errors[0].message);
+  return (
+    <Box gap="xsmall" justify="center" align="center" direction="row">
+      <StatusCritical color="status-error" />{' '}
+      <Text size="medium">{relayError || error.message}</Text>
+    </Box>
+  );
+};
+
 const PostsRoot = ({
   error,
   props,
@@ -50,16 +61,14 @@ const PostsRoot = ({
   props: ?App_ViewerQueryResponse,
 }) => {
   if (error) {
-    // TODO: better errors
-    return <div>Error!</div>;
+    return <ErrorBox error={error} />;
   }
   if (!props) {
     return null;
   }
   const respository = props.gitHub ? props.gitHub.repository : null;
   if (!respository) {
-    // TODO: better errors
-    return <div>repository not found</div>;
+    return <ErrorBox error={new Error('Repository not found.')} />;
   } else {
     return <Posts repository={respository} />;
   }
@@ -93,7 +102,7 @@ const PostRoot = ({
   props: ?App_ViewerQueryResponse,
 }) => {
   if (error) {
-    return <div>Error!</div>;
+    return <ErrorBox error={error} />;
   }
   if (!props) {
     return null;
@@ -101,8 +110,7 @@ const PostRoot = ({
   const post = idx(props, _ => _.gitHub.repository.issue);
   const labels = idx(post, _ => _.labels.nodes) || [];
   if (!post || !labels.map(l => l.name).includes('publish')) {
-    // TODO: better errors
-    return <div>Post not found</div>;
+    return <ErrorBox error={new Error('Missing post.')} />;
   } else {
     return <Post post={post} />;
   }

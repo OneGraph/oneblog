@@ -13,6 +13,7 @@
     "firebase-functions": "^3.2.0",
     "graphql": "^14.4.2",
     "grommet": "^2.7.6",
+    "grommet-icons": "^4.3.0",
     "highlightjs-graphql": "^1.0.1",
     "idx": "^2.5.6",
     "node-fetch": "^2.6.0",
