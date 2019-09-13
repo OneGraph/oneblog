@@ -279,7 +279,9 @@ const Post = ({relay, post}: Props) => {
         <TippyGroup delay={500}>
           {usedReactions.map(g => {
             const total = g.users.totalCount;
-            const reactors = g.users.nodes.map(x => x.login);
+            const reactors = (g.users.nodes || []).map(x =>
+              x ? x.login : null,
+            );
             if (total > 11) {
               reactors.push(`${total - 11} more`);
             }
