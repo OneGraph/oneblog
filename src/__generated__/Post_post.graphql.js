@@ -32,7 +32,10 @@ export type Post_post = {|
     +content: GitHubReactionContent,
     +viewerHasReacted: boolean,
     +users: {|
-      +totalCount: number
+      +totalCount: number,
+      +nodes: ?$ReadOnlyArray<?{|
+        +login: string
+      |}>,
     |},
   |}>,
   +comments: {|
@@ -56,15 +59,20 @@ var v0 = {
   "args": null,
   "storageKey": null
 },
-v1 = [
-  {
-    "kind": "ScalarField",
-    "alias": null,
-    "name": "totalCount",
-    "args": null,
-    "storageKey": null
-  }
-];
+v1 = {
+  "kind": "ScalarField",
+  "alias": null,
+  "name": "login",
+  "args": null,
+  "storageKey": null
+},
+v2 = {
+  "kind": "ScalarField",
+  "alias": null,
+  "name": "totalCount",
+  "args": null,
+  "storageKey": null
+};
 return {
   "kind": "Fragment",
   "name": "Post_post",
@@ -140,13 +148,7 @@ return {
               "args": null,
               "storageKey": null
             },
-            {
-              "kind": "ScalarField",
-              "alias": null,
-              "name": "login",
-              "args": null,
-              "storageKey": null
-            },
+            (v1/*: any*/),
             {
               "kind": "ScalarField",
               "alias": null,
@@ -192,11 +194,31 @@ return {
           "kind": "LinkedField",
           "alias": null,
           "name": "users",
-          "storageKey": null,
-          "args": null,
+          "storageKey": "users(first:11)",
+          "args": [
+            {
+              "kind": "Literal",
+              "name": "first",
+              "value": 11
+            }
+          ],
           "concreteType": "GitHubReactingUserConnection",
           "plural": false,
-          "selections": (v1/*: any*/)
+          "selections": [
+            (v2/*: any*/),
+            {
+              "kind": "LinkedField",
+              "alias": null,
+              "name": "nodes",
+              "storageKey": null,
+              "args": null,
+              "concreteType": "GitHubUser",
+              "plural": true,
+              "selections": [
+                (v1/*: any*/)
+              ]
+            }
+          ]
         }
       ]
     },
@@ -208,11 +230,13 @@ return {
       "args": null,
       "concreteType": "GitHubIssueCommentConnection",
       "plural": false,
-      "selections": (v1/*: any*/)
+      "selections": [
+        (v2/*: any*/)
+      ]
     }
   ]
 };
 })();
 // prettier-ignore
-(node/*: any*/).hash = '5c708b3c7a2f3d2a589596e27b4fcc3f';
+(node/*: any*/).hash = '9918f928cb86c265ae38c0278a7542cf';
 module.exports = node;

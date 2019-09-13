@@ -1,6 +1,6 @@
 /**
  * @flow
- * @relayHash 53abf3edaf17a842b570016ebc6a7858
+ * @relayHash 6ff85dc181524a71ccf4297b90004832
  */
 
 /* eslint-disable */
@@ -74,8 +74,12 @@ fragment Post_post on GitHubIssue {
   reactionGroups {
     content
     viewerHasReacted
-    users {
+    users(first: 11) {
       totalCount
+      nodes {
+        login
+        id
+      }
     }
   }
   comments {
@@ -133,15 +137,20 @@ v5 = {
   "args": null,
   "storageKey": null
 },
-v6 = [
-  {
-    "kind": "ScalarField",
-    "alias": null,
-    "name": "totalCount",
-    "args": null,
-    "storageKey": null
-  }
-];
+v6 = {
+  "kind": "ScalarField",
+  "alias": null,
+  "name": "login",
+  "args": null,
+  "storageKey": null
+},
+v7 = {
+  "kind": "ScalarField",
+  "alias": null,
+  "name": "totalCount",
+  "args": null,
+  "storageKey": null
+};
 return {
   "kind": "Request",
   "fragment": {
@@ -332,13 +341,7 @@ return {
                         "selections": [
                           (v5/*: any*/),
                           (v4/*: any*/),
-                          {
-                            "kind": "ScalarField",
-                            "alias": null,
-                            "name": "login",
-                            "args": null,
-                            "storageKey": null
-                          },
+                          (v6/*: any*/),
                           {
                             "kind": "ScalarField",
                             "alias": null,
@@ -384,11 +387,32 @@ return {
                         "kind": "LinkedField",
                         "alias": null,
                         "name": "users",
-                        "storageKey": null,
-                        "args": null,
+                        "storageKey": "users(first:11)",
+                        "args": [
+                          {
+                            "kind": "Literal",
+                            "name": "first",
+                            "value": 11
+                          }
+                        ],
                         "concreteType": "GitHubReactingUserConnection",
                         "plural": false,
-                        "selections": (v6/*: any*/)
+                        "selections": [
+                          (v7/*: any*/),
+                          {
+                            "kind": "LinkedField",
+                            "alias": null,
+                            "name": "nodes",
+                            "storageKey": null,
+                            "args": null,
+                            "concreteType": "GitHubUser",
+                            "plural": true,
+                            "selections": [
+                              (v6/*: any*/),
+                              (v5/*: any*/)
+                            ]
+                          }
+                        ]
                       }
                     ]
                   },
@@ -400,7 +424,9 @@ return {
                     "args": null,
                     "concreteType": "GitHubIssueCommentConnection",
                     "plural": false,
-                    "selections": (v6/*: any*/)
+                    "selections": [
+                      (v7/*: any*/)
+                    ]
                   }
                 ]
               },
@@ -414,7 +440,7 @@ return {
   "params": {
     "operationKind": "query",
     "name": "App_Post_Query",
-    "id": "559e74d7-5201-4dde-bdf3-74983439b908",
+    "id": "399b8d6c-31a4-462b-b5c4-923fcb7c54ff",
     "text": null,
     "metadata": {}
   }

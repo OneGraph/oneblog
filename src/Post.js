@@ -12,7 +12,7 @@ import MarkdownRenderer from './MarkdownRenderer';
 import formatDate from 'date-fns/format';
 import EmojiIcon from './emojiIcon';
 import AddIcon from './addIcon';
-import Tippy from '@tippy.js/react';
+import Tippy, {TippyGroup} from '@tippy.js/react';
 import 'tippy.js/themes/light-border.css';
 import {Link} from 'react-router-dom';
 import {postRootQuery} from './App';
@@ -20,6 +20,7 @@ import GitHubLoginButton from './GitHubLoginButton';
 import {NotificationContext} from './Notifications';
 import {Box, Heading, Text} from 'grommet';
 import UserContext from './UserContext';
+import {lowerCase, sentenceCase} from 'change-case';
 
 import type {Post_post} from './__generated__/Post_post.graphql';
 
@@ -269,26 +270,61 @@ const Post = ({relay, post}: Props) => {
           )}
         </Box>
       ) : null}
+
       <Box
         pad="xsmall"
         direction="row"
         wrap={true}
         border={{size: 'xsmall', side: 'top', color: 'rgba(0,0,0,0.1)'}}>
-        {usedReactions.map(g => (
-          <Text
-            key={g.content}
-            style={{
-              padding: '0 16px',
-              borderRight: '1px solid rgba(0,0,0,0.12)',
-              display: 'flex',
-              alignItems: 'center',
-            }}>
-            {emojiForContent(g.content)}{' '}
-            <Text size="small" style={{marginLeft: 8}}>
-              {g.users.totalCount}
-            </Text>
-          </Text>
-        ))}
+        <TippyGroup delay={500}>
+          {usedReactions.map(g => {
+            const total = g.users.totalCount;
+            const reactors = g.users.nodes.map(x => x.login);
+            if (total > 11) {
+              reactors.push(`${total - 11} more`);
+            }
+
+            const reactorsSentence = [
+              ...reactors.slice(0, reactors.length - 2),
+              reactors.slice(-2).join(reactors.length > 2 ? ', and ' : ' and '),
+            ].join(', ');
+
+            return (
+              <Tippy
+                key={g.content}
+                arrow={true}
+                trigger="mouseenter focus click"
+                placement="bottom"
+                flipBehavior={['bottom', 'right']}
+                theme="light-border"
+                inertia={true}
+                interactive={true}
+                animateFill={false}
+                interactiveBorder={10}
+                duration={[75, 75]}
+                content={
+                  <div>
+                    {reactorsSentence} reacted with{' '}
+                    {lowerCase(sentenceCase(g.content))} emoji
+                  </div>
+                }>
+                <span
+                  key={g.content}
+                  style={{
+                    padding: '0 16px',
+                    borderRight: '1px solid rgba(0,0,0,0.12)',
+                    display: 'flex',
+                    alignItems: 'center',
+                  }}>
+                  <Text>{emojiForContent(g.content)} </Text>
+                  <Text size="small" style={{marginLeft: 8}}>
+                    {g.users.totalCount}
+                  </Text>
+                </span>
+              </Tippy>
+            );
+          })}
+        </TippyGroup>
         <Tippy
           onCreate={instance => (popoverInstance.current = instance)}
           arrow={true}
@@ -368,8 +404,11 @@ export default createFragmentContainer(Post, {
       reactionGroups {
         content
         viewerHasReacted
-        users {
+        users(first: 11) {
           totalCount
+          nodes {
+            login
+          }
         }
       }
       comments {
@@ -378,114 +417,3 @@ export default createFragmentContainer(Post, {
     }
   `,
 });
-
-const WORDS = [
-  'people',
-  'see',
-  'one',
-  'make',
-  'day',
-  'it’s',
-  'man',
-  'old',
-  'out',
-  'dog',
-  'guy',
-  'new',
-  'video',
-  'things',
-  'life',
-  'made',
-  'year',
-  'never',
-  'facebook',
-  'awesome',
-  'girl',
-  'look',
-  'photos',
-  'love',
-  'know',
-  'best',
-  'way',
-  'thing',
-  'beautiful',
-  'time',
-  'little',
-  'more',
-  'first',
-  'happened',
-  'heart',
-  'now',
-  'you’ll',
-  'being',
-  'ways',
-  'want',
-  'think',
-  'something',
-  'years',
-  'found',
-  'better',
-  'seen',
-  'baby',
-  'really',
-  'world',
-  'actually',
-  'valentine’s',
-  'down',
-  'reasons',
-  'watch',
-  'need',
-  'here',
-  'good',
-  'media',
-  'makes',
-  'boy',
-  'mind',
-  'right',
-  'social',
-];
-
-function blockWord(size: number): string {
-  let res = '';
-  for (let i = 0; i < size; i++) {
-    res += '█';
-  }
-  return res;
-}
-
-function randInt(x: number): number {
-  return Math.floor(Math.random() * x);
-}
-
-function randomWord() {
-  // return WORDS[randInt(WORDS.length)];
-  return blockWord(randInt(4) + 1);
-}
-
-function capitalize(s: string): string {
-  return s.charAt(0).toUpperCase() + s.slice(1);
-}
-
-export class LoadingPost extends React.PureComponent<*, *> {
-  render() {
-    return (
-      <PostBox>
-        <Box pad="medium" style={{opacity: '0.6'}} className="shimmer">
-          <Heading level={3} margin="none">
-            ██ ██ ██
-          </Heading>
-          <Text size="xsmall">█ █ ██</Text>
-          <Text size="small">
-            <MarkdownRenderer
-              source={`█ ██ █ █ ██ ██ █ ██ ██ ██ ██ █ █ ██ █ ██ █ ██ █ █ █ █ ██ ██ ██ ██ █ █ ██ █ ██ ██ █ █ ██ █ █ █ ██ █ ██ █ ██ ██ ██ █ ██ ██ █ ██ ██ █ █ ██ █ █ ██ ██ ██ █ █ ██ █ █ █ █ █ █ ██ ██ █ ██ ██ █ ██ ██ ██ ██ █ ██ █ █ █ ██ █ █ ██ ██ ██ ██ █ █ ██ █ █ ██ █ ██ █ █ ██ ██ █ █ █ █ ██ █ ██ █ ██ █ █ █ ██ ██ █ █ █ █ ██ ██
-
-██ ██ ██ █ █ █ █ █ ██ ██ ██ █ ██ ██ ██ ██ █ ██ █ █ █ █ ██ █ ██ █ █ █ █ █ █ █ ██ ██ █ █ █ █ █ █ ██ ██ █ █ ██ ██ ██ █ ██ ██ █ █ █ ██ █ █ █ ██ █ █ ██ ██ █ █ █ ██ ██ █ █ █ █ ██ ██ ██ ██ █ █ ██ ██ ██ █ █ █ █ █ █ ██ █ ██ █ █ ██ █ █ █ █ █ ██ █ ██ ██ ██ ██ █ ██ ██ ██ █ █ █ ██ █ ██ █ ██ █ ██ █ ██ ██ ██ █ █ ██ ██ █ ██ ██ ██ ██ █ ██ █ █ ██ ██ █ ██ ██ █ ██ █ █ ██ █ █ ██ █ █ █ ██ █ ██ █ ██ █ █ █ █ █ ██ █ █ ██ █ ██ ██ ██ █ █ █ ██ █ ██ ██ ██ █ ██ █ █ ██ ██ ██ █ █ █ █ ██ ██ █ ██ ██ █ ██ ██ ██ █ ██ █
-
-██ █ █ █ ██ ██ ██ █ ██ ██ ██ ██ █ ██ ██ ██ ██ █ ██ ██ █ ██ █ ██ ██ ██ ██ ██ ██ ██ █ ██ ██ █ ██ ██ ██ ██ ██ █ █ ██ ██ █ █ ██ █ ██ █ ██ █ ██ █ █ ██ ██ █ ██ ██ █ ██ ██ █ ██ █ ██ ██ ██ █ █ █ ██ ██ ██ ██ ██ ██ █ █ ██ █ ██ █ ██ █ ██ █ ██ █ █ ██ ██ ██ ██ ██ ██ ██ █ █ █ █ ██ █ █ █ █ █ █ ██ █ █ ██ █ █ ██ █ ██ █ ██ ██ ██ █ █ █ █ █ ██ ██ █ █ ██ █ █ █ █ ██ ██ █ █`}
-            />
-          </Text>
-        </Box>
-      </PostBox>
-    );
-  }
-}

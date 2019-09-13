@@ -1,6 +1,6 @@
 /**
  * @flow
- * @relayHash 9527a7f1c077313e05c1dc3b88b985bc
+ * @relayHash 4add455b1720aec55a4c84bb4066c56e
  */
 
 /* eslint-disable */
@@ -71,8 +71,12 @@ fragment Post_post on GitHubIssue {
   reactionGroups {
     content
     viewerHasReacted
-    users {
+    users(first: 11) {
       totalCount
+      nodes {
+        login
+        id
+      }
     }
   }
   comments {
@@ -124,15 +128,20 @@ v3 = {
   "args": null,
   "storageKey": null
 },
-v4 = [
-  {
-    "kind": "ScalarField",
-    "alias": null,
-    "name": "totalCount",
-    "args": null,
-    "storageKey": null
-  }
-];
+v4 = {
+  "kind": "ScalarField",
+  "alias": null,
+  "name": "login",
+  "args": null,
+  "storageKey": null
+},
+v5 = {
+  "kind": "ScalarField",
+  "alias": null,
+  "name": "totalCount",
+  "args": null,
+  "storageKey": null
+};
 return {
   "kind": "Request",
   "fragment": {
@@ -285,13 +294,7 @@ return {
                                     "args": null,
                                     "storageKey": null
                                   },
-                                  {
-                                    "kind": "ScalarField",
-                                    "alias": null,
-                                    "name": "login",
-                                    "args": null,
-                                    "storageKey": null
-                                  },
+                                  (v4/*: any*/),
                                   {
                                     "kind": "ScalarField",
                                     "alias": null,
@@ -337,11 +340,32 @@ return {
                                 "kind": "LinkedField",
                                 "alias": null,
                                 "name": "users",
-                                "storageKey": null,
-                                "args": null,
+                                "storageKey": "users(first:11)",
+                                "args": [
+                                  {
+                                    "kind": "Literal",
+                                    "name": "first",
+                                    "value": 11
+                                  }
+                                ],
                                 "concreteType": "GitHubReactingUserConnection",
                                 "plural": false,
-                                "selections": (v4/*: any*/)
+                                "selections": [
+                                  (v5/*: any*/),
+                                  {
+                                    "kind": "LinkedField",
+                                    "alias": null,
+                                    "name": "nodes",
+                                    "storageKey": null,
+                                    "args": null,
+                                    "concreteType": "GitHubUser",
+                                    "plural": true,
+                                    "selections": [
+                                      (v4/*: any*/),
+                                      (v3/*: any*/)
+                                    ]
+                                  }
+                                ]
                               }
                             ]
                           },
@@ -353,7 +377,9 @@ return {
                             "args": null,
                             "concreteType": "GitHubIssueCommentConnection",
                             "plural": false,
-                            "selections": (v4/*: any*/)
+                            "selections": [
+                              (v5/*: any*/)
+                            ]
                           },
                           {
                             "kind": "ScalarField",
@@ -422,7 +448,7 @@ return {
   "params": {
     "operationKind": "query",
     "name": "App_Query",
-    "id": "1b2ee6b0-f58a-4ac9-aa26-e53fbd2a69a4",
+    "id": "50969d9a-269d-427f-a94d-c5a6f562340a",
     "text": null,
     "metadata": {}
   }
