@@ -1,6 +1,6 @@
 /**
  * @flow
- * @relayHash ec2feaff9d502683cc1e5fe88325467a
+ * @relayHash e346f54aa97a533c709a554d7bbfecd9
  */
 
 /* eslint-disable */
@@ -54,8 +54,8 @@ fragment Comments_post_1G22uz on GitHubIssue {
   comments(first: $count, after: $cursor) {
     edges {
       node {
-        ...Comment_comment
         id
+        ...Comment_comment
         __typename
       }
       cursor
@@ -521,7 +521,7 @@ return {
   "params": {
     "operationKind": "query",
     "name": "CommentsPaginationQuery",
-    "id": "f999d707-223e-4188-8321-9359ca6b8f6a",
+    "id": "637b8e79-720d-44d1-8909-a1e68d6f3592",
     "text": null,
     "metadata": {}
   }

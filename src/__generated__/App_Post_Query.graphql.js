@@ -1,6 +1,6 @@
 /**
  * @flow
- * @relayHash 30550c6a6b62d0afd91fa11e4a201331
+ * @relayHash fcaa4f5fcf15c3fbba0d4a590756609d
  */
 
 /* eslint-disable */
@@ -94,8 +94,8 @@ fragment Comments_post on GitHubIssue {
   comments(first: 100) {
     edges {
       node {
-        ...Comment_comment
         id
+        ...Comment_comment
         __typename
       }
       cursor
@@ -658,7 +658,7 @@ return {
   "params": {
     "operationKind": "query",
     "name": "App_Post_Query",
-    "id": "6e888c0f-d319-4c13-94fa-b5a3cf5057c6",
+    "id": "c95b9232-7b1a-406b-92c6-e97f7e073008",
     "text": null,
     "metadata": {}
   }

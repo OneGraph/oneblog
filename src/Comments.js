@@ -93,7 +93,7 @@ function Comments({post, relay, postId}: Props) {
   return (
     <Box id="comments">
       {comments.map(comment => {
-        return <Comment comment={comment} />;
+        return <Comment key={comment.id} comment={comment} />;
       })}
       <PostBox>
         <Stack
@@ -163,6 +163,7 @@ export default createPaginationContainer(
           @connection(key: "Comments_post_comments") {
           edges {
             node {
+              id
               ...Comment_comment
             }
           }

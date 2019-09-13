@@ -16,7 +16,8 @@ export type Comments_post = {|
   +comments: {|
     +edges: ?$ReadOnlyArray<?{|
       +node: ?{|
-        +$fragmentRefs: Comment_comment$ref
+        +id: string,
+        +$fragmentRefs: Comment_comment$ref,
       |}
     |}>
   |},
@@ -91,6 +92,13 @@ const node/*: ReaderFragment*/ = {
                 {
                   "kind": "ScalarField",
                   "alias": null,
+                  "name": "id",
+                  "args": null,
+                  "storageKey": null
+                },
+                {
+                  "kind": "ScalarField",
+                  "alias": null,
                   "name": "__typename",
                   "args": null,
                   "storageKey": null
@@ -141,5 +149,5 @@ const node/*: ReaderFragment*/ = {
   ]
 };
 // prettier-ignore
-(node/*: any*/).hash = 'c18e48e4a6a5ec2d3e2417abdafcfc3a';
+(node/*: any*/).hash = 'b4181ca0f4f4f51a0ecf1c358aa6ceeb';
 module.exports = node;
