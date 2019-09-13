@@ -26,6 +26,7 @@
     "react-markdown": "^4.1.0",
     "react-relay": "^5.0.0",
     "react-router-dom": "^5.0.1",
+    "react-router-hash-link": "^1.2.2",
     "react-router-scroll-memory": "^2.0.3",
     "react-syntax-highlighter": "^11.0.2",
     "serialize-javascript": "^1.7.0",

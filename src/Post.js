@@ -15,10 +15,11 @@ import AddIcon from './addIcon';
 import Tippy, {TippyGroup} from '@tippy.js/react';
 import 'tippy.js/themes/light-border.css';
 import {Link} from 'react-router-dom';
+import {HashLink} from 'react-router-hash-link';
 import {postRootQuery} from './App';
 import GitHubLoginButton from './GitHubLoginButton';
 import {NotificationContext} from './Notifications';
-import {Box, Heading, Text, Anchor} from 'grommet';
+import {Box, Heading, Text} from 'grommet';
 import UserContext from './UserContext';
 import {lowerCase, sentenceCase} from 'change-case';
 
@@ -370,9 +371,9 @@ const Post = ({relay, post}: Props) => {
             {formatDate(new Date(post.createdAt), 'MMM eo, yyyy')}
           </Text>
           <Text size="xsmall">
-            <Anchor href={`/post/${post.number}#comments`}>
+            <HashLink to={`/post/${post.number}#comments`}>
               view comments
-            </Anchor>
+            </HashLink>
           </Text>
         </Box>
         <Text size="small">
