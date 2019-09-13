@@ -8,6 +8,7 @@ import GifPlayer from './GifPlayer';
 
 type Props = {
   source: string,
+  escapeHtml: boolean,
 };
 
 class CodeBlock extends React.PureComponent<
@@ -81,15 +82,16 @@ const parseHtml = htmlParser({
 
 export default class MarkdownRenderer extends React.PureComponent<Props> {
   render() {
+    const {escapeHtml = true} = this.props;
     return (
       <ReactMarkdown
-        escapeHtml={false}
+        escapeHtml={this.props.escapeHtml}
         source={this.props.source}
         renderers={{
           code: CodeBlock,
           image: Image,
         }}
-        astPlugins={[parseHtml]}
+        astPlugins={this.props.escapeHtml ? [parseHtml] : []}
       />
     );
   }

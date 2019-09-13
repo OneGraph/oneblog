@@ -6,6 +6,7 @@ import graphql from 'babel-plugin-relay/macro';
 import {QueryRenderer, fetchQuery} from 'react-relay';
 import Posts from './Posts';
 import Post from './Post';
+import Comments from './Comments';
 import {onegraphAuth} from './Environment';
 import {Route, Link, Switch} from 'react-router-dom';
 import idx from 'idx';
@@ -22,13 +23,23 @@ import type {Environment} from 'relay-runtime';
 import type {RelayNetworkError} from 'react-relay';
 
 const theme = {
+  name: 'onegraph',
+  rounding: 4,
+  spacing: 24,
   global: {
+    colors: {
+      brand: '#1997c6',
+      'accent-1': '#3cc7b7',
+      focus: 'rgba(60, 199, 183, 0.75)',
+    },
     font: {
-      family: 'Helvetica,Arial,sans-serif',
+      family: 'Helvetica Neue,Helvetica,Arial,sans-serif',
       size: '14px',
       height: '20px',
     },
   },
+  email: 'dwwoelfel@gmail.com',
+  date: '2019-09-13T16:24:04.000Z',
 };
 
 const postsRootQuery = graphql`
@@ -45,7 +56,6 @@ const postsRootQuery = graphql`
 `;
 
 const ErrorBox = ({error}: {error: Error}) => {
-  console.log('e', error);
   // $FlowFixMe
   const relayError = idx(error, _ => _.source.errors[0].message);
   return (
@@ -90,7 +100,9 @@ export const postRootQuery = graphql`
               name
             }
           }
+          id
           ...Post_post
+          ...Comments_post
         }
       }
     }
@@ -115,7 +127,12 @@ const PostRoot = ({
   if (!post || !labels.map(l => l.name).includes('publish')) {
     return <ErrorBox error={new Error('Missing post.')} />;
   } else {
-    return <Post post={post} />;
+    return (
+      <Box>
+        <Post post={post} />
+        <Comments post={post} postId={post.id} />
+      </Box>
+    );
   }
 };
 

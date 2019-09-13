@@ -1,6 +1,6 @@
 /**
  * @flow
- * @relayHash 77ca166b4f0a511a600781b87a27d20d
+ * @relayHash 1fd01312b8be09230a4b82da48aa7a55
  */
 
 /* eslint-disable */
@@ -95,7 +95,7 @@ fragment Post_post on GitHubIssue {
       }
     }
   }
-  comments {
+  commentsCount: comments {
     totalCount
   }
 }
@@ -434,7 +434,7 @@ return {
                           },
                           {
                             "kind": "LinkedField",
-                            "alias": null,
+                            "alias": "commentsCount",
                             "name": "comments",
                             "storageKey": null,
                             "args": null,
@@ -505,7 +505,7 @@ return {
   "params": {
     "operationKind": "query",
     "name": "PostsPaginationQuery",
-    "id": "ee6e1832-a953-4f5b-9973-dd8ff5d27eec",
+    "id": "30007fb5-f892-4b1c-9b65-d44ddc5fe86b",
     "text": null,
     "metadata": {}
   }

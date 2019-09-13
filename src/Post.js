@@ -18,7 +18,7 @@ import {Link} from 'react-router-dom';
 import {postRootQuery} from './App';
 import GitHubLoginButton from './GitHubLoginButton';
 import {NotificationContext} from './Notifications';
-import {Box, Heading, Text} from 'grommet';
+import {Box, Heading, Text, Anchor} from 'grommet';
 import UserContext from './UserContext';
 import {lowerCase, sentenceCase} from 'change-case';
 
@@ -54,24 +54,24 @@ const removeReactionMutation = graphql`
   }
 `;
 
-function reactionUpdater({store, viewerHasReacted, postId, content}) {
+function reactionUpdater({store, viewerHasReacted, subjectId, content}) {
   const reactionGroup = store
-    .get(postId)
+    .get(subjectId)
     .getLinkedRecords('reactionGroups')
     .find(r => r.getValue('content') === content);
   reactionGroup.setValue(viewerHasReacted, 'viewerHasReacted');
-  const users = reactionGroup.getLinkedRecord('users');
+  const users = reactionGroup.getLinkedRecord('users', {first: 11});
   users.setValue(
     Math.max(0, users.getValue('totalCount') + (viewerHasReacted ? 1 : -1)),
     'totalCount',
   );
 }
 
-async function addReaction({environment, content, postId}) {
+async function addReaction({environment, content, subjectId}) {
   const variables = {
     input: {
       content,
-      subjectId: postId,
+      subjectId,
     },
   };
   return new Promise((resolve, reject) => {
@@ -81,18 +81,18 @@ async function addReaction({environment, content, postId}) {
       onCompleted: (response, errors) => resolve({response, errors}),
       onError: err => reject(err),
       optimisticUpdater: store =>
-        reactionUpdater({store, viewerHasReacted: true, content, postId}),
+        reactionUpdater({store, viewerHasReacted: true, content, subjectId}),
       updater: (store, data) =>
-        reactionUpdater({store, viewerHasReacted: true, content, postId}),
+        reactionUpdater({store, viewerHasReacted: true, content, subjectId}),
     });
   });
 }
 
-async function removeReaction({environment, content, postId}) {
+async function removeReaction({environment, content, subjectId}) {
   const variables = {
     input: {
       content,
-      subjectId: postId,
+      subjectId,
     },
   };
   return new Promise((resolve, reject) => {
@@ -102,9 +102,9 @@ async function removeReaction({environment, content, postId}) {
       onCompleted: (response, errors) => resolve({response, errors}),
       onError: err => reject(err),
       optimisticUpdater: store =>
-        reactionUpdater({store, viewerHasReacted: false, content, postId}),
+        reactionUpdater({store, viewerHasReacted: false, content, subjectId}),
       updater: (store, data) =>
-        reactionUpdater({store, viewerHasReacted: false, content, postId}),
+        reactionUpdater({store, viewerHasReacted: false, content, subjectId}),
     });
   });
 }
@@ -195,7 +195,7 @@ type Props = {
   post: Post_post,
 };
 
-function PostBox({children}: {children: React.Node}) {
+export function PostBox({children}: {children: React.Node}) {
   return (
     <Box
       margin="medium"
@@ -208,6 +208,136 @@ function PostBox({children}: {children: React.Node}) {
     </Box>
   );
 }
+
+export const ReactionBar = ({
+  reactionGroups,
+  relay,
+  subjectId,
+}: {
+  reactionGroups: *,
+  relay: RelayProp,
+  subjectId: string,
+}) => {
+  const {error: notifyError} = React.useContext(NotificationContext);
+  const [showReactionPopover, setShowReactionPopover] = React.useState(false);
+  const popoverInstance = React.useRef();
+  const {isLoggedIn, login} = React.useContext(UserContext);
+
+  const usedReactions = (reactionGroups || []).filter(
+    g => g.users.totalCount > 0,
+  );
+
+  return (
+    <Box
+      pad="xsmall"
+      direction="row"
+      wrap={true}
+      border={{size: 'xsmall', side: 'top', color: 'rgba(0,0,0,0.1)'}}>
+      <TippyGroup delay={500}>
+        {usedReactions.map(g => {
+          const total = g.users.totalCount;
+          const reactors = (g.users.nodes || []).map(x => (x ? x.login : null));
+          if (total > 11) {
+            reactors.push(`${total - 11} more`);
+          }
+
+          const reactorsSentence = [
+            ...reactors.slice(0, reactors.length - 2),
+            reactors.slice(-2).join(reactors.length > 2 ? ', and ' : ' and '),
+          ].join(', ');
+
+          return (
+            <Tippy
+              key={g.content}
+              arrow={true}
+              trigger="mouseenter focus click"
+              placement="bottom"
+              flipBehavior={['bottom', 'right']}
+              theme="light-border"
+              inertia={true}
+              interactive={true}
+              animateFill={false}
+              interactiveBorder={10}
+              duration={[75, 75]}
+              content={
+                <div>
+                  {reactorsSentence} reacted with{' '}
+                  {lowerCase(sentenceCase(g.content))} emoji
+                </div>
+              }>
+              <span
+                key={g.content}
+                style={{
+                  padding: '0 16px',
+                  borderRight: '1px solid rgba(0,0,0,0.12)',
+                  display: 'flex',
+                  alignItems: 'center',
+                }}>
+                <Text>{emojiForContent(g.content)} </Text>
+                <Text size="small" style={{marginLeft: 8}}>
+                  {g.users.totalCount}
+                </Text>
+              </span>
+            </Tippy>
+          );
+        })}
+      </TippyGroup>
+      <Tippy
+        onCreate={instance => (popoverInstance.current = instance)}
+        arrow={true}
+        trigger="click"
+        theme="light-border"
+        inertia={true}
+        interactive={true}
+        animateFill={false}
+        interactiveBorder={10}
+        duration={[300, 75]}
+        content={
+          <div>
+            <EmojiPicker
+              isLoggedIn={isLoggedIn}
+              login={login}
+              viewerReactions={usedReactions
+                .filter(x => x.viewerHasReacted)
+                .map(x => x.content)}
+              onDeselect={async content => {
+                popoverInstance.current && popoverInstance.current.hide();
+                try {
+                  await removeReaction({
+                    environment: relay.environment,
+                    content,
+                    subjectId,
+                  });
+                } catch (e) {
+                  notifyError('Error removing reaction.');
+                }
+              }}
+              onSelect={async content => {
+                popoverInstance.current && popoverInstance.current.hide();
+                try {
+                  await addReaction({
+                    environment: relay.environment,
+                    content,
+                    subjectId,
+                  });
+                } catch (e) {
+                  notifyError('Error adding reaction.');
+                }
+              }}
+            />
+          </div>
+        }>
+        <span
+          style={{padding: '8px 16px'}}
+          className="add-reaction-emoji"
+          onClick={() => setShowReactionPopover(!showReactionPopover)}>
+          <AddIcon width="12" />
+          <EmojiIcon width="24" style={{stroke: 'rgba(0,0,0,0)'}} />
+        </span>
+      </Tippy>
+    </Box>
+  );
+};
 
 const Post = ({relay, post}: Props) => {
   const {error: notifyError} = React.useContext(NotificationContext);
@@ -235,15 +365,21 @@ const Post = ({relay, post}: Props) => {
           </Link>
         </Heading>
 
-        <Text size="xsmall">
-          {formatDate(new Date(post.createdAt), 'MMM Do, YYYY')}
-        </Text>
+        <Box direction="row" justify="between">
+          <Text size="xsmall">
+            {formatDate(new Date(post.createdAt), 'MMM eo, yyyy')}
+          </Text>
+          <Text size="xsmall">
+            <Anchor href={`/post/${post.number}#comments`}>
+              view comments
+            </Anchor>
+          </Text>
+        </Box>
         <Text size="small">
-          <MarkdownRenderer source={post.body} />
+          <MarkdownRenderer escapeHtml={false} source={post.body} />
         </Text>
       </Box>
       {authors.length > 0 ? (
-        //style={{ borderTop: "1px solid rgba(0,0,0,0.12)", padding: 16 }}>
         <Box
           pad="medium"
           direction="row"
@@ -270,117 +406,11 @@ const Post = ({relay, post}: Props) => {
           )}
         </Box>
       ) : null}
-
-      <Box
-        pad="xsmall"
-        direction="row"
-        wrap={true}
-        border={{size: 'xsmall', side: 'top', color: 'rgba(0,0,0,0.1)'}}>
-        <TippyGroup delay={500}>
-          {usedReactions.map(g => {
-            const total = g.users.totalCount;
-            const reactors = (g.users.nodes || []).map(x =>
-              x ? x.login : null,
-            );
-            if (total > 11) {
-              reactors.push(`${total - 11} more`);
-            }
-
-            const reactorsSentence = [
-              ...reactors.slice(0, reactors.length - 2),
-              reactors.slice(-2).join(reactors.length > 2 ? ', and ' : ' and '),
-            ].join(', ');
-
-            return (
-              <Tippy
-                key={g.content}
-                arrow={true}
-                trigger="mouseenter focus click"
-                placement="bottom"
-                flipBehavior={['bottom', 'right']}
-                theme="light-border"
-                inertia={true}
-                interactive={true}
-                animateFill={false}
-                interactiveBorder={10}
-                duration={[75, 75]}
-                content={
-                  <div>
-                    {reactorsSentence} reacted with{' '}
-                    {lowerCase(sentenceCase(g.content))} emoji
-                  </div>
-                }>
-                <span
-                  key={g.content}
-                  style={{
-                    padding: '0 16px',
-                    borderRight: '1px solid rgba(0,0,0,0.12)',
-                    display: 'flex',
-                    alignItems: 'center',
-                  }}>
-                  <Text>{emojiForContent(g.content)} </Text>
-                  <Text size="small" style={{marginLeft: 8}}>
-                    {g.users.totalCount}
-                  </Text>
-                </span>
-              </Tippy>
-            );
-          })}
-        </TippyGroup>
-        <Tippy
-          onCreate={instance => (popoverInstance.current = instance)}
-          arrow={true}
-          trigger="click"
-          theme="light-border"
-          inertia={true}
-          interactive={true}
-          animateFill={false}
-          interactiveBorder={10}
-          duration={[300, 75]}
-          content={
-            <div>
-              <EmojiPicker
-                isLoggedIn={isLoggedIn}
-                login={login}
-                viewerReactions={usedReactions
-                  .filter(x => x.viewerHasReacted)
-                  .map(x => x.content)}
-                onDeselect={async content => {
-                  popoverInstance.current && popoverInstance.current.hide();
-                  try {
-                    await removeReaction({
-                      environment: relay.environment,
-                      content,
-                      postId: post.id,
-                    });
-                  } catch (e) {
-                    notifyError('Error removing reaction.');
-                  }
-                }}
-                onSelect={async content => {
-                  popoverInstance.current && popoverInstance.current.hide();
-                  try {
-                    await addReaction({
-                      environment: relay.environment,
-                      content,
-                      postId: post.id,
-                    });
-                  } catch (e) {
-                    notifyError('Error adding reaction.');
-                  }
-                }}
-              />
-            </div>
-          }>
-          <span
-            style={{padding: '8px 16px'}}
-            className="add-reaction-emoji"
-            onClick={() => setShowReactionPopover(!showReactionPopover)}>
-            <AddIcon width="12" />
-            <EmojiIcon width="24" style={{stroke: 'rgba(0,0,0,0)'}} />
-          </span>
-        </Tippy>
-      </Box>
+      <ReactionBar
+        relay={relay}
+        subjectId={post.id}
+        reactionGroups={post.reactionGroups}
+      />
     </PostBox>
   );
 };
@@ -413,7 +443,7 @@ export default createFragmentContainer(Post, {
           }
         }
       }
-      comments {
+      commentsCount: comments {
         totalCount
       }
     }

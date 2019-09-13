@@ -10,24 +10,20 @@
 import type { ReaderFragment } from 'relay-runtime';
 export type GitHubReactionContent = "CONFUSED" | "EYES" | "HEART" | "HOORAY" | "LAUGH" | "ROCKET" | "THUMBS_DOWN" | "THUMBS_UP" | "%future added value";
 import type { FragmentReference } from "relay-runtime";
-declare export opaque type Post_post$ref: FragmentReference;
-declare export opaque type Post_post$fragmentType: Post_post$ref;
-export type Post_post = {|
+declare export opaque type Comment_comment$ref: FragmentReference;
+declare export opaque type Comment_comment$fragmentType: Comment_comment$ref;
+export type Comment_comment = {|
   +id: string,
-  +number: number,
-  +title: string,
   +body: string,
-  +createdAt: string,
-  +updatedAt: string,
-  +assignees: {|
-    +nodes: ?$ReadOnlyArray<?{|
-      +id: string,
-      +name: ?string,
-      +login: string,
-      +avatarUrl: string,
-      +url: string,
-    |}>
+  +createdViaEmail: boolean,
+  +author: ?{|
+    +name?: ?string,
+    +avatarUrl?: string,
+    +login?: string,
+    +url?: string,
+    +id?: string,
   |},
+  +createdAt: string,
   +reactionGroups: ?$ReadOnlyArray<{|
     +content: GitHubReactionContent,
     +viewerHasReacted: boolean,
@@ -38,15 +34,12 @@ export type Post_post = {|
       |}>,
     |},
   |}>,
-  +commentsCount: {|
-    +totalCount: number
-  |},
-  +$refType: Post_post$ref,
+  +$refType: Comment_comment$ref,
 |};
-export type Post_post$data = Post_post;
-export type Post_post$key = {
-  +$data?: Post_post$data,
-  +$fragmentRefs: Post_post$ref,
+export type Comment_comment$data = Comment_comment;
+export type Comment_comment$key = {
+  +$data?: Comment_comment$data,
+  +$fragmentRefs: Comment_comment$ref,
 };
 */
 
@@ -62,39 +55,44 @@ var v0 = {
 v1 = {
   "kind": "ScalarField",
   "alias": null,
-  "name": "login",
+  "name": "avatarUrl",
   "args": null,
   "storageKey": null
 },
 v2 = {
   "kind": "ScalarField",
   "alias": null,
-  "name": "totalCount",
+  "name": "login",
   "args": null,
   "storageKey": null
-};
+},
+v3 = {
+  "kind": "ScalarField",
+  "alias": null,
+  "name": "url",
+  "args": null,
+  "storageKey": null
+},
+v4 = [
+  {
+    "kind": "ScalarField",
+    "alias": null,
+    "name": "name",
+    "args": null,
+    "storageKey": null
+  },
+  (v1/*: any*/),
+  (v2/*: any*/),
+  (v3/*: any*/)
+];
 return {
   "kind": "Fragment",
-  "name": "Post_post",
-  "type": "GitHubIssue",
+  "name": "Comment_comment",
+  "type": "GitHubIssueComment",
   "metadata": null,
   "argumentDefinitions": [],
   "selections": [
     (v0/*: any*/),
-    {
-      "kind": "ScalarField",
-      "alias": null,
-      "name": "number",
-      "args": null,
-      "storageKey": null
-    },
-    {
-      "kind": "ScalarField",
-      "alias": null,
-      "name": "title",
-      "args": null,
-      "storageKey": null
-    },
     {
       "kind": "ScalarField",
       "alias": null,
@@ -105,67 +103,55 @@ return {
     {
       "kind": "ScalarField",
       "alias": null,
-      "name": "createdAt",
-      "args": null,
-      "storageKey": null
-    },
-    {
-      "kind": "ScalarField",
-      "alias": null,
-      "name": "updatedAt",
+      "name": "createdViaEmail",
       "args": null,
       "storageKey": null
     },
     {
       "kind": "LinkedField",
       "alias": null,
-      "name": "assignees",
-      "storageKey": "assignees(first:10)",
-      "args": [
-        {
-          "kind": "Literal",
-          "name": "first",
-          "value": 10
-        }
-      ],
-      "concreteType": "GitHubUserConnection",
+      "name": "author",
+      "storageKey": null,
+      "args": null,
+      "concreteType": null,
       "plural": false,
       "selections": [
         {
-          "kind": "LinkedField",
-          "alias": null,
-          "name": "nodes",
-          "storageKey": null,
-          "args": null,
-          "concreteType": "GitHubUser",
-          "plural": true,
+          "kind": "InlineFragment",
+          "type": "GitHubUser",
+          "selections": (v4/*: any*/)
+        },
+        {
+          "kind": "InlineFragment",
+          "type": "GitHubBot",
+          "selections": [
+            (v1/*: any*/),
+            (v2/*: any*/),
+            (v3/*: any*/)
+          ]
+        },
+        {
+          "kind": "InlineFragment",
+          "type": "GitHubOrganization",
+          "selections": (v4/*: any*/)
+        },
+        {
+          "kind": "InlineFragment",
+          "type": "GitHubMannequin",
           "selections": [
             (v0/*: any*/),
-            {
-              "kind": "ScalarField",
-              "alias": null,
-              "name": "name",
-              "args": null,
-              "storageKey": null
-            },
-            (v1/*: any*/),
-            {
-              "kind": "ScalarField",
-              "alias": null,
-              "name": "avatarUrl",
-              "args": null,
-              "storageKey": null
-            },
-            {
-              "kind": "ScalarField",
-              "alias": null,
-              "name": "url",
-              "args": null,
-              "storageKey": null
-            }
+            (v2/*: any*/),
+            (v3/*: any*/)
           ]
         }
       ]
+    },
+    {
+      "kind": "ScalarField",
+      "alias": null,
+      "name": "createdAt",
+      "args": null,
+      "storageKey": null
     },
     {
       "kind": "LinkedField",
@@ -205,7 +191,13 @@ return {
           "concreteType": "GitHubReactingUserConnection",
           "plural": false,
           "selections": [
-            (v2/*: any*/),
+            {
+              "kind": "ScalarField",
+              "alias": null,
+              "name": "totalCount",
+              "args": null,
+              "storageKey": null
+            },
             {
               "kind": "LinkedField",
               "alias": null,
@@ -215,28 +207,16 @@ return {
               "concreteType": "GitHubUser",
               "plural": true,
               "selections": [
-                (v1/*: any*/)
+                (v2/*: any*/)
               ]
             }
           ]
         }
-      ]
-    },
-    {
-      "kind": "LinkedField",
-      "alias": "commentsCount",
-      "name": "comments",
-      "storageKey": null,
-      "args": null,
-      "concreteType": "GitHubIssueCommentConnection",
-      "plural": false,
-      "selections": [
-        (v2/*: any*/)
       ]
     }
   ]
 };
 })();
 // prettier-ignore
-(node/*: any*/).hash = 'c94c19618784589f2b224f1990db7a3e';
+(node/*: any*/).hash = '1ee5f7e5a343f2b58e4b6e73c3d6a129';
 module.exports = node;
