@@ -367,7 +367,7 @@ const Post = ({relay, post}: Props) => {
 
         <Box direction="row" justify="between">
           <Text size="xsmall">
-            {formatDate(new Date(post.createdAt), 'MMM eo, yyyy')}
+            {formatDate(new Date(post.createdAt), 'MMM do, yyyy')}
           </Text>
           <Text size="xsmall">
             <Link to={`/post/${post.number}#comments`}>view comments</Link>
