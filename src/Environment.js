@@ -38,7 +38,15 @@ function getQueryId(operation) {
 }
 
 function makeFetchQuery(cache) {
-  return async function fetchQuery(operation, variables, cacheConfig) {
+  return async function fetchQuery(operation, rawVariables, cacheConfig) {
+    const variables = {};
+    // Bit of a hack to prevent Relay from sending null values for variables
+    // we provided to OneGraph via fixedVariables.
+    for (const k of Object.keys(rawVariables)) {
+      if (rawVariables[k] != null) {
+        variables[k] = rawVariables[k];
+      }
+    }
     const queryId = getQueryId(operation);
     const forceFetch = cacheConfig && cacheConfig.force;
     const fromCache = cache.get(queryId, variables);

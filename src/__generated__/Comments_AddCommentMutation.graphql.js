@@ -1,6 +1,6 @@
 /**
  * @flow
- * @relayHash bf9e3bbc00dd41ba5288df60f6e9994d
+ * @relayHash d0ee35b5e34664fd1c889b91e1f027f9
  */
 
 /* eslint-disable */
@@ -39,7 +39,7 @@ export type Comments_AddCommentMutation = {|
 /*
 mutation Comments_AddCommentMutation(
   $input: GitHubAddCommentInput!
-) {
+) @persistedQueryConfiguration(freeVariables: ["input"]) {
   gitHub {
     addComment(input: $input) {
       commentEdge {
@@ -401,12 +401,12 @@ return {
   "params": {
     "operationKind": "mutation",
     "name": "Comments_AddCommentMutation",
-    "id": "e3e0c4d6-794b-429a-bca8-7f41b908d07d",
+    "id": "2353412f-eb14-410f-a8f4-b5bc830a5293",
     "text": null,
     "metadata": {}
   }
 };
 })();
 // prettier-ignore
-(node/*: any*/).hash = '73974aeacbfb70c174c24c15570d895f';
+(node/*: any*/).hash = 'ec82e09b36e02c06716a076dbd7b63c6';
 module.exports = node;

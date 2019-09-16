@@ -1,6 +1,6 @@
 /**
  * @flow
- * @relayHash fcaa4f5fcf15c3fbba0d4a590756609d
+ * @relayHash 29cc3a0bc1ebcaf18b038b0e62943387
  */
 
 /* eslint-disable */
@@ -12,7 +12,9 @@ import type { ConcreteRequest } from 'relay-runtime';
 type Comments_post$ref = any;
 type Post_post$ref = any;
 export type App_Post_QueryVariables = {|
-  issueNumber: number
+  issueNumber: number,
+  repoName: string,
+  repoOwner: string,
 |};
 export type App_Post_QueryResponse = {|
   +gitHub: ?{|
@@ -39,9 +41,11 @@ export type App_Post_Query = {|
 /*
 query App_Post_Query(
   $issueNumber: Int!
-) @persistedQueryConfiguration(accessToken: {environmentVariable: "OG_GITHUB_TOKEN"}) {
+  $repoName: String!
+  $repoOwner: String!
+) @persistedQueryConfiguration(accessToken: {environmentVariable: "OG_GITHUB_TOKEN"}, fixedVariables: {environmentVariable: "REPOSITORY_FIXED_VARIABLES"}, freeVariables: ["issueNumber"]) {
   gitHub {
-    repository(name: "onegraph-changelog", owner: "onegraph") {
+    repository(name: $repoName, owner: $repoOwner) {
       issue(number: $issueNumber) {
         labels(first: 100) {
           nodes {
@@ -161,18 +165,30 @@ var v0 = [
     "name": "issueNumber",
     "type": "Int!",
     "defaultValue": null
+  },
+  {
+    "kind": "LocalArgument",
+    "name": "repoName",
+    "type": "String!",
+    "defaultValue": null
+  },
+  {
+    "kind": "LocalArgument",
+    "name": "repoOwner",
+    "type": "String!",
+    "defaultValue": null
   }
 ],
 v1 = [
   {
-    "kind": "Literal",
+    "kind": "Variable",
     "name": "name",
-    "value": "onegraph-changelog"
+    "variableName": "repoName"
   },
   {
-    "kind": "Literal",
+    "kind": "Variable",
     "name": "owner",
-    "value": "onegraph"
+    "variableName": "repoOwner"
   }
 ],
 v2 = [
@@ -337,7 +353,7 @@ return {
             "kind": "LinkedField",
             "alias": null,
             "name": "repository",
-            "storageKey": "repository(name:\"onegraph-changelog\",owner:\"onegraph\")",
+            "storageKey": null,
             "args": (v1/*: any*/),
             "concreteType": "GitHubRepository",
             "plural": false,
@@ -411,7 +427,7 @@ return {
             "kind": "LinkedField",
             "alias": null,
             "name": "repository",
-            "storageKey": "repository(name:\"onegraph-changelog\",owner:\"onegraph\")",
+            "storageKey": null,
             "args": (v1/*: any*/),
             "concreteType": "GitHubRepository",
             "plural": false,
@@ -658,12 +674,12 @@ return {
   "params": {
     "operationKind": "query",
     "name": "App_Post_Query",
-    "id": "c95b9232-7b1a-406b-92c6-e97f7e073008",
+    "id": "27b095a6-2f47-4792-a383-60d81cdcb15f",
     "text": null,
     "metadata": {}
   }
 };
 })();
 // prettier-ignore
-(node/*: any*/).hash = 'df1b49911cf19cf5b0c08d85870fc666';
+(node/*: any*/).hash = 'e4e12bfd5778781b0ffc768ff7273360';
 module.exports = node;

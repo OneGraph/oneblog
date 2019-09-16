@@ -55,8 +55,16 @@ const persistQueryConfigDirective = `
     environmentVariable: String!
   }
 
+  input PersistedQueryFixedVariablesConfiguration {
+    "The environment variable that holds the fixed variables"
+    environmentVariable: String!
+  }
+
   directive @persistedQueryConfiguration(
     accessToken: PersistedQueryAccessTokenConfiguration
+    fixedVariables: PersistedQueryFixedVariablesConfiguration
+    "List of variables that the user can provide"
+    freeVariables: [String!]
   ) on QUERY | MUTATION | SUBSCRIPTION
 `;
 

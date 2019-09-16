@@ -44,12 +44,14 @@ const theme = {
 };
 
 const postsRootQuery = graphql`
-  query App_Query
+  # repoName and repoOwner provided by fixedVariables
+  query App_Query($repoName: String!, $repoOwner: String!)
     @persistedQueryConfiguration(
       accessToken: {environmentVariable: "OG_GITHUB_TOKEN"}
+      fixedVariables: {environmentVariable: "REPOSITORY_FIXED_VARIABLES"}
     ) {
     gitHub {
-      repository(name: "onegraph-changelog", owner: "onegraph") {
+      repository(name: $repoName, owner: $repoOwner) {
         ...Posts_repository
       }
     }
@@ -89,12 +91,19 @@ const PostsRoot = ({
 };
 
 export const postRootQuery = graphql`
-  query App_Post_Query($issueNumber: Int!)
+  # repoName and repoOwner provided by fixedVariables
+  query App_Post_Query(
+    $issueNumber: Int!
+    $repoName: String!
+    $repoOwner: String!
+  )
     @persistedQueryConfiguration(
       accessToken: {environmentVariable: "OG_GITHUB_TOKEN"}
+      fixedVariables: {environmentVariable: "REPOSITORY_FIXED_VARIABLES"}
+      freeVariables: ["issueNumber"]
     ) {
     gitHub {
-      repository(name: "onegraph-changelog", owner: "onegraph") {
+      repository(name: $repoName, owner: $repoOwner) {
         issue(number: $issueNumber) {
           labels(first: 100) {
             nodes {

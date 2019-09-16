@@ -24,10 +24,12 @@ import {lowerCase, sentenceCase} from 'change-case';
 
 import type {Post_post} from './__generated__/Post_post.graphql';
 
-// n.b. no persistedQueryConfiguration for these mutations, because we want to
-// add reactions on behalf of the logged-in user, not the persisted auth
+// n.b. no accessToken in the persistedQueryConfiguration for these mutations,
+// because we want to add reactions on behalf of the logged-in user, not the 
+// persisted auth
 const addReactionMutation = graphql`
-  mutation Post_AddReactionMutation($input: GitHubAddReactionInput!) {
+  mutation Post_AddReactionMutation($input: GitHubAddReactionInput!)
+    @persistedQueryConfiguration(freeVariables: ["input"]) {
     gitHub {
       addReaction(input: $input) {
         reaction {
@@ -42,7 +44,8 @@ const addReactionMutation = graphql`
 `;
 
 const removeReactionMutation = graphql`
-  mutation Post_RemoveReactionMutation($input: GitHubRemoveReactionInput!) {
+  mutation Post_RemoveReactionMutation($input: GitHubRemoveReactionInput!)
+    @persistedQueryConfiguration(freeVariables: ["input"]) {
     gitHub {
       removeReaction(input: $input) {
         reaction {

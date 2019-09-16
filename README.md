@@ -12,7 +12,7 @@ If you'd like to learn more about persisted queries, email [persist@onegraph.com
 
 ## Setup
 
-Use an existing OneGraph app or sign up sign up at [OneGraph](https://www.onegraph.com) to create a new app. Update the `/.env` file with your app's id.
+Use an existing OneGraph app or sign up sign up at [OneGraph](https://www.onegraph.com) to create a new app. Update the `/.env` file to update the `RAZZLE_ONEGRAPH_APP_ID`  with your app's id. This would also be a good time to replace the fixed variables with the repo name and owner for the repo you'd like to back your blog (right now it uses this repo's issues).
 
 Remove the generated files (they're tied to the OneGraph app they were generated with)
 

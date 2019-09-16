@@ -1,6 +1,6 @@
 /**
  * @flow
- * @relayHash 1fd01312b8be09230a4b82da48aa7a55
+ * @relayHash be8cf5fa78d5f79778c67c1542f41e87
  */
 
 /* eslint-disable */
@@ -20,6 +20,8 @@ export type PostsPaginationQueryVariables = {|
   count: number,
   cursor?: ?string,
   orderBy?: ?GitHubIssueOrder,
+  repoOwner: string,
+  repoName: string,
 |};
 export type PostsPaginationQueryResponse = {|
   +gitHub: ?{|
@@ -41,9 +43,11 @@ query PostsPaginationQuery(
   $count: Int!
   $cursor: String
   $orderBy: GitHubIssueOrder
-) @persistedQueryConfiguration(accessToken: {environmentVariable: "OG_GITHUB_TOKEN"}) {
+  $repoOwner: String!
+  $repoName: String!
+) @persistedQueryConfiguration(accessToken: {environmentVariable: "OG_GITHUB_TOKEN"}, freeVariables: ["count", "cursor", "orderBy"], fixedVariables: {environmentVariable: "REPOSITORY_FIXED_VARIABLES"}) {
   gitHub {
-    repository(name: "onegraph-changelog", owner: "onegraph") {
+    repository(name: $repoName, owner: $repoOwner) {
       __typename
       ...Posts_repository_32czeo
       id
@@ -120,18 +124,30 @@ var v0 = [
     "name": "orderBy",
     "type": "GitHubIssueOrder",
     "defaultValue": null
+  },
+  {
+    "kind": "LocalArgument",
+    "name": "repoOwner",
+    "type": "String!",
+    "defaultValue": null
+  },
+  {
+    "kind": "LocalArgument",
+    "name": "repoName",
+    "type": "String!",
+    "defaultValue": null
   }
 ],
 v1 = [
   {
-    "kind": "Literal",
+    "kind": "Variable",
     "name": "name",
-    "value": "onegraph-changelog"
+    "variableName": "repoName"
   },
   {
-    "kind": "Literal",
+    "kind": "Variable",
     "name": "owner",
-    "value": "onegraph"
+    "variableName": "repoOwner"
   }
 ],
 v2 = {
@@ -209,7 +225,7 @@ return {
             "kind": "LinkedField",
             "alias": null,
             "name": "repository",
-            "storageKey": "repository(name:\"onegraph-changelog\",owner:\"onegraph\")",
+            "storageKey": null,
             "args": (v1/*: any*/),
             "concreteType": "GitHubRepository",
             "plural": false,
@@ -256,7 +272,7 @@ return {
             "kind": "LinkedField",
             "alias": null,
             "name": "repository",
-            "storageKey": "repository(name:\"onegraph-changelog\",owner:\"onegraph\")",
+            "storageKey": null,
             "args": (v1/*: any*/),
             "concreteType": "GitHubRepository",
             "plural": false,
@@ -505,12 +521,12 @@ return {
   "params": {
     "operationKind": "query",
     "name": "PostsPaginationQuery",
-    "id": "c1279cdc-c2de-4a3f-89d5-a42f21fe0cd4",
+    "id": "6fda9298-08c4-4638-858b-b14a82b4150f",
     "text": null,
     "metadata": {}
   }
 };
 })();
 // prettier-ignore
-(node/*: any*/).hash = '5e9134d187035768ad63a6d1c19d821b';
+(node/*: any*/).hash = '5729094fcf4421ecce17c2fbccd6da7e';
 module.exports = node;

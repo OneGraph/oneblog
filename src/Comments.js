@@ -26,8 +26,12 @@ type Props = {
   postId: string,
 };
 
+// n.b. no accessToken in the persistedQueryConfiguration for this mutation,
+// because we want to add comments on behalf of the logged-in user, not the
+// persisted auth
 const addCommentMutation = graphql`
-  mutation Comments_AddCommentMutation($input: GitHubAddCommentInput!) {
+  mutation Comments_AddCommentMutation($input: GitHubAddCommentInput!)
+    @persistedQueryConfiguration(freeVariables: ["input"]) {
     gitHub {
       addComment(input: $input) {
         commentEdge {
@@ -185,16 +189,21 @@ export default createPaginationContainer(
       };
     },
     query: graphql`
+      # repoName and repoOwner provided by fixedVariables
       query CommentsPaginationQuery(
         $count: Int!
         $cursor: String
         $issueNumber: Int!
+        $repoName: String!
+        $repoOwner: String!
       )
         @persistedQueryConfiguration(
           accessToken: {environmentVariable: "OG_GITHUB_TOKEN"}
+          freeVariables: ["count", "cursor", "issueNumber"]
+          fixedVariables: {environmentVariable: "REPOSITORY_FIXED_VARIABLES"}
         ) {
         gitHub {
-          repository(name: "onegraph-changelog", owner: "onegraph") {
+          repository(name: $repoName, owner: $repoOwner) {
             __typename
             issue(number: $issueNumber) {
               ...Comments_post @arguments(count: $count, cursor: $cursor)
