@@ -12,13 +12,15 @@ If you'd like to learn more about persisted queries, email [persist@onegraph.com
 
 ## Setup
 
-Use an existing OneGraph app or sign up sign up at [OneGraph](https://www.onegraph.com) to create a new app. Update the `/.env` file to update the `RAZZLE_ONEGRAPH_APP_ID`  with your app's id. This would also be a good time to replace the fixed variables with the repo name and owner for the repo you'd like to back your blog (right now it uses this repo's issues).
+Use an existing OneGraph app or sign up sign up at [OneGraph](https://www.onegraph.com) to create a new app. Update the `/.env` file to update the `RAZZLE_ONEGRAPH_APP_ID`  with your app's id. This would also be a good time to replace `REPOSITORY_FIXED_VARIABLES` in the `/.env` file with the repo name and owner for the repo you'd like to back your blog (it uses this repo's issues by default).
 
 Remove the generated files (they're tied to the OneGraph app they were generated with)
 
 ```
 rm -r src/__generated__
 ```
+
+(Note: any time you change the variables in `.env`, it's a good idea to stop the relay compiler, remove the files in `src/__generated__`, and restart the compiler)
 
 Install dependencies
 
