@@ -1,6 +1,6 @@
 /**
  * @flow
- * @relayHash be8cf5fa78d5f79778c67c1542f41e87
+ * @relayHash a42fb5529c1e66cc99890a33a603c99a
  */
 
 /* eslint-disable */
@@ -56,7 +56,7 @@ query PostsPaginationQuery(
 }
 
 fragment Posts_repository_32czeo on GitHubRepository {
-  issues(first: $count, after: $cursor, orderBy: $orderBy, labels: ["publish"]) {
+  issues(first: $count, after: $cursor, orderBy: $orderBy, labels: ["publish", "Publish"]) {
     edges {
       node {
         id
@@ -101,6 +101,16 @@ fragment Post_post on GitHubIssue {
   }
   commentsCount: comments {
     totalCount
+  }
+  repository {
+    name
+    owner {
+      __typename
+      login
+      avatarUrl(size: 192)
+      id
+    }
+    id
   }
 }
 */
@@ -177,7 +187,8 @@ v4 = [
     "kind": "Literal",
     "name": "labels",
     "value": [
-      "publish"
+      "publish",
+      "Publish"
     ]
   },
   (v3/*: any*/)
@@ -192,11 +203,18 @@ v5 = {
 v6 = {
   "kind": "ScalarField",
   "alias": null,
-  "name": "login",
+  "name": "name",
   "args": null,
   "storageKey": null
 },
 v7 = {
+  "kind": "ScalarField",
+  "alias": null,
+  "name": "login",
+  "args": null,
+  "storageKey": null
+},
+v8 = {
   "kind": "ScalarField",
   "alias": null,
   "name": "totalCount",
@@ -366,14 +384,8 @@ return {
                                 "plural": true,
                                 "selections": [
                                   (v5/*: any*/),
-                                  {
-                                    "kind": "ScalarField",
-                                    "alias": null,
-                                    "name": "name",
-                                    "args": null,
-                                    "storageKey": null
-                                  },
                                   (v6/*: any*/),
+                                  (v7/*: any*/),
                                   {
                                     "kind": "ScalarField",
                                     "alias": null,
@@ -430,7 +442,7 @@ return {
                                 "concreteType": "GitHubReactingUserConnection",
                                 "plural": false,
                                 "selections": [
-                                  (v7/*: any*/),
+                                  (v8/*: any*/),
                                   {
                                     "kind": "LinkedField",
                                     "alias": null,
@@ -440,7 +452,7 @@ return {
                                     "concreteType": "GitHubUser",
                                     "plural": true,
                                     "selections": [
-                                      (v6/*: any*/),
+                                      (v7/*: any*/),
                                       (v5/*: any*/)
                                     ]
                                   }
@@ -457,7 +469,47 @@ return {
                             "concreteType": "GitHubIssueCommentConnection",
                             "plural": false,
                             "selections": [
-                              (v7/*: any*/)
+                              (v8/*: any*/)
+                            ]
+                          },
+                          {
+                            "kind": "LinkedField",
+                            "alias": null,
+                            "name": "repository",
+                            "storageKey": null,
+                            "args": null,
+                            "concreteType": "GitHubRepository",
+                            "plural": false,
+                            "selections": [
+                              (v6/*: any*/),
+                              {
+                                "kind": "LinkedField",
+                                "alias": null,
+                                "name": "owner",
+                                "storageKey": null,
+                                "args": null,
+                                "concreteType": null,
+                                "plural": false,
+                                "selections": [
+                                  (v2/*: any*/),
+                                  (v7/*: any*/),
+                                  {
+                                    "kind": "ScalarField",
+                                    "alias": null,
+                                    "name": "avatarUrl",
+                                    "args": [
+                                      {
+                                        "kind": "Literal",
+                                        "name": "size",
+                                        "value": 192
+                                      }
+                                    ],
+                                    "storageKey": "avatarUrl(size:192)"
+                                  },
+                                  (v5/*: any*/)
+                                ]
+                              },
+                              (v5/*: any*/)
                             ]
                           },
                           (v2/*: any*/)
@@ -521,7 +573,7 @@ return {
   "params": {
     "operationKind": "query",
     "name": "PostsPaginationQuery",
-    "id": "6fda9298-08c4-4638-858b-b14a82b4150f",
+    "id": "99df7ec7-a065-4b68-aa1e-a891a10c62bf",
     "text": null,
     "metadata": {}
   }

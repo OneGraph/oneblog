@@ -1,6 +1,6 @@
 /**
  * @flow
- * @relayHash 29cc3a0bc1ebcaf18b038b0e62943387
+ * @relayHash 53d7b412b503bbfd7d0021cc48eaf02e
  */
 
 /* eslint-disable */
@@ -91,6 +91,16 @@ fragment Post_post on GitHubIssue {
   }
   commentsCount: comments {
     totalCount
+  }
+  repository {
+    name
+    owner {
+      __typename
+      login
+      avatarUrl(size: 192)
+      id
+    }
+    id
   }
 }
 
@@ -538,6 +548,46 @@ return {
                   {
                     "kind": "LinkedField",
                     "alias": null,
+                    "name": "repository",
+                    "storageKey": null,
+                    "args": null,
+                    "concreteType": "GitHubRepository",
+                    "plural": false,
+                    "selections": [
+                      (v4/*: any*/),
+                      {
+                        "kind": "LinkedField",
+                        "alias": null,
+                        "name": "owner",
+                        "storageKey": null,
+                        "args": null,
+                        "concreteType": null,
+                        "plural": false,
+                        "selections": [
+                          (v13/*: any*/),
+                          (v8/*: any*/),
+                          {
+                            "kind": "ScalarField",
+                            "alias": null,
+                            "name": "avatarUrl",
+                            "args": [
+                              {
+                                "kind": "Literal",
+                                "name": "size",
+                                "value": 192
+                              }
+                            ],
+                            "storageKey": "avatarUrl(size:192)"
+                          },
+                          (v5/*: any*/)
+                        ]
+                      },
+                      (v5/*: any*/)
+                    ]
+                  },
+                  {
+                    "kind": "LinkedField",
+                    "alias": null,
                     "name": "comments",
                     "storageKey": "comments(first:100)",
                     "args": (v3/*: any*/),
@@ -674,7 +724,7 @@ return {
   "params": {
     "operationKind": "query",
     "name": "App_Post_Query",
-    "id": "27b095a6-2f47-4792-a383-60d81cdcb15f",
+    "id": "42463012-2cc1-46b4-90f5-f1f042c1be1c",
     "text": null,
     "metadata": {}
   }

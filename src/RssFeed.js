@@ -9,16 +9,17 @@ import {fetchQuery} from 'react-relay';
 import type {RssFeed_QueryResponse} from './__generated__/RssFeed_Query.graphql';
 
 const feedQuery = graphql`
-  query RssFeed_Query
+  query RssFeed_Query($repoOwner: String!, $repoName: String!)
     @persistedQueryConfiguration(
       accessToken: {environmentVariable: "OG_GITHUB_TOKEN"}
+      fixedVariables: {environmentVariable: "REPOSITORY_FIXED_VARIABLES"}
     ) {
     gitHub {
-      repository(name: "onegraph-changelog", owner: "onegraph") {
+      repository(name: $repoName, owner: $repoOwner) {
         issues(
           first: 20
           orderBy: {direction: DESC, field: CREATED_AT}
-          labels: ["publish"]
+          labels: ["publish", "Publish"]
         ) {
           nodes {
             id
@@ -40,6 +41,7 @@ const feedQuery = graphql`
   }
 `;
 
+// TODO: make these fields configurable
 export async function buildFeed() {
   const data: RssFeed_QueryResponse = await fetchQuery(
     environment,

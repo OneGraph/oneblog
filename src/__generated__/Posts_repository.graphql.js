@@ -81,7 +81,8 @@ const node/*: ReaderFragment*/ = {
           "kind": "Literal",
           "name": "labels",
           "value": [
-            "publish"
+            "publish",
+            "Publish"
           ]
         },
         {
@@ -171,5 +172,5 @@ const node/*: ReaderFragment*/ = {
   ]
 };
 // prettier-ignore
-(node/*: any*/).hash = '2c3d40f990b05f9138cf469446bd1e6d';
+(node/*: any*/).hash = '860e2f92953cab35d8e06b5c493cca24';
 module.exports = node;

@@ -134,7 +134,7 @@ const PostRoot = ({
   }
   const post = idx(props, _ => _.gitHub.repository.issue);
   const labels = idx(post, _ => _.labels.nodes) || [];
-  if (!post || !labels.map(l => l.name).includes('publish')) {
+  if (!post || !labels.map(l => l.name.toLowerCase()).includes('publish')) {
     return <ErrorBox error={new Error('Missing post.')} />;
   } else {
     return (

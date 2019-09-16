@@ -1,6 +1,6 @@
 /**
  * @flow
- * @relayHash 9ea15cbbe579f177bd2caf341160eabe
+ * @relayHash 7e9bb4586a658bde383cc41381efed47
  */
 
 /* eslint-disable */
@@ -42,7 +42,7 @@ query App_Query(
 }
 
 fragment Posts_repository on GitHubRepository {
-  issues(first: 10, orderBy: {direction: DESC, field: CREATED_AT}, labels: ["publish"]) {
+  issues(first: 10, orderBy: {direction: DESC, field: CREATED_AT}, labels: ["publish", "Publish"]) {
     edges {
       node {
         id
@@ -88,6 +88,16 @@ fragment Post_post on GitHubIssue {
   commentsCount: comments {
     totalCount
   }
+  repository {
+    name
+    owner {
+      __typename
+      login
+      avatarUrl(size: 192)
+      id
+    }
+    id
+  }
 }
 */
 
@@ -129,7 +139,8 @@ v3 = [
     "kind": "Literal",
     "name": "labels",
     "value": [
-      "publish"
+      "publish",
+      "Publish"
     ]
   },
   {
@@ -151,14 +162,28 @@ v4 = {
 v5 = {
   "kind": "ScalarField",
   "alias": null,
-  "name": "login",
+  "name": "name",
   "args": null,
   "storageKey": null
 },
 v6 = {
   "kind": "ScalarField",
   "alias": null,
+  "name": "login",
+  "args": null,
+  "storageKey": null
+},
+v7 = {
+  "kind": "ScalarField",
+  "alias": null,
   "name": "totalCount",
+  "args": null,
+  "storageKey": null
+},
+v8 = {
+  "kind": "ScalarField",
+  "alias": null,
+  "name": "__typename",
   "args": null,
   "storageKey": null
 };
@@ -227,7 +252,7 @@ return {
                 "kind": "LinkedField",
                 "alias": null,
                 "name": "issues",
-                "storageKey": "issues(first:10,labels:[\"publish\"],orderBy:{\"direction\":\"DESC\",\"field\":\"CREATED_AT\"})",
+                "storageKey": "issues(first:10,labels:[\"publish\",\"Publish\"],orderBy:{\"direction\":\"DESC\",\"field\":\"CREATED_AT\"})",
                 "args": (v3/*: any*/),
                 "concreteType": "GitHubIssueConnection",
                 "plural": false,
@@ -307,14 +332,8 @@ return {
                                 "plural": true,
                                 "selections": [
                                   (v4/*: any*/),
-                                  {
-                                    "kind": "ScalarField",
-                                    "alias": null,
-                                    "name": "name",
-                                    "args": null,
-                                    "storageKey": null
-                                  },
                                   (v5/*: any*/),
+                                  (v6/*: any*/),
                                   {
                                     "kind": "ScalarField",
                                     "alias": null,
@@ -371,7 +390,7 @@ return {
                                 "concreteType": "GitHubReactingUserConnection",
                                 "plural": false,
                                 "selections": [
-                                  (v6/*: any*/),
+                                  (v7/*: any*/),
                                   {
                                     "kind": "LinkedField",
                                     "alias": null,
@@ -381,7 +400,7 @@ return {
                                     "concreteType": "GitHubUser",
                                     "plural": true,
                                     "selections": [
-                                      (v5/*: any*/),
+                                      (v6/*: any*/),
                                       (v4/*: any*/)
                                     ]
                                   }
@@ -398,16 +417,50 @@ return {
                             "concreteType": "GitHubIssueCommentConnection",
                             "plural": false,
                             "selections": [
-                              (v6/*: any*/)
+                              (v7/*: any*/)
                             ]
                           },
                           {
-                            "kind": "ScalarField",
+                            "kind": "LinkedField",
                             "alias": null,
-                            "name": "__typename",
+                            "name": "repository",
+                            "storageKey": null,
                             "args": null,
-                            "storageKey": null
-                          }
+                            "concreteType": "GitHubRepository",
+                            "plural": false,
+                            "selections": [
+                              (v5/*: any*/),
+                              {
+                                "kind": "LinkedField",
+                                "alias": null,
+                                "name": "owner",
+                                "storageKey": null,
+                                "args": null,
+                                "concreteType": null,
+                                "plural": false,
+                                "selections": [
+                                  (v8/*: any*/),
+                                  (v6/*: any*/),
+                                  {
+                                    "kind": "ScalarField",
+                                    "alias": null,
+                                    "name": "avatarUrl",
+                                    "args": [
+                                      {
+                                        "kind": "Literal",
+                                        "name": "size",
+                                        "value": 192
+                                      }
+                                    ],
+                                    "storageKey": "avatarUrl(size:192)"
+                                  },
+                                  (v4/*: any*/)
+                                ]
+                              },
+                              (v4/*: any*/)
+                            ]
+                          },
+                          (v8/*: any*/)
                         ]
                       },
                       {
@@ -468,7 +521,7 @@ return {
   "params": {
     "operationKind": "query",
     "name": "App_Query",
-    "id": "b7b45355-f7ae-4fc2-8b78-56b33773cdfb",
+    "id": "90b67c51-fb51-4812-a413-2a796f28fe40",
     "text": null,
     "metadata": {}
   }

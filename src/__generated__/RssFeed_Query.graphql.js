@@ -1,6 +1,6 @@
 /**
  * @flow
- * @relayHash 669592e0d46ae92b84cadb07ea48d136
+ * @relayHash f88bf112f5f0d60768c62bfd11999a80
  */
 
 /* eslint-disable */
@@ -9,7 +9,10 @@
 
 /*::
 import type { ConcreteRequest } from 'relay-runtime';
-export type RssFeed_QueryVariables = {||};
+export type RssFeed_QueryVariables = {|
+  repoOwner: string,
+  repoName: string,
+|};
 export type RssFeed_QueryResponse = {|
   +gitHub: ?{|
     +repository: ?{|
@@ -40,10 +43,13 @@ export type RssFeed_Query = {|
 
 
 /*
-query RssFeed_Query @persistedQueryConfiguration(accessToken: {environmentVariable: "OG_GITHUB_TOKEN"}) {
+query RssFeed_Query(
+  $repoOwner: String!
+  $repoName: String!
+) @persistedQueryConfiguration(accessToken: {environmentVariable: "OG_GITHUB_TOKEN"}, fixedVariables: {environmentVariable: "REPOSITORY_FIXED_VARIABLES"}) {
   gitHub {
-    repository(name: "onegraph-changelog", owner: "onegraph") {
-      issues(first: 20, orderBy: {direction: DESC, field: CREATED_AT}, labels: ["publish"]) {
+    repository(name: $repoName, owner: $repoOwner) {
+      issues(first: 20, orderBy: {direction: DESC, field: CREATED_AT}, labels: ["publish", "Publish"]) {
         nodes {
           id
           number
@@ -68,28 +74,42 @@ query RssFeed_Query @persistedQueryConfiguration(accessToken: {environmentVariab
 const node/*: ConcreteRequest*/ = (function(){
 var v0 = [
   {
-    "kind": "Literal",
-    "name": "name",
-    "value": "onegraph-changelog"
+    "kind": "LocalArgument",
+    "name": "repoOwner",
+    "type": "String!",
+    "defaultValue": null
   },
   {
-    "kind": "Literal",
-    "name": "owner",
-    "value": "onegraph"
+    "kind": "LocalArgument",
+    "name": "repoName",
+    "type": "String!",
+    "defaultValue": null
   }
 ],
-v1 = {
+v1 = [
+  {
+    "kind": "Variable",
+    "name": "name",
+    "variableName": "repoName"
+  },
+  {
+    "kind": "Variable",
+    "name": "owner",
+    "variableName": "repoOwner"
+  }
+],
+v2 = {
   "kind": "ScalarField",
   "alias": null,
   "name": "id",
   "args": null,
   "storageKey": null
 },
-v2 = {
+v3 = {
   "kind": "LinkedField",
   "alias": null,
   "name": "issues",
-  "storageKey": "issues(first:20,labels:[\"publish\"],orderBy:{\"direction\":\"DESC\",\"field\":\"CREATED_AT\"})",
+  "storageKey": "issues(first:20,labels:[\"publish\",\"Publish\"],orderBy:{\"direction\":\"DESC\",\"field\":\"CREATED_AT\"})",
   "args": [
     {
       "kind": "Literal",
@@ -100,7 +120,8 @@ v2 = {
       "kind": "Literal",
       "name": "labels",
       "value": [
-        "publish"
+        "publish",
+        "Publish"
       ]
     },
     {
@@ -124,7 +145,7 @@ v2 = {
       "concreteType": "GitHubIssue",
       "plural": true,
       "selections": [
-        (v1/*: any*/),
+        (v2/*: any*/),
         {
           "kind": "ScalarField",
           "alias": null,
@@ -177,7 +198,7 @@ v2 = {
               "concreteType": "GitHubUser",
               "plural": true,
               "selections": [
-                (v1/*: any*/),
+                (v2/*: any*/),
                 {
                   "kind": "ScalarField",
                   "alias": null,
@@ -207,7 +228,7 @@ return {
     "name": "RssFeed_Query",
     "type": "Query",
     "metadata": null,
-    "argumentDefinitions": [],
+    "argumentDefinitions": (v0/*: any*/),
     "selections": [
       {
         "kind": "LinkedField",
@@ -222,12 +243,12 @@ return {
             "kind": "LinkedField",
             "alias": null,
             "name": "repository",
-            "storageKey": "repository(name:\"onegraph-changelog\",owner:\"onegraph\")",
-            "args": (v0/*: any*/),
+            "storageKey": null,
+            "args": (v1/*: any*/),
             "concreteType": "GitHubRepository",
             "plural": false,
             "selections": [
-              (v2/*: any*/)
+              (v3/*: any*/)
             ]
           }
         ]
@@ -237,7 +258,7 @@ return {
   "operation": {
     "kind": "Operation",
     "name": "RssFeed_Query",
-    "argumentDefinitions": [],
+    "argumentDefinitions": (v0/*: any*/),
     "selections": [
       {
         "kind": "LinkedField",
@@ -252,13 +273,13 @@ return {
             "kind": "LinkedField",
             "alias": null,
             "name": "repository",
-            "storageKey": "repository(name:\"onegraph-changelog\",owner:\"onegraph\")",
-            "args": (v0/*: any*/),
+            "storageKey": null,
+            "args": (v1/*: any*/),
             "concreteType": "GitHubRepository",
             "plural": false,
             "selections": [
-              (v2/*: any*/),
-              (v1/*: any*/)
+              (v3/*: any*/),
+              (v2/*: any*/)
             ]
           }
         ]
@@ -268,12 +289,12 @@ return {
   "params": {
     "operationKind": "query",
     "name": "RssFeed_Query",
-    "id": "ed781c6e-f0d3-42a3-911b-9b93968c5b63",
+    "id": "743e9d8c-db5a-425d-b367-6b45550e9570",
     "text": null,
     "metadata": {}
   }
 };
 })();
 // prettier-ignore
-(node/*: any*/).hash = 'bd7322d53c6f4074b6313e86410452e2';
+(node/*: any*/).hash = 'df01a1e179966ece338af9e6afbf7f3c';
 module.exports = node;
