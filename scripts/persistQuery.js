@@ -84,6 +84,7 @@ async function persistQuery(queryText) {
 
   const variables = {
     query: print(transformedAst),
+    // This is your app's app id, edit `/.env` to change it
     appId: process.env.RAZZLE_ONEGRAPH_APP_ID,
     accessToken: accessToken || null,
     freeVariables: [...freeVariables],
@@ -99,6 +100,10 @@ async function persistQuery(queryText) {
       {
         hostname: 'serve.onegraph.com',
         port: 443,
+        // This is onedash's app id. If you followed the instructions in the
+        // README to create the `OG_DASHBOARD_ACCESS_TOKEN`, then this is the
+        // app id associated with the token that lets you persist queries.
+        // Don't change this to your app id.
         path: '/graphql?app_id=0b066ba6-ed39-4db8-a497-ba0be34d5b2a',
         method: 'POST',
         headers: {
