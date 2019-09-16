@@ -344,6 +344,10 @@ export const ReactionBar = ({
   );
 };
 
+function slugify(s: string): string {
+  return lowerCase(s).replace(/[^A-Za-z0-9-]+/g, '-');
+}
+
 export function postUrl({
   post,
   viewComments,
@@ -351,10 +355,13 @@ export function postUrl({
   post: {
     +number: number,
     +repository: {+owner: {+login: string}, +name: string},
+    +title: string,
   },
   viewComments?: boolean,
 }) {
-  return `/post/${post.number}${viewComments ? '#comments' : ''}`;
+  return `/post/${post.number}/${slugify(post.title)}${
+    viewComments ? '#comments' : ''
+  }`;
 }
 
 const Post = ({relay, post}: Props) => {

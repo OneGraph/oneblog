@@ -167,7 +167,7 @@ export const routes = [
     component: PostsRoot,
   },
   {
-    path: '/post/:issueNumber',
+    path: '/post/:issueNumber/:slug?',
     exact: true,
     strict: false,
     query: postRootQuery,
