@@ -24,6 +24,8 @@ import {lowerCase, sentenceCase} from 'change-case';
 
 import type {Post_post} from './__generated__/Post_post.graphql';
 
+// n.b. no persistedQueryConfiguration for these mutations, because we want to
+// add reactions on behalf of the logged-in user, not the persisted auth
 const addReactionMutation = graphql`
   mutation Post_AddReactionMutation($input: GitHubAddReactionInput!) {
     gitHub {

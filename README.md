@@ -26,15 +26,7 @@ Install dependencies
 yarn install
 ```
 
-Start the server
-
-```
-yarn start
-```
-
-The project will load at [http://localhost:3000](http://localhost:3000).
-
-### Running the Relay compiler
+### Run the Relay compiler
 
 This project uses Relay as its GraphQL client because of its high-quality compiler and great support for persisted queries.
 
@@ -51,6 +43,18 @@ OG_GITHUB_TOKEN='<your-github-token>' \
 ```
 
 You may need to install [watchman](https://facebook.github.io/watchman/), a file watching service. On mac, do `brew install watchman`. On Windows or Linux, follow the instructions at [https://facebook.github.io/watchman/docs/install.html](https://facebook.github.io/watchman/docs/install.html).
+
+
+### Start the server
+
+Now that we've generated the relay files, we can start the server.
+
+```
+yarn start
+```
+
+The project will load at [http://localhost:3000](http://localhost:3000).
+
 
 ## Deploying
 
