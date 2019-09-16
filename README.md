@@ -12,7 +12,7 @@ If you'd like to learn more about persisted queries, email [persist@onegraph.com
 
 ## Setup
 
-Sign up at [OneGraph](https://www.onegraph.com) and update the `/.env` file with your app's id.
+Use an existing OneGraph app or sign up sign up at [OneGraph](https://www.onegraph.com) to create a new app. Update the `/.env` file with your app's id.
 
 Remove the generated files (they're tied to the OneGraph app they were generated with)
 
@@ -30,7 +30,7 @@ yarn install
 
 This project uses Relay as its GraphQL client because of its high-quality compiler and great support for persisted queries.
 
-To create the token that's stored with the persisted query, you'll need to get a OneGraph token with GitHub credentials. Create a new app at [onegraph.com](https://www.onegraph.com), go the "Server-side Auth", click the "Create Token" button, and add GitHub to the services. Export `OG_GITHUB_TOKEN` when you run the Relay compiler.
+To create the token that's stored with the persisted query, you'll need to get a OneGraph token with GitHub credentials. Go the "Server-side Auth" tab in the OneGraph dashboard for your app, click the "Create Token" button, and add GitHub to the services. Export `OG_GITHUB_TOKEN` when you run the Relay compiler.
 
 You'll also need to get an API token for OneGraph itself to store persisted queries. Go to the "Persisted queries" tab on the OneGraph dashboard, scroll down, and click "Create token". This will create a scoped token for your app that can create persisted queries on your behalf. Use the token as `OG_DASHBOARD_ACCESS_TOKEN` below.
 
