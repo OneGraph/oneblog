@@ -39,6 +39,7 @@
     "test": "razzle test --env=jsdom",
     "start:prod": "NODE_ENV=production node build/server.js",
     "relay": "relay-compiler --src ./src --schema ./schema.graphql --persistFunction scripts/persistQuery.js",
+    "relay:clean": "rm -r src/__generated__",
     "flow": "flow",
     "fetch-schema": "node scripts/fetchSchema.js --path schema.graphql",
     "analyze": "source-map-explorer 'build/public/static/js/*.js'",
