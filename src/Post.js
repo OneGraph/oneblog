@@ -218,10 +218,12 @@ export const ReactionBar = ({
   reactionGroups,
   relay,
   subjectId,
+  pad,
 }: {
   reactionGroups: *,
   relay: RelayProp,
   subjectId: string,
+  pad?: string,
 }) => {
   const {error: notifyError} = React.useContext(NotificationContext);
   const [showReactionPopover, setShowReactionPopover] = React.useState(false);
@@ -234,7 +236,7 @@ export const ReactionBar = ({
 
   return (
     <Box
-      pad="xsmall"
+      pad={pad || 'xsmall'}
       direction="row"
       wrap={true}
       border={{size: 'xsmall', side: 'top', color: 'rgba(0,0,0,0.1)'}}>

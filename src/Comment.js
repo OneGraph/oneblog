@@ -29,7 +29,7 @@ function Comment({comment, relay}: Props) {
           side: 'bottom',
           color: 'rgba(0,0,0,0.1)',
         }}
-        pad="small"
+        pad="xsmall"
         direction="row"
         align="center"
         gap="xsmall">
@@ -39,7 +39,7 @@ function Comment({comment, relay}: Props) {
           style={{borderRadius: '50%'}}
           src={idx(comment, _ => _.author.avatarUrl)}
         />
-        <Text size="small">
+        <Text size="xsmall">
           <a href={idx(comment, _ => _.author.url)}>
             {idx(comment, _ => _.author.name) ||
               idx(comment, _ => _.author.login)}
@@ -50,10 +50,11 @@ function Comment({comment, relay}: Props) {
           </span>
         </Text>
       </Box>
-      <Box pad="medium">
+      <Box pad={{horizontal: 'small'}}>
         <MarkdownRenderer escapeHtml={true} source={source} />
       </Box>
       <ReactionBar
+        pad="none"
         reactionGroups={comment.reactionGroups}
         relay={relay}
         subjectId={comment.id}
