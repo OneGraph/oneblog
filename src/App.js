@@ -13,11 +13,20 @@ import Link from './PreloadLink';
 import idx from 'idx';
 import {NotificationContainer} from './Notifications';
 import OneGraphLogo from './oneGraphLogo';
-import {Grommet, Grid, Box, Heading, Text, Anchor} from 'grommet';
+import {
+  Grommet,
+  Grid,
+  Box,
+  Heading,
+  Text,
+  Anchor,
+  ResponsiveContext,
+} from 'grommet';
 import {StatusCritical} from 'grommet-icons';
 import ScrollMemory from 'react-router-scroll-memory';
 import {matchPath} from 'react-router-dom';
 import UserContext from './UserContext';
+import NewsletterSignup from './NewsletterSignup';
 
 import type {App_ViewerQueryResponse} from './__generated__/App_Query.graphql';
 import type {Environment} from 'relay-runtime';
@@ -218,54 +227,75 @@ export default class App extends React.Component<
         }}>
         <NotificationContainer>
           <Grommet theme={theme}>
-            <Grid
-              fill
-              rows={['auto', 'flex']}
-              columns={['flex']}
-              areas={[
-                {name: 'header', start: [0, 0], end: [1, 0]},
-                {name: 'main', start: [0, 1], end: [1, 1]},
-              ]}>
-              <Box
-                gridArea="header"
-                direction="row"
-                align="center"
-                justify="between"
-                pad={{horizontal: 'medium', vertical: 'medium'}}
-                wrap={true}>
-                <Box align="center" direction="row">
-                  <OneGraphLogo width="96px" height="96px" />{' '}
-                  <Heading level={2}>
-                    <Link style={{color: 'inherit'}} to="/">
-                      OneGraph Product Updates
-                    </Link>
-                  </Heading>
-                </Box>
-                <Anchor href="https://onegraph.com">
-                  <Text size="small">Learn more about OneGraph</Text>
-                </Anchor>
-              </Box>
-              <Box gridArea="main">
-                <ScrollMemory />
-                <Switch>
-                  {routes.map((routeConfig, i) => (
-                    <Route
-                      key={i}
-                      path={routeConfig.path}
-                      exact={routeConfig.exact}
-                      strict={routeConfig.strict}
-                      render={props => (
-                        <RenderRoute
-                          environment={this.props.environment}
-                          match={props.match}
-                          routeConfig={routeConfig}
-                        />
-                      )}
-                    />
-                  ))}
-                </Switch>
-              </Box>
-            </Grid>
+            <ResponsiveContext.Consumer>
+              {size => {
+                const small = size === 'small';
+                return (
+                  <Grid
+                    fill
+                    rows={['auto', 'flex']}
+                    columns={small ? ['flex'] : ['flex', 'auto']}
+                    areas={
+                      small
+                        ? [
+                            {name: 'header', start: [0, 0], end: [1, 0]},
+                            {name: 'main', start: [0, 1], end: [1, 1]},
+                          ]
+                        : [
+                            {name: 'header', start: [0, 0], end: [1, 0]},
+                            {name: 'main', start: [0, 1], end: [1, 1]},
+                            {name: 'sidebar', start: [1, 1], end: [1, 1]},
+                          ]
+                    }>
+                    <Box
+                      gridArea="header"
+                      direction="row"
+                      align="center"
+                      justify="between"
+                      pad={{horizontal: 'medium', vertical: 'medium'}}
+                      wrap={true}>
+                      <Box align="center" direction="row">
+                        <OneGraphLogo width="96px" height="96px" />{' '}
+                        <Heading level={2}>
+                          <Link style={{color: 'inherit'}} to="/">
+                            OneGraph Product Updates
+                          </Link>
+                        </Heading>
+                      </Box>
+                      <Anchor href="https://onegraph.com">
+                        <Text size="small">Learn more about OneGraph</Text>
+                      </Anchor>
+                    </Box>
+                    {small ||
+                    !process.env.RAZZLE_ENABLE_MAILCHIMP_SIGNUP ? null : (
+                      <Box gridArea="sidebar" pad="medium" width="medium">
+                        <NewsletterSignup />
+                      </Box>
+                    )}
+                    <Box gridArea="main">
+                      <ScrollMemory />
+                      <Switch>
+                        {routes.map((routeConfig, i) => (
+                          <Route
+                            key={i}
+                            path={routeConfig.path}
+                            exact={routeConfig.exact}
+                            strict={routeConfig.strict}
+                            render={props => (
+                              <RenderRoute
+                                environment={this.props.environment}
+                                match={props.match}
+                                routeConfig={routeConfig}
+                              />
+                            )}
+                          />
+                        ))}
+                      </Switch>
+                    </Box>
+                  </Grid>
+                );
+              }}
+            </ResponsiveContext.Consumer>
           </Grommet>
         </NotificationContainer>
       </UserContext.Provider>

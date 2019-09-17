@@ -103,8 +103,6 @@ The project can be deployed with Netlify and Netlify functions. The config lives
 To deploy
 
 ```
-yarn build
-yarn build:netlify-functions
 yarn deploy:netlify
 ```
 
