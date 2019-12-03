@@ -248,8 +248,12 @@ export default class App extends React.Component<
                 </Anchor>
               </Box>
               {!process.env.RAZZLE_ENABLE_MAILCHIMP_SIGNUP ? null : (
-                <div className="sidebar">
-                  <Box gridArea="sidebar" pad="medium" width="medium">
+                <div className="sidebar" style={{justifySelf: 'end'}}>
+                  <Box
+                    alignSelf="end"
+                    gridArea="sidebar"
+                    pad="medium"
+                    width="medium">
                     <NewsletterSignup />
                   </Box>
                 </div>
