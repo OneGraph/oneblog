@@ -25,3 +25,32 @@ pre {
   overflow: scroll;
   font-size: 11.9px;
 }
+
+.layout {
+  display: grid;
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
+  grid-template-areas:
+    "header header"
+    "main sidebar";
+  grid-template-columns: auto auto;
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+  grid-template-rows: auto 1fr;
+}
+
+@media(max-width: 800px) {
+  .layout {
+    grid-template-areas:
+      "header"
+      "main"
+      "sidebar";
+    grid-template-columns: 1fr;
+  }
+  .sidebar {
+    display: none;
+  }
+}
