@@ -12,9 +12,9 @@ const svg = props => (
       cy="50"
       fill="none"
       stroke="#82bbe4"
-      stroke-width="8"
+      strokeWidth="8"
       r="24"
-      stroke-dasharray="112 40"
+      strokeDasharray="112 40"
       transform="rotate(138.553 50 50)">
       <animateTransform
         attributeName="transform"
