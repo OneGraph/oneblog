@@ -29,7 +29,7 @@
     "react-router-dom": "^5.0.1",
     "react-router-hash-link": "^1.2.2",
     "react-syntax-highlighter": "^11.0.2",
-    "serialize-javascript": "^1.7.0",
+    "serialize-javascript": "^2.1.1",
     "serverless-http": "^2.2.0",
     "styled-components": "^4.3.2"
   },
