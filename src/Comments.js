@@ -44,6 +44,8 @@ const addCommentMutation = graphql`
   }
 `;
 
+let tempId = 0;
+
 function Comments({post, relay, postId}: Props) {
   const {error: notifyError} = React.useContext(NotificationContext);
   const {isLoggedIn, login} = React.useContext(UserContext);
@@ -73,6 +75,31 @@ function Comments({post, relay, postId}: Props) {
         setComment('');
       },
       onError: err => notifyError('Error saving comment. Please try again.'),
+      optimisticUpdater(store) {
+        try {
+          const id = `client:newComment:${tempId++}`;
+          const newComment = store.create(id, 'GitHubComment');
+          newComment.setValue(comment, 'body');
+          newComment.setValue(id, 'id');
+          newComment.setValue(new Date().toString(), 'createdAt');
+
+          const post = store.get(postId);
+          const ch = ConnectionHandler;
+          const comments = ConnectionHandler.getConnection(
+            post,
+            'Comments_post_comments',
+          );
+          const edge = ConnectionHandler.createEdge(
+            store,
+            comments,
+            newComment,
+            'GitHubIssueComment',
+          );
+          ConnectionHandler.insertEdgeAfter(comments, edge);
+        } catch (e) {
+          console.error('e', e);
+        }
+      },
       updater(store, data) {
         const newComment = store.get(
           data.gitHub.addComment.commentEdge.node.__id,

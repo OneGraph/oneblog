@@ -30,7 +30,8 @@ export type Comment_comment = {|
     +users: {|
       +totalCount: number,
       +nodes: ?$ReadOnlyArray<?{|
-        +login: string
+        +login: string,
+        +name: ?string,
       |}>,
     |},
   |}>,
@@ -55,35 +56,36 @@ var v0 = {
 v1 = {
   "kind": "ScalarField",
   "alias": null,
-  "name": "avatarUrl",
+  "name": "name",
   "args": null,
   "storageKey": null
 },
 v2 = {
   "kind": "ScalarField",
   "alias": null,
-  "name": "login",
+  "name": "avatarUrl",
   "args": null,
   "storageKey": null
 },
 v3 = {
   "kind": "ScalarField",
   "alias": null,
+  "name": "login",
+  "args": null,
+  "storageKey": null
+},
+v4 = {
+  "kind": "ScalarField",
+  "alias": null,
   "name": "url",
   "args": null,
   "storageKey": null
 },
-v4 = [
-  {
-    "kind": "ScalarField",
-    "alias": null,
-    "name": "name",
-    "args": null,
-    "storageKey": null
-  },
+v5 = [
   (v1/*: any*/),
   (v2/*: any*/),
-  (v3/*: any*/)
+  (v3/*: any*/),
+  (v4/*: any*/)
 ];
 return {
   "kind": "Fragment",
@@ -119,29 +121,29 @@ return {
         {
           "kind": "InlineFragment",
           "type": "GitHubUser",
-          "selections": (v4/*: any*/)
+          "selections": (v5/*: any*/)
         },
         {
           "kind": "InlineFragment",
           "type": "GitHubBot",
           "selections": [
-            (v1/*: any*/),
             (v2/*: any*/),
-            (v3/*: any*/)
+            (v3/*: any*/),
+            (v4/*: any*/)
           ]
         },
         {
           "kind": "InlineFragment",
           "type": "GitHubOrganization",
-          "selections": (v4/*: any*/)
+          "selections": (v5/*: any*/)
         },
         {
           "kind": "InlineFragment",
           "type": "GitHubMannequin",
           "selections": [
             (v0/*: any*/),
-            (v2/*: any*/),
-            (v3/*: any*/)
+            (v3/*: any*/),
+            (v4/*: any*/)
           ]
         }
       ]
@@ -207,7 +209,8 @@ return {
               "concreteType": "GitHubUser",
               "plural": true,
               "selections": [
-                (v2/*: any*/)
+                (v3/*: any*/),
+                (v1/*: any*/)
               ]
             }
           ]
@@ -218,5 +221,5 @@ return {
 };
 })();
 // prettier-ignore
-(node/*: any*/).hash = '1ee5f7e5a343f2b58e4b6e73c3d6a129';
+(node/*: any*/).hash = 'bb6a0e8c46c1158c545ed1c33ffc4ad9';
 module.exports = node;

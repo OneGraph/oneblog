@@ -34,7 +34,8 @@ export type Post_post = {|
     +users: {|
       +totalCount: number,
       +nodes: ?$ReadOnlyArray<?{|
-        +login: string
+        +login: string,
+        +name: ?string,
       |}>,
     |},
   |}>,
@@ -223,7 +224,8 @@ return {
               "concreteType": "GitHubUser",
               "plural": true,
               "selections": [
-                (v2/*: any*/)
+                (v2/*: any*/),
+                (v1/*: any*/)
               ]
             }
           ]
@@ -283,5 +285,5 @@ return {
 };
 })();
 // prettier-ignore
-(node/*: any*/).hash = 'aa420761ef3f719df2d4bb187608e494';
+(node/*: any*/).hash = '019caf7013c3427dc9465fca51125fd9';
 module.exports = node;

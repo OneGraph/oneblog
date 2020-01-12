@@ -21,9 +21,10 @@ import {
   Text,
   Anchor,
   ResponsiveContext,
+  generate,
 } from 'grommet';
+import {deepMerge} from 'grommet/utils/object';
 import {StatusCritical} from 'grommet-icons';
-import ScrollMemory from 'react-router-scroll-memory';
 import {matchPath} from 'react-router-dom';
 import UserContext from './UserContext';
 import NewsletterSignup from './NewsletterSignup';
@@ -32,10 +33,7 @@ import type {App_ViewerQueryResponse} from './__generated__/App_Query.graphql';
 import type {Environment} from 'relay-runtime';
 import type {RelayNetworkError} from 'react-relay';
 
-const theme = {
-  name: 'onegraph',
-  rounding: 4,
-  spacing: 24,
+export const theme = deepMerge(generate(24, 10), {
   global: {
     colors: {
       brand: '#1997c6',
@@ -43,14 +41,11 @@ const theme = {
       focus: 'rgba(60, 199, 183, 0.75)',
     },
     font: {
-      family: 'Helvetica Neue,Helvetica,Arial,sans-serif',
-      size: '14px',
-      height: '20px',
+      family:
+        '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif',
     },
   },
-  email: 'dwwoelfel@gmail.com',
-  date: '2019-09-13T16:24:04.000Z',
-};
+});
 
 const postsRootQuery = graphql`
   # repoName and repoOwner provided by fixedVariables
@@ -148,7 +143,7 @@ const PostRoot = ({
   } else {
     return (
       <Box>
-        <Post post={post} />
+        <Post context="details" post={post} />
         <Comments post={post} postId={post.id} />
       </Box>
     );
@@ -232,34 +227,16 @@ export default class App extends React.Component<
                 gridArea="header"
                 direction="row"
                 align="center"
-                justify="between"
+                justify="center"
                 pad={{horizontal: 'medium', vertical: 'medium'}}
                 wrap={true}>
-                <Box align="center" direction="row">
-                  <OneGraphLogo width="96px" height="96px" />{' '}
-                  <Heading level={2}>
-                    <Link style={{color: 'inherit'}} to="/">
-                      OneGraph Product Updates
-                    </Link>
-                  </Heading>
-                </Box>
-                <Anchor href="https://onegraph.com">
-                  <Text size="small">Learn more about OneGraph</Text>
-                </Anchor>
+                <Heading level={1}>
+                  <Link style={{color: 'inherit'}} to="/">
+                    OneBlog Test
+                  </Link>
+                </Heading>
               </Box>
-              {!process.env.RAZZLE_ENABLE_MAILCHIMP_SIGNUP ? null : (
-                <div className="sidebar" style={{justifySelf: 'end'}}>
-                  <Box
-                    alignSelf="end"
-                    gridArea="sidebar"
-                    pad="medium"
-                    width="medium">
-                    <NewsletterSignup />
-                  </Box>
-                </div>
-              )}
               <Box gridArea="main">
-                <ScrollMemory />
                 <Switch>
                   {routes.map((routeConfig, i) => (
                     <Route

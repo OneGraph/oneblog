@@ -1,6 +1,6 @@
 /**
  * @flow
- * @relayHash 7e9bb4586a658bde383cc41381efed47
+ * @relayHash 4871f062863916a95905bc89cf549f5b
  */
 
 /* eslint-disable */
@@ -81,6 +81,7 @@ fragment Post_post on GitHubIssue {
       totalCount
       nodes {
         login
+        name
         id
       }
     }
@@ -401,6 +402,7 @@ return {
                                     "plural": true,
                                     "selections": [
                                       (v6/*: any*/),
+                                      (v5/*: any*/),
                                       (v4/*: any*/)
                                     ]
                                   }
@@ -521,7 +523,7 @@ return {
   "params": {
     "operationKind": "query",
     "name": "App_Query",
-    "id": "90b67c51-fb51-4812-a413-2a796f28fe40",
+    "id": "6350db84-2743-4aca-87ab-2e2dac545336",
     "text": null,
     "metadata": {}
   }

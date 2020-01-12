@@ -18,6 +18,7 @@
     "grommet-icons": "^4.3.0",
     "highlightjs-graphql": "^1.0.1",
     "idx": "^2.5.6",
+    "inline-css": "^2.5.1",
     "node-fetch": "^2.6.0",
     "onegraph-auth": "^2.0.0",
     "polished": "^3.4.1",
@@ -27,7 +28,6 @@
     "react-relay": "^5.0.0",
     "react-router-dom": "^5.0.1",
     "react-router-hash-link": "^1.2.2",
-    "react-router-scroll-memory": "^2.0.3",
     "react-syntax-highlighter": "^11.0.2",
     "serialize-javascript": "^1.7.0",
     "serverless-http": "^2.2.0",
@@ -55,11 +55,7 @@
     "extends": "react-app"
   },
   "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
+    "production": [">0.2%", "not dead", "not op_mini all"],
     "development": [
       "last 1 chrome version",
       "last 1 firefox version",

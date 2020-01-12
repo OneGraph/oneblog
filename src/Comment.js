@@ -23,16 +23,7 @@ function Comment({comment, relay}: Props) {
     : comment.body;
   return (
     <PostBox key={comment.id}>
-      <Box
-        border={{
-          size: 'xsmall',
-          side: 'bottom',
-          color: 'rgba(0,0,0,0.1)',
-        }}
-        pad="xsmall"
-        direction="row"
-        align="center"
-        gap="xsmall">
+      <Box pad={{left: 'small'}} direction="row" align="center" gap="xsmall">
         <img
           width={24}
           height={24}
@@ -101,6 +92,7 @@ export default createFragmentContainer(Comment, {
           totalCount
           nodes {
             login
+            name
           }
         }
       }

@@ -1,6 +1,6 @@
 /**
  * @flow
- * @relayHash a42fb5529c1e66cc99890a33a603c99a
+ * @relayHash 540c5f0fa5a0f1704ad20e7630dacc5f
  */
 
 /* eslint-disable */
@@ -95,6 +95,7 @@ fragment Post_post on GitHubIssue {
       totalCount
       nodes {
         login
+        name
         id
       }
     }
@@ -453,6 +454,7 @@ return {
                                     "plural": true,
                                     "selections": [
                                       (v7/*: any*/),
+                                      (v6/*: any*/),
                                       (v5/*: any*/)
                                     ]
                                   }
@@ -573,7 +575,7 @@ return {
   "params": {
     "operationKind": "query",
     "name": "PostsPaginationQuery",
-    "id": "99df7ec7-a065-4b68-aa1e-a891a10c62bf",
+    "id": "a4b99766-a020-4210-8bb1-5cbd9468cf75",
     "text": null,
     "metadata": {}
   }

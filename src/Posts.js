@@ -45,10 +45,14 @@ const Posts = ({relay, repository}: Props) => {
     };
   }, [handleScroll]);
 
+  const issues = repository.issues.edges || [];
+
   return (
     <Box>
-      {(repository.issues.edges || []).map(e =>
-        e && e.node ? <Post key={e.node.id} post={e.node} /> : null,
+      {issues.map((e, i) =>
+        e && e.node ? (
+          <Post key={e.node.id} context="list" post={e.node} />
+        ) : null,
       )}
       {isLoading ? (
         <Box

@@ -5,54 +5,72 @@ import ReactMarkdown from 'react-markdown/with-html';
 import htmlParser from 'react-markdown/plugins/html-parser';
 import type SyntaxHighlighter from 'react-syntax-highlighter';
 import GifPlayer from './GifPlayer';
+import {
+  Anchor,
+  Paragraph,
+  Heading,
+  Image as GrommetImage,
+  Box,
+  Text,
+} from 'grommet';
 
 type Props = {
   source: string,
   escapeHtml: boolean,
+  SyntaxHighlighter?: ?SyntaxHighlighter,
 };
 
 class CodeBlock extends React.PureComponent<
   {
     value: string,
     language: string,
+    SyntaxHighlighter?: ?SyntaxHighlighter,
   },
   {
     SyntaxHighlighter: ?SyntaxHighlighter,
-    style: ?any,
   },
 > {
   state = {
-    SyntaxHighlighter: null,
-    style: null,
+    SyntaxHighlighter: this.props.SyntaxHighlighter,
   };
   componentDidMount() {
-    Promise.all([
-      import('react-syntax-highlighter/dist/esm/light'),
-      import('react-syntax-highlighter/dist/esm/styles/hljs/github'),
-      importLanguage(this.props.language),
-    ])
-      .then(
-        ([{default: SyntaxHighlighter}, {default: style}, languageImport]) => {
-          if (languageImport && languageImport.default) {
-            SyntaxHighlighter.registerLanguage(
-              this.props.language,
-              languageImport.default,
-            );
-          }
-          this.setState({SyntaxHighlighter, style});
-        },
-      )
-      .catch(e => console.error('Error loading syntax highlighter', e));
+    this.props.language === 'backmatter' || this.state.SyntaxHighlighter
+      ? null
+      : Promise.all([
+          import('react-syntax-highlighter/dist/esm/light'),
+          import('react-syntax-highlighter/dist/esm/styles/hljs/github'),
+          importLanguage(this.props.language),
+        ])
+          .then(
+            ([
+              {default: SyntaxHighlighter},
+              {default: style},
+              languageImport,
+            ]) => {
+              if (languageImport && languageImport.default) {
+                SyntaxHighlighter.registerLanguage(
+                  this.props.language,
+                  languageImport.default,
+                );
+              }
+              this.setState({
+                SyntaxHighlighter: props => (
+                  <SyntaxHighlighter style={style} {...props} />
+                ),
+              });
+            },
+          )
+          .catch(e => console.error('Error loading syntax highlighter', e));
   }
   render() {
     const {language, value} = this.props;
-    const {SyntaxHighlighter, style} = this.state;
-    if (SyntaxHighlighter && style) {
-      return (
-        <SyntaxHighlighter style={style} language={language}>
-          {value}
-        </SyntaxHighlighter>
-      );
+    if (language === 'backmatter') {
+      return null;
+    }
+
+    const {SyntaxHighlighter} = this.state;
+    if (SyntaxHighlighter) {
+      return <SyntaxHighlighter language={language}>{value}</SyntaxHighlighter>;
     }
     return (
       <pre
@@ -69,11 +87,36 @@ class CodeBlock extends React.PureComponent<
   }
 }
 
+function PlainImage(imageProps) {
+  const {isRss, ...props} = imageProps;
+  return (
+    <Box as="span" style={{display: 'block'}}>
+      <img style={{maxWidth: '100%'}} {...props} />
+      {props.isRss ? <br /> : null}
+      {props.title ? (
+        <Text
+          style={{display: 'block'}}
+          size="xsmall"
+          margin="small"
+          weight={300}
+          color="dark-1"
+          textAlign="center">
+          {props.isRss ? <em>{props.title}</em> : props.title}
+        </Text>
+      ) : null}
+    </Box>
+  );
+}
+
 function Image(props) {
   if (props.src && props.src.endsWith('gif')) {
     return <GifPlayer style={{maxWidth: '100%'}} src={props.src} />;
   }
-  return <img style={{maxWidth: '100%'}} src={props.src} alt={props.alt} />;
+  return <PlainImage {...props} />;
+}
+
+function P(props) {
+  return <Paragraph fill={true} {...props} />;
 }
 
 const parseHtml = htmlParser({
@@ -82,14 +125,54 @@ const parseHtml = htmlParser({
 
 export default class MarkdownRenderer extends React.PureComponent<Props> {
   render() {
-    const {escapeHtml = true} = this.props;
+    const {escapeHtml = true, SyntaxHighlighter} = this.props;
     return (
       <ReactMarkdown
         escapeHtml={this.props.escapeHtml}
         source={this.props.source}
         renderers={{
-          code: CodeBlock,
+          code(props) {
+            return (
+              <CodeBlock SyntaxHighlighter={SyntaxHighlighter} {...props} />
+            );
+          },
           image: Image,
+          paragraph: P,
+          heading: Heading,
+          link(props) {
+            return <Anchor {...props} />;
+          },
+        }}
+        astPlugins={this.props.escapeHtml ? [parseHtml] : []}
+      />
+    );
+  }
+}
+
+export class RssMarkdownRenderer extends React.PureComponent<Props> {
+  render() {
+    const {escapeHtml = true, SyntaxHighlighter} = this.props;
+    return (
+      <ReactMarkdown
+        escapeHtml={this.props.escapeHtml}
+        source={this.props.source}
+        renderers={{
+          code(props) {
+            return (
+              <CodeBlock SyntaxHighlighter={SyntaxHighlighter} {...props} />
+            );
+          },
+          image(props) {
+            return <PlainImage isRss={true} {...props} />;
+          },
+          paragraph: P,
+          heading(props) {
+            const {level, ...restProps} = props;
+            return <Heading level={level + 2} {...restProps} />;
+          },
+          link(props) {
+            return <Anchor {...props} />;
+          },
         }}
         astPlugins={this.props.escapeHtml ? [parseHtml] : []}
       />

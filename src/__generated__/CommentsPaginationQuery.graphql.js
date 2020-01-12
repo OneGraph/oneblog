@@ -1,6 +1,6 @@
 /**
  * @flow
- * @relayHash bc1d71e0daf673e98f2a66b118c4cc53
+ * @relayHash 6288cadb21cca1f3dfb8e93eaaf06265
  */
 
 /* eslint-disable */
@@ -111,6 +111,7 @@ fragment Comment_comment on GitHubIssueComment {
       totalCount
       nodes {
         login
+        name
         id
       }
     }
@@ -199,35 +200,36 @@ v5 = {
 v6 = {
   "kind": "ScalarField",
   "alias": null,
-  "name": "avatarUrl",
+  "name": "name",
   "args": null,
   "storageKey": null
 },
 v7 = {
   "kind": "ScalarField",
   "alias": null,
-  "name": "login",
+  "name": "avatarUrl",
   "args": null,
   "storageKey": null
 },
 v8 = {
   "kind": "ScalarField",
   "alias": null,
+  "name": "login",
+  "args": null,
+  "storageKey": null
+},
+v9 = {
+  "kind": "ScalarField",
+  "alias": null,
   "name": "url",
   "args": null,
   "storageKey": null
 },
-v9 = [
-  {
-    "kind": "ScalarField",
-    "alias": null,
-    "name": "name",
-    "args": null,
-    "storageKey": null
-  },
+v10 = [
   (v6/*: any*/),
   (v7/*: any*/),
   (v8/*: any*/),
+  (v9/*: any*/),
   (v5/*: any*/)
 ];
 return {
@@ -379,30 +381,30 @@ return {
                                   {
                                     "kind": "InlineFragment",
                                     "type": "GitHubUser",
-                                    "selections": (v9/*: any*/)
+                                    "selections": (v10/*: any*/)
                                   },
                                   {
                                     "kind": "InlineFragment",
                                     "type": "GitHubBot",
                                     "selections": [
-                                      (v6/*: any*/),
                                       (v7/*: any*/),
                                       (v8/*: any*/),
+                                      (v9/*: any*/),
                                       (v5/*: any*/)
                                     ]
                                   },
                                   {
                                     "kind": "InlineFragment",
                                     "type": "GitHubOrganization",
-                                    "selections": (v9/*: any*/)
+                                    "selections": (v10/*: any*/)
                                   },
                                   {
                                     "kind": "InlineFragment",
                                     "type": "GitHubMannequin",
                                     "selections": [
                                       (v5/*: any*/),
-                                      (v7/*: any*/),
-                                      (v8/*: any*/)
+                                      (v8/*: any*/),
+                                      (v9/*: any*/)
                                     ]
                                   }
                                 ]
@@ -468,7 +470,8 @@ return {
                                         "concreteType": "GitHubUser",
                                         "plural": true,
                                         "selections": [
-                                          (v7/*: any*/),
+                                          (v8/*: any*/),
+                                          (v6/*: any*/),
                                           (v5/*: any*/)
                                         ]
                                       }
@@ -537,7 +540,7 @@ return {
   "params": {
     "operationKind": "query",
     "name": "CommentsPaginationQuery",
-    "id": "298c6715-e528-4c94-925e-19014c623bda",
+    "id": "943ee398-e821-4262-a0bd-e9f37897e3ec",
     "text": null,
     "metadata": {}
   }

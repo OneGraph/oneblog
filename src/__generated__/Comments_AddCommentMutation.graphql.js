@@ -1,6 +1,6 @@
 /**
  * @flow
- * @relayHash d0ee35b5e34664fd1c889b91e1f027f9
+ * @relayHash 9705aa6882221362f61787bc72527013
  */
 
 /* eslint-disable */
@@ -92,6 +92,7 @@ fragment Comment_comment on GitHubIssueComment {
       totalCount
       nodes {
         login
+        name
         id
       }
     }
@@ -125,35 +126,36 @@ v2 = {
 v3 = {
   "kind": "ScalarField",
   "alias": null,
-  "name": "avatarUrl",
+  "name": "name",
   "args": null,
   "storageKey": null
 },
 v4 = {
   "kind": "ScalarField",
   "alias": null,
-  "name": "login",
+  "name": "avatarUrl",
   "args": null,
   "storageKey": null
 },
 v5 = {
   "kind": "ScalarField",
   "alias": null,
+  "name": "login",
+  "args": null,
+  "storageKey": null
+},
+v6 = {
+  "kind": "ScalarField",
+  "alias": null,
   "name": "url",
   "args": null,
   "storageKey": null
 },
-v6 = [
-  {
-    "kind": "ScalarField",
-    "alias": null,
-    "name": "name",
-    "args": null,
-    "storageKey": null
-  },
+v7 = [
   (v3/*: any*/),
   (v4/*: any*/),
   (v5/*: any*/),
+  (v6/*: any*/),
   (v2/*: any*/)
 ];
 return {
@@ -291,30 +293,30 @@ return {
                           {
                             "kind": "InlineFragment",
                             "type": "GitHubUser",
-                            "selections": (v6/*: any*/)
+                            "selections": (v7/*: any*/)
                           },
                           {
                             "kind": "InlineFragment",
                             "type": "GitHubBot",
                             "selections": [
-                              (v3/*: any*/),
                               (v4/*: any*/),
                               (v5/*: any*/),
+                              (v6/*: any*/),
                               (v2/*: any*/)
                             ]
                           },
                           {
                             "kind": "InlineFragment",
                             "type": "GitHubOrganization",
-                            "selections": (v6/*: any*/)
+                            "selections": (v7/*: any*/)
                           },
                           {
                             "kind": "InlineFragment",
                             "type": "GitHubMannequin",
                             "selections": [
                               (v2/*: any*/),
-                              (v4/*: any*/),
-                              (v5/*: any*/)
+                              (v5/*: any*/),
+                              (v6/*: any*/)
                             ]
                           }
                         ]
@@ -380,7 +382,8 @@ return {
                                 "concreteType": "GitHubUser",
                                 "plural": true,
                                 "selections": [
-                                  (v4/*: any*/),
+                                  (v5/*: any*/),
+                                  (v3/*: any*/),
                                   (v2/*: any*/)
                                 ]
                               }
@@ -401,7 +404,7 @@ return {
   "params": {
     "operationKind": "mutation",
     "name": "Comments_AddCommentMutation",
-    "id": "769983ca-aeac-4545-97ac-2dcc412b8181",
+    "id": "af07726f-a498-457b-824e-b45bbfce8cb5",
     "text": null,
     "metadata": {}
   }

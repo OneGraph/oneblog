@@ -1,11 +1,21 @@
 // @flow
 
+import React from 'react';
+import {renderToStaticMarkup} from 'react-dom/server';
 import {Feed} from 'feed';
 import idx from 'idx';
 import graphql from 'babel-plugin-relay/macro';
 import {environment} from './Environment';
 import {fetchQuery} from 'react-relay';
-
+import {computePostDate} from './Post';
+import {RssMarkdownRenderer} from './MarkdownRenderer';
+import {ServerStyleSheet} from 'styled-components';
+import inlineCss from 'inline-css/lib/inline-css';
+import {Grommet, Box} from 'grommet';
+import {theme} from './App';
+import appCss from './App.css';
+import ReactSyntaxHighlighter from 'react-syntax-highlighter';
+import githubStyle from 'react-syntax-highlighter/dist/cjs/styles/hljs/github';
 import type {RssFeed_QueryResponse} from './__generated__/RssFeed_Query.graphql';
 
 const feedQuery = graphql`
@@ -22,24 +32,39 @@ const feedQuery = graphql`
           labels: ["publish", "Publish"]
         ) {
           nodes {
-            id
-            number
-            title
-            bodyHTML
-            createdAt
-            assignees(first: 10) {
-              nodes {
-                id
-                name
-                url
-              }
-            }
+            ...Post_post @relay(mask: false)
           }
         }
       }
     }
   }
 `;
+
+function SyntaxHighlighter(props) {
+  return <ReactSyntaxHighlighter style={githubStyle} {...props} />;
+}
+
+function renderPostHtml(post) {
+  const sheet = new ServerStyleSheet();
+  const markup = renderToStaticMarkup(
+    sheet.collectStyles(
+      <Grommet theme={theme}>
+        <div
+          style={{
+            maxWidth: 704,
+          }}>
+          <RssMarkdownRenderer
+            source={post.body}
+            SyntaxHighlighter={SyntaxHighlighter}
+            escapeHtml={true}
+          />
+        </div>
+      </Grommet>,
+    ),
+  );
+  const css = sheet.instance.tags.map(t => t.css()).join('\n');
+  return inlineCss(markup, `${appCss.toString()}\n${css}`, {codeBlocks: {}});
+}
 
 // TODO: make these fields configurable
 export async function buildFeed() {
@@ -61,7 +86,7 @@ export async function buildFeed() {
     language: 'en',
     image: 'https://onegraph.com/changelog/logo.png',
     favicon: 'https://onegraph.com/favicon.ico',
-    updated: latestPost ? new Date(latestPost.createdAt) : null,
+    updated: latestPost ? computePostDate(latestPost) : null,
     generator: '',
     feedLinks: {
       json: 'https://onegraph.com/changelog/feed.json',
@@ -72,11 +97,12 @@ export async function buildFeed() {
 
   for (const post of posts) {
     if (post) {
-      feed.addItem({
+      const content = renderPostHtml(post);
+      const body = feed.addItem({
         title: post.title,
         id: post.id,
         link: `https://onegraph.com/changelog/post/${post.number}`,
-        content: post.bodyHTML,
+        content,
         author: (post.assignees.nodes || []).map(node =>
           node
             ? {
@@ -85,7 +111,7 @@ export async function buildFeed() {
               }
             : null,
         ),
-        date: new Date(post.createdAt),
+        date: computePostDate(post),
       });
     }
   }
