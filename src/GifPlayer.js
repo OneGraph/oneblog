@@ -7,7 +7,7 @@ export default function GifPlayer({src: origSrc, ...props}: {src: string}) {
   const [playing, setPlaying] = React.useState(false);
   const src = playing
     ? origSrc
-    : `/image-proxy?firstFrame=true&url=${encodeURIComponent(origSrc)}`;
+    : `/image-proxy/${encodeURIComponent(origSrc)}/true`;
 
   return (
     <span

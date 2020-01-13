@@ -4,6 +4,7 @@
   "private": true,
   "dependencies": {
     "@tippy.js/react": "^2.2.2",
+    "aws-serverless-express": "^3.3.6",
     "babel-plugin-idx": "^2.4.0",
     "babel-plugin-relay": "^5.0.0",
     "change-case": "^3.1.0",
@@ -13,14 +14,17 @@
     "feed": "^4.0.0",
     "firebase-admin": "^8.3.0",
     "firebase-functions": "^3.2.0",
+    "gif-stream": "^1.1.0",
     "graphql": "^14.4.2",
     "grommet": "2.7.8",
     "grommet-icons": "^4.3.0",
     "highlightjs-graphql": "^1.0.1",
     "idx": "^2.5.6",
     "inline-css": "^2.5.1",
+    "neuquant": "^1.0.2",
     "node-fetch": "^2.6.0",
     "onegraph-auth": "^2.0.0",
+    "pixel-stream": "^1.0.3",
     "polished": "^3.4.1",
     "react": "^16.9.0",
     "react-dom": "^16.9.0",
@@ -30,11 +34,7 @@
     "react-router-hash-link": "^1.2.2",
     "react-syntax-highlighter": "^11.0.2",
     "serialize-javascript": "^1.7.0",
-    "serverless-http": "^2.2.0",
-    "styled-components": "^4.3.2",
-    "pixel-stream": "^1.0.3",
-    "gif-stream": "^1.1.0",
-    "neuquant": "^1.0.2"
+    "styled-components": "^4.3.2"
   },
   "scripts": {
     "start": "razzle start",
@@ -58,7 +58,11 @@
     "extends": "react-app"
   },
   "browserslist": {
-    "production": [">0.2%", "not dead", "not op_mini all"],
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
     "development": [
       "last 1 chrome version",
       "last 1 firefox version",
@@ -80,8 +84,5 @@
   },
   "babelMacros": {
     "relay": {}
-  },
-  "engines": {
-    "node": "10"
   }
 }

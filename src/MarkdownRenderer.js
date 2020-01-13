@@ -93,7 +93,7 @@ function PlainImage(imageProps) {
     <Box as="span" style={{display: 'block'}}>
       <img
         style={{maxWidth: '100%'}}
-        src={`/image-proxy?url=${encodeURIComponent(src)}`}
+        src={`/image-proxy/${encodeURIComponent(src)}`}
         {...props}
       />
       {props.isRss ? <br /> : null}
