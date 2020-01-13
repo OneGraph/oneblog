@@ -12,6 +12,7 @@ import serialize from 'serialize-javascript';
 import {RecordSource} from 'relay-runtime';
 import RelayQueryResponseCache from './relayResponseCache';
 import {buildFeed} from './RssFeed';
+import imageProxy from './imageProxy';
 
 // $FlowFixMe
 const assets = require(process.env.RAZZLE_ASSETS_MANIFEST);
@@ -86,6 +87,7 @@ const SUPPORTED_FEED_EXTENSIONS = ['rss', 'atom', 'json'];
 function createApp(basePath: ?string) {
   const appRouter = express.Router();
   appRouter
+    .get('/image-proxy', imageProxy)
     .get('/feed.:ext', async (req, res) => {
       const extension = req.params.ext;
       if (!SUPPORTED_FEED_EXTENSIONS.includes(extension)) {

@@ -88,10 +88,14 @@ class CodeBlock extends React.PureComponent<
 }
 
 function PlainImage(imageProps) {
-  const {isRss, ...props} = imageProps;
+  const {isRss, src, ...props} = imageProps;
   return (
     <Box as="span" style={{display: 'block'}}>
-      <img style={{maxWidth: '100%'}} {...props} />
+      <img
+        style={{maxWidth: '100%'}}
+        src={`/image-proxy?url=${encodeURIComponent(src)}`}
+        {...props}
+      />
       {props.isRss ? <br /> : null}
       {props.title ? (
         <Text

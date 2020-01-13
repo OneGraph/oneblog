@@ -31,7 +31,10 @@
     "react-syntax-highlighter": "^11.0.2",
     "serialize-javascript": "^1.7.0",
     "serverless-http": "^2.2.0",
-    "styled-components": "^4.3.2"
+    "styled-components": "^4.3.2",
+    "pixel-stream": "^1.0.3",
+    "gif-stream": "^1.1.0",
+    "neuquant": "^1.0.2"
   },
   "scripts": {
     "start": "razzle start",
