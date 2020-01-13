@@ -1,5 +1,5 @@
 [build]
-  command = "yarn install && yarn relay && yarn build"
+  command = "yarn install && yarn relay && yarn build && yarn build:netlify-functions"
   publish = "build/public"
   functions = "build-netlify-functions/"
   environment = { NETLIFY = "true" }
@@ -28,4 +28,9 @@
 [[redirects]]
   from = "/feed*"
   to = "/.netlify/functions/index/feed:splat"
+  status = 200
+
+[[redirects]]
+  from = "/image-proxy*"
+  to = "/.netlify/functions/index/image-proxy:splat"
   status = 200
