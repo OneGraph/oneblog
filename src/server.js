@@ -87,8 +87,8 @@ const SUPPORTED_FEED_EXTENSIONS = ['rss', 'atom', 'json'];
 function createApp(basePath: ?string) {
   const appRouter = express.Router();
   appRouter
-    .get('/image-proxy/:url', imageProxy)
-    .get('/first-frame/:url', firstFrame)
+    .get('/image-proxy/:base64Url', imageProxy)
+    .get('/first-frame/:base64Url', firstFrame)
     .get('/feed.:ext', async (req, res) => {
       const extension = req.params.ext;
       if (!SUPPORTED_FEED_EXTENSIONS.includes(extension)) {

@@ -5,8 +5,6 @@
   "dependencies": {
     "@tippy.js/react": "^2.2.2",
     "aws-serverless-express": "^3.3.6",
-    "babel-plugin-idx": "^2.4.0",
-    "babel-plugin-relay": "^5.0.0",
     "change-case": "^3.1.0",
     "date-fns": "2.2.1",
     "email-reply-parser": "^1.2.1",
@@ -19,7 +17,6 @@
     "grommet": "2.7.8",
     "grommet-icons": "^4.3.0",
     "highlightjs-graphql": "^1.0.1",
-    "idx": "^2.5.6",
     "inline-css": "^2.5.1",
     "neuquant": "^1.0.2",
     "node-fetch": "^2.6.0",
@@ -58,11 +55,7 @@
     "extends": "react-app"
   },
   "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
+    "production": [">0.2%", "not dead", "not op_mini all"],
     "development": [
       "last 1 chrome version",
       "last 1 firefox version",
@@ -72,9 +65,12 @@
   "devDependencies": {
     "@babel/preset-flow": "^7.0.0",
     "@dwwoelfel/relay-compiler": "5.0.1-alpha1",
+    "babel-plugin-idx": "^2.4.0",
     "babel-plugin-macros": "^2.6.1",
+    "babel-plugin-relay": "^5.0.0",
     "firebase-tools": "7.2.4",
     "flow-bin": "^0.105.1",
+    "idx": "^2.5.6",
     "netlify-cli": "^2.4.8",
     "netlify-lambda": "^1.6.2",
     "now": "^16.1.1",

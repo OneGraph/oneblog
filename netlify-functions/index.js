@@ -28,21 +28,6 @@ const app = createApp();
 app.use(awsServerlessExpressMiddleware.eventContext());
 const server = awsServerlessExpress.createServer(app, null, binaryMimeTypes);
 
-function fixImageProxy(event) {
-  for (const prefix of ['/image-proxy/', '/first-frame/']) {
-    if (event.path && event.path.startsWith(prefix)) {
-      const url = event.path.substr(prefix.length);
-      if (url.indexOf('/') !== -1) {
-        return {
-          ...event,
-          path: `${prefix}${encodeURIComponent(url)}`,
-        };
-      }
-    }
-  }
-  return event;
-}
-
 exports.handler = (event, context) => {
-  awsServerlessExpress.proxy(server, fixImageProxy(event), context);
+  awsServerlessExpress.proxy(server, event, context);
 };

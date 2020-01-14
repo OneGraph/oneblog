@@ -65,8 +65,31 @@ function getWithRedirect(url, cb, depth = 1) {
   });
 }
 
+function padBase64String(input: string): string {
+  const segmentLength = 4;
+  const stringLength = input.length;
+  const diff = stringLength % segmentLength;
+
+  if (!diff) {
+    return input;
+  }
+
+  const pad = ''.padStart(diff, '=');
+
+  return `${input}${pad}`;
+}
+
+function decodeUrl(base64Url) {
+  return Buffer.from(
+    padBase64String(base64Url)
+      .replace(/\-/g, '+')
+      .replace(/_/g, '/'),
+    'base64',
+  ).toString('utf-8');
+}
+
 export const firstFrame = (req, res) => {
-  const url = req.params.url;
+  const url = decodeUrl(req.params.base64Url);
   // TODO: ensure image comes from github
   // if (!url.startsWith('https://user-images.githubusercontent.com')) {
   //   res.sendStatus(400);
@@ -94,7 +117,7 @@ export const firstFrame = (req, res) => {
 };
 
 export const imageProxy = (req, res) => {
-  const url = req.params.url;
+  const url = decodeUrl(req.params.base64Url);
 
   getWithRedirect(url, resp => {
     res.status(resp.statusCode);
