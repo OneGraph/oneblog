@@ -34,3 +34,8 @@
   from = "/image-proxy*"
   to = "/.netlify/functions/index/image-proxy:splat"
   status = 200
+
+[[redirects]]
+  from = "/first-frame*"
+  to = "/.netlify/functions/index/first-frame:splat"
+  status = 200
