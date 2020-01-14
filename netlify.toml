@@ -5,13 +5,14 @@
   environment = { NETLIFY = "true" }
 
 [context]
-  environment = { NETLIFY = "true" }
+  environment = { NETLIFY = "true", AWS_LAMBDA_JS_RUNTIME = "nodejs12.x" }
 
 [template.environment]
   RAZZLE_ONEGRAPH_APP_ID = "Your OneGraph app id"
   REPOSITORY_FIXED_VARIABLES = "TODO: replace with repoName and repoOwner"
-  GITHUB_REPO_NAME = "The name of the repo that OneBlog should pull issues from"
-  GITHUB_REPO_OWNER = "The owner of the repo that OneBlog should pull issues from"
+  RAZZLE_GITHUB_REPO_NAME = "Name of the repo that OneBlog should pull issues from"
+  RAZZLE_GITHUB_REPO_OWNER = "Owner of the repo that OneBlog should pull issues from"
+  RAZZLE_TITLE = "The title of the blog"
   OG_GITHUB_TOKEN = "The server-side token from OneGraph that will be used in persisted queries"
   OG_DASHBOARD_ACCESS_TOKEN = "The OneGraph API token that allows the build to create persisted queries"
 

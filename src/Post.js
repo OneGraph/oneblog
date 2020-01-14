@@ -23,6 +23,7 @@ import UserContext from './UserContext';
 import {lowerCase, sentenceCase} from 'change-case';
 import unified from 'unified';
 import parse from 'remark-parse';
+import imageUrl from './imageUrl';
 
 import type {Post_post} from './__generated__/Post_post.graphql';
 
@@ -471,7 +472,7 @@ export const Post = ({relay, post, context}: Props) => {
                     <Box>
                       <img
                         alt={node.name}
-                        src={node.avatarUrl}
+                        src={imageUrl(node.avatarUrl)}
                         style={{
                           width: 48,
                           height: 48,

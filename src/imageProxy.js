@@ -67,7 +67,6 @@ function getWithRedirect(url, cb, depth = 1) {
 
 export const firstFrame = (req, res) => {
   const url = req.params.url;
-  console.log('fetching', url);
   // TODO: ensure image comes from github
   // if (!url.startsWith('https://user-images.githubusercontent.com')) {
   //   res.sendStatus(400);
@@ -96,7 +95,6 @@ export const firstFrame = (req, res) => {
 
 export const imageProxy = (req, res) => {
   const url = req.params.url;
-  console.log('fetching', url);
 
   getWithRedirect(url, resp => {
     res.status(resp.statusCode);
@@ -112,7 +110,6 @@ export const imageProxy = (req, res) => {
     });
 
     resp.on('end', () => {
-      console.log('end', url);
       res.end();
     });
   }).on('error', err => {

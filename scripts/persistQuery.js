@@ -4,6 +4,16 @@ const {parse, print} = require('graphql');
 
 require('dotenv').config();
 
+if (
+  !process.env['REPOSITORY_FIXED_VARIABLES'] &&
+  process.env['RAZZLE_GITHUB_REPO_OWNER'] &&
+  process.env['RAZZLE_GITHUB_REPO_NAME']
+) {
+  process.env['REPOSITORY_FIXED_VARIABLES'] = `{"repoName": "${
+    process.env['RAZZLE_GITHUB_REPO_NAME']
+  }", "repoOwner": "${process.env['RAZZLE_GITHUB_REPO_OWNER']}"}`;
+}
+
 const PERSIST_QUERY_MUTATION = `
   mutation PersistQuery(
     $freeVariables: [String!]!

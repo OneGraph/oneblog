@@ -11,6 +11,7 @@ import idx from 'idx';
 import {Box, Heading, Text, TextArea, Tabs, Tab} from 'grommet';
 import {formatDistance, format} from 'date-fns';
 import EmailReplyParser from 'email-reply-parser';
+import imageUrl from './imageUrl';
 
 type Props = {
   relay: RelayProp,
@@ -28,7 +29,7 @@ function Comment({comment, relay}: Props) {
           width={24}
           height={24}
           style={{borderRadius: '50%'}}
-          src={idx(comment, _ => _.author.avatarUrl)}
+          src={imageUrl(idx(comment, _ => _.author.avatarUrl))}
         />
         <Text size="xsmall">
           <a href={idx(comment, _ => _.author.url)}>

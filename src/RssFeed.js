@@ -14,8 +14,8 @@ import inlineCss from 'inline-css/lib/inline-css';
 import {Grommet, Box} from 'grommet';
 import {theme} from './App';
 import appCss from './App.css';
-import ReactSyntaxHighlighter from 'react-syntax-highlighter';
 import githubStyle from 'react-syntax-highlighter/dist/cjs/styles/hljs/github';
+import ReactSyntaxHighlighter from 'react-syntax-highlighter/dist/cjs/default-highlight';
 import type {RssFeed_QueryResponse} from './__generated__/RssFeed_Query.graphql';
 
 const feedQuery = graphql`
