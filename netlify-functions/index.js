@@ -29,7 +29,6 @@ app.use(awsServerlessExpressMiddleware.eventContext());
 const server = awsServerlessExpress.createServer(app, null, binaryMimeTypes);
 
 function fixImageProxy(event) {
-  console.log('event', event);
   for (const prefix of ['/image-proxy/', '/first-frame/']) {
     if (event.path && event.path.startsWith(prefix)) {
       const url = event.path.substr(prefix.length);

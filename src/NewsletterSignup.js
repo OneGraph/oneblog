@@ -64,7 +64,6 @@ async function subscribeToList({
     },
   );
   const json = await resp.json();
-  console.log('j', json);
   const body = idx(json, _ => _.data.mailchimp.makeRestCall.post.jsonBody);
   if (!body) {
     throw new Error('unknown error');
