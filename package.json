@@ -48,8 +48,8 @@
     "analyze": "source-map-explorer 'build/public/static/js/*.js'",
     "deploy:firebase": "firebase deploy -P default",
     "deploy:now": "now",
-    "deploy:netlify": "yarn build && yarn build:netlify-functions && netlify deploy",
     "build:netlify-functions": "NODE_ENV=production netlify-lambda build netlify-functions --babelrc false",
+    "deploy:netlify": "yarn build && yarn build:netlify-functions && netlify deploy",
     "deploy:fly": "flyctl deploy .",
     "netlify:serve": "NODE_ENV=production netlify-lambda serve netlify-functions --babelrc false",
     "prettier": "prettier --write \"src/**/*.js\" README.md"
