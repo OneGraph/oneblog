@@ -43,7 +43,7 @@
     "flow": "flow",
     "fetch-schema": "node scripts/fetchSchema.js --path schema.graphql",
     "analyze": "source-map-explorer 'build/public/static/js/*.js'",
-    "deploy:firebase": "firebase deploy -P default",
+    "deploy:firebase": "firebase deploy",
     "deploy:now": "now",
     "build:netlify-functions": "NODE_ENV=production netlify-lambda build netlify-functions --babelrc false",
     "deploy:netlify": "yarn build && yarn build:netlify-functions && netlify deploy",
@@ -55,11 +55,7 @@
     "extends": "react-app"
   },
   "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
+    "production": [">0.2%", "not dead", "not op_mini all"],
     "development": [
       "last 1 chrome version",
       "last 1 firefox version",
