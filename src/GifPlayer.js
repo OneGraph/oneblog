@@ -7,7 +7,7 @@ import base64Encode from './base64Encode';
 
 export default function GifPlayer({src: origSrc, ...props}: {src: string}) {
   const [playing, setPlaying] = React.useState(false);
-  const src = playing ? imageUrl(origSrc) : `/first-frame/${base64Encode(origSrc)}`;
+  const src = imageUrl({src: origSrc, firstFrame: !playing});
 
   return (
     <span

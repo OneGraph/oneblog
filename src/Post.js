@@ -479,7 +479,7 @@ export const Post = ({relay, post, context}: Props) => {
                     <Box>
                       <img
                         alt={node.name}
-                        src={imageUrl(node.avatarUrl)}
+                        src={imageUrl({src: node.avatarUrl})}
                         style={{
                           width: 48,
                           height: 48,

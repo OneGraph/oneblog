@@ -1,5 +1,3 @@
-// @flow
-
 import {emojify} from './MarkdownRenderer';
 
 describe('emojify', () => {

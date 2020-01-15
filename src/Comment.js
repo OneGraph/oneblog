@@ -35,7 +35,7 @@ function Comment({comment, relay}: Props) {
           width={24}
           height={24}
           style={{borderRadius: '50%'}}
-          src={imageUrl(idx(comment, _ => _.author.avatarUrl))}
+          src={imageUrl({src: idx(comment, _ => _.author.avatarUrl)})}
         />
         <Text size="xsmall">
           <a href={idx(comment, _ => _.author.url)}>

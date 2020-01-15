@@ -2,9 +2,15 @@
 
 import base64Encode from './base64Encode';
 
-export default (src: ?string): ?string => {
+export default ({
+  src,
+  firstFrame,
+}: {
+  src: ?string,
+  firstFrame?: ?boolean,
+}): ?string => {
   if (src) {
-    return `/image-proxy/${base64Encode(src)}`;
+    return `/image/${firstFrame ? 'firstFrame/' : ''}${base64Encode(src)}`;
   }
   return src;
 };

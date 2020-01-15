@@ -68,9 +68,9 @@ function renderPostHtml(post) {
   return inlineCss(markup, `${appCss.toString()}\n${css}`, {codeBlocks: {}});
 }
 
-function removeTrailingSlash(s: string): string {
+function removeTrailingSlash(s: ?string): string {
   if (!s) {
-    return s;
+    return '';
   }
   if (s[s.length - 1] === '/') {
     return s.substr(0, s.length - 1);
@@ -78,7 +78,13 @@ function removeTrailingSlash(s: string): string {
   return s;
 }
 
-export async function buildFeed({basePath, siteHostname}) {
+export async function buildFeed({
+  basePath,
+  siteHostname,
+}: {
+  basePath?: ?string,
+  siteHostname?: ?string,
+}) {
   const data: RssFeed_QueryResponse = await fetchQuery(
     environment,
     feedQuery,

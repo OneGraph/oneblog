@@ -95,8 +95,8 @@ const SUPPORTED_FEED_EXTENSIONS = ['rss', 'atom', 'json'];
 function createApp(basePath: ?string) {
   const appRouter = express.Router();
   appRouter
-    .get('/image-proxy/:base64Url', imageProxy)
-    .get('/first-frame/:base64Url', firstFrame)
+    .get('/image/:base64Url', imageProxy)
+    .get('/image/firstFrame/:base64Url', firstFrame)
     .get('/feed.:ext', async (req, res) => {
       const extension = req.params.ext;
       if (!SUPPORTED_FEED_EXTENSIONS.includes(extension)) {
@@ -179,6 +179,9 @@ function createApp(basePath: ?string) {
             styleTags: null,
             bootstrapData: null,
             basePath,
+            htmlAttributes: '',
+            title: '',
+            meta: '',
           }),
         );
       }
