@@ -25,6 +25,7 @@ import {deepMerge} from 'grommet/utils/object';
 import {StatusCritical} from 'grommet-icons/icons/StatusCritical';
 import {matchPath} from 'react-router-dom';
 import UserContext from './UserContext';
+import {Helmet} from 'react-helmet';
 
 import type {App_ViewerQueryResponse} from './__generated__/App_Query.graphql';
 import type {Environment} from 'relay-runtime';
@@ -217,6 +218,17 @@ export default class App extends React.Component<
           login: this._login,
           logout: this._logout,
         }}>
+        <Helmet
+          defaultTitle={process.env.RAZZLE_TITLE}
+          titleTemplate={
+            '%s' +
+            (process.env.RAZZLE_TITLE ? ' - ' + process.env.RAZZLE_TITLE : '')
+          }>
+          {process.env.RAZZLE_DESCRIPTION ? (
+            <meta name="description" content={process.env.RAZZLE_DESCRIPTION} />
+          ) : null}
+          <meta charSet="utf-8" />
+        </Helmet>
         <NotificationContainer>
           <Grommet theme={theme}>
             <div className="layout">

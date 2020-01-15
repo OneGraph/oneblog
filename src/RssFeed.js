@@ -68,11 +68,17 @@ function renderPostHtml(post) {
   return inlineCss(markup, `${appCss.toString()}\n${css}`, {codeBlocks: {}});
 }
 
-// TODO: Get BASE_URL from config
-const BASE_URL = 'https://onegraph.com';
+function removeTrailingSlash(s: string): string {
+  if (!s) {
+    return s;
+  }
+  if (s[s.length - 1] === '/') {
+    return s.substr(0, s.length - 1);
+  }
+  return s;
+}
 
-// TODO: make these fields configurable
-export async function buildFeed() {
+export async function buildFeed({basePath, siteHostname}) {
   const data: RssFeed_QueryResponse = await fetchQuery(
     environment,
     feedQuery,
@@ -82,21 +88,25 @@ export async function buildFeed() {
   const posts = idx(data, _ => _.gitHub.repository.issues.nodes) || [];
   const latestPost = posts[0];
 
+  const baseUrl = removeTrailingSlash(
+    `${removeTrailingSlash(siteHostname)}${basePath ? basePath : ''}`,
+  );
+
   const feed = new Feed({
     title: 'OneGraph Product Updates',
     description:
       'Keep up to date with the latest product features from OneGraph',
-    id: BASE_URL,
-    link: BASE_URL,
+    id: baseUrl,
+    link: baseUrl,
     language: 'en',
-    image: `${BASE_URL}/logo.png`,
-    favicon: `${BASE_URL}/favicon.ico`,
+    image: `${baseUrl}/logo.png`,
+    favicon: `${baseUrl}/favicon.ico`,
     updated: latestPost ? computePostDate(latestPost) : null,
     generator: '',
     feedLinks: {
-      json: `${BASE_URL}/feed.json`,
-      atom: `${BASE_URL}/feed.atom`,
-      rss2: `${BASE_URL}/feed.rss`,
+      json: `${baseUrl}/feed.json`,
+      atom: `${baseUrl}/feed.atom`,
+      rss2: `${baseUrl}/feed.rss`,
     },
   });
 
@@ -106,7 +116,7 @@ export async function buildFeed() {
       const body = feed.addItem({
         title: post.title,
         id: post.id,
-        link: `${BASE_URL}${postPath({post})}`,
+        link: `${baseUrl}${postPath({post})}`,
         content,
         author: (post.assignees.nodes || []).map(node =>
           node

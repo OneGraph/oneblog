@@ -1,5 +1,5 @@
 {
-  "name": "onegraph-changelog",
+  "name": "oneblog",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
@@ -24,6 +24,7 @@
     "pixel-stream": "^1.0.3",
     "react": "^16.12.0",
     "react-dom": "^16.12.0",
+    "react-helmet": "^5.2.1",
     "react-markdown": "^4.3.1",
     "react-relay": "^5.0.0",
     "react-router-dom": "^5.0.1",
@@ -55,7 +56,11 @@
     "extends": "react-app"
   },
   "browserslist": {
-    "production": [">0.2%", "not dead", "not op_mini all"],
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
     "development": [
       "last 1 chrome version",
       "last 1 firefox version",

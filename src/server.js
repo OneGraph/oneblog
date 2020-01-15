@@ -13,11 +13,22 @@ import {RecordSource} from 'relay-runtime';
 import RelayQueryResponseCache from './relayResponseCache';
 import {buildFeed} from './RssFeed';
 import {imageProxy, firstFrame} from './imageProxy';
+import {Helmet} from 'react-helmet';
 
 // $FlowFixMe
 const assets = require(process.env.RAZZLE_ASSETS_MANIFEST);
 
-function buildHtml({markup, styleTags, bootstrapData, basePath}) {
+const siteHostname = process.env.RAZZLE_SITE_HOSTNAME;
+
+function buildHtml({
+  markup,
+  styleTags,
+  bootstrapData,
+  basePath,
+  htmlAttributes,
+  title,
+  meta,
+}) {
   const bootstrapScript = bootstrapData
     ? `<script>
     window.__RELAY_BOOTSTRAP_DATA__ = JSON.parse(${serialize(
@@ -27,8 +38,10 @@ function buildHtml({markup, styleTags, bootstrapData, basePath}) {
   </script>`
     : '';
   return `<!doctype html>
-<html lang="en">
+<html lang="en" ${htmlAttributes}>
   <head>
+    ${title}
+    ${meta}
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta charset="utf-8" />
     <link rel="shortcut icon" href="/favicon.ico" />
@@ -42,13 +55,8 @@ function buildHtml({markup, styleTags, bootstrapData, basePath}) {
 
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#000000" />
-    <meta
-      name="description"
-      content="Follow along with OneGraph as we take over the world with GraphQL."
-    />
     <link rel="manifest" href="/manifest.json" />
 
-    <title>OneGraph Product Updates</title>
     ${styleTags ? styleTags : ''}
     ${
       assets.client.css
@@ -98,7 +106,7 @@ function createApp(basePath: ?string) {
         return;
       }
 
-      const feed = await buildFeed();
+      const feed = await buildFeed({basePath, siteHostname});
       const body =
         extension === 'rss'
           ? feed.rss2()
@@ -146,6 +154,7 @@ function createApp(basePath: ?string) {
             </StaticRouter>,
           ),
         );
+        const helmet = Helmet.renderStatic();
         const styleTags = sheet.getStyleTags();
         if (context.url) {
           res.redirect(context.url);
@@ -156,6 +165,9 @@ function createApp(basePath: ?string) {
               styleTags,
               bootstrapData: recordSource.toJSON(),
               basePath,
+              htmlAttributes: helmet.htmlAttributes.toString(),
+              title: helmet.title.toString(),
+              meta: helmet.meta.toString(),
             }),
           );
         }

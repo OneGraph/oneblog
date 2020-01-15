@@ -27,6 +27,7 @@ import {sentenceCase} from 'sentence-case';
 import unified from 'unified';
 import parse from 'remark-parse';
 import imageUrl from './imageUrl';
+import {Helmet} from 'react-helmet';
 
 import type {Post_post} from './__generated__/Post_post.graphql';
 
@@ -444,6 +445,9 @@ export const Post = ({relay, post, context}: Props) => {
   const authors = post.assignees.nodes || [];
   return (
     <PostBox>
+      <Helmet>
+        <title>{post.title}</title>
+      </Helmet>
       <Box pad="medium">
         <Heading level={1} margin="none">
           {context === 'details' ? (
