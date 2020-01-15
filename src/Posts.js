@@ -7,7 +7,7 @@ import Post from './Post';
 import type {Posts_repository} from './__generated__/Posts_repository.graphql';
 import LoadingSpinner from './loadingSpinner';
 import idx from 'idx';
-import {Box} from 'grommet';
+import {Box} from 'grommet/components/Box';
 
 type Props = {|
   relay: RelayProp,

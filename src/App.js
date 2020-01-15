@@ -13,21 +13,18 @@ import Link from './PreloadLink';
 import idx from 'idx';
 import {NotificationContainer} from './Notifications';
 import OneGraphLogo from './oneGraphLogo';
-import {
-  Grommet,
-  Grid,
-  Box,
-  Heading,
-  Text,
-  Anchor,
-  ResponsiveContext,
-  generate,
-} from 'grommet';
+import {Grommet} from 'grommet/components/Grommet';
+import {Grid} from 'grommet/components/Grid';
+import {Box} from 'grommet/components/Box';
+import {Heading} from 'grommet/components/Heading';
+import {Text} from 'grommet/components/Text';
+import {Anchor} from 'grommet/components/Anchor';
+import {ResponsiveContext} from 'grommet/contexts/ResponsiveContext';
+import {generate} from 'grommet/themes/base';
 import {deepMerge} from 'grommet/utils/object';
-import {StatusCritical} from 'grommet-icons';
+import {StatusCritical} from 'grommet-icons/icons/StatusCritical';
 import {matchPath} from 'react-router-dom';
 import UserContext from './UserContext';
-import NewsletterSignup from './NewsletterSignup';
 
 import type {App_ViewerQueryResponse} from './__generated__/App_Query.graphql';
 import type {Environment} from 'relay-runtime';

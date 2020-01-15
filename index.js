@@ -1,7 +1,7 @@
 // index.js for firebase function
 
 const functions = require('firebase-functions');
-const { createApp } = require('./build/server').default;
+const {createApp} = require('./build/server').default;
 
 const config = functions.config();
 

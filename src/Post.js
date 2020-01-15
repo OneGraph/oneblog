@@ -18,9 +18,12 @@ import Link from './PreloadLink';
 import {postRootQuery} from './App';
 import GitHubLoginButton from './GitHubLoginButton';
 import {NotificationContext} from './Notifications';
-import {Box, Heading, Text} from 'grommet';
+import {Box} from 'grommet/components/Box';
+import {Heading} from 'grommet/components/Heading';
+import {Text} from 'grommet/components/Text';
 import UserContext from './UserContext';
-import {lowerCase, sentenceCase} from 'change-case';
+import {lowerCase} from 'lower-case';
+import {sentenceCase} from 'sentence-case';
 import unified from 'unified';
 import parse from 'remark-parse';
 import imageUrl from './imageUrl';
@@ -375,7 +378,7 @@ function slugify(s: string): string {
     .trimEnd(); // Trim from end of text
 }
 
-export function postUrl({
+export function postPath({
   post,
   viewComments,
 }: {
@@ -448,7 +451,7 @@ export const Post = ({relay, post, context}: Props) => {
           ) : (
             <Link
               style={{color: 'inherit'}}
-              to={postUrl({post})}
+              to={postPath({post})}
               onMouseOver={() =>
                 fetchQuery(relay.environment, postRootQuery, {
                   issueNumber: post.number,

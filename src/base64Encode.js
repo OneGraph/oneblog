@@ -1,8 +1,7 @@
 // @flow
 
-
 // Encodes to base64, with URL-safe alphabet
-export default s => {
+export default (s: string): string => {
   const base64 =
     typeof window !== 'undefined'
       ? btoa(s)

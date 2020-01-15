@@ -6,14 +6,13 @@ import htmlParser from 'react-markdown/plugins/html-parser';
 import type SyntaxHighlighter from 'react-syntax-highlighter';
 import GifPlayer from './GifPlayer';
 import imageUrl from './imageUrl';
-import {
-  Anchor,
-  Paragraph,
-  Heading,
-  Image as GrommetImage,
-  Box,
-  Text,
-} from 'grommet';
+import {Anchor} from 'grommet/components/Anchor';
+import {Paragraph} from 'grommet/components/Paragraph';
+import {Heading} from 'grommet/components/Heading';
+import {Image as GrommetImage} from 'grommet/components/Image';
+import {Box} from 'grommet/components/Box';
+import {Text} from 'grommet/components/Text';
+import emoji from './emoji';
 
 type Props = {
   source: string,
@@ -124,6 +123,63 @@ const parseHtml = htmlParser({
   isValidNode: node => node.type !== 'script',
 });
 
+export function emojify(s: string): string {
+  let startIndex = s.indexOf(':');
+  if (startIndex === -1) {
+    return s;
+  }
+  let endIndex = s.indexOf(':', startIndex + 1);
+  if (endIndex === -1) {
+    return s;
+  }
+  let emojified = s.substr(0, startIndex);
+
+  while (startIndex !== -1 && endIndex !== -1) {
+    const candidate = s.substring(startIndex + 1, endIndex);
+    if (emoji.hasOwnProperty(candidate)) {
+      emojified += emoji[candidate];
+      startIndex = s.indexOf(':', endIndex + 1);
+      if (startIndex === -1) {
+        emojified += s.substring(endIndex + 1);
+        endIndex = -1;
+      } else {
+        emojified += s.substring(endIndex + 1, startIndex);
+        endIndex = s.indexOf(':', startIndex + 1);
+      }
+    } else {
+      // Unsupported char name (or random colons in the string)
+      emojified += s.substring(startIndex, endIndex);
+      startIndex = endIndex;
+      endIndex = s.indexOf(':', startIndex + 1);
+    }
+  }
+
+  if (startIndex !== -1) {
+    emojified += s.substr(startIndex);
+  }
+
+  return emojified;
+}
+
+const defaultRenderers = ({SyntaxHighlighter}) => ({
+  text(props) {
+    const text = props.children;
+    return emojify(text);
+  },
+  code(props) {
+    return <CodeBlock SyntaxHighlighter={SyntaxHighlighter} {...props} />;
+  },
+  image: Image,
+  paragraph: P,
+  heading: Heading,
+  link(props) {
+    return <Anchor {...props} />;
+  },
+  linkReference(props) {
+    return <Anchor {...props} />;
+  },
+});
+
 export default class MarkdownRenderer extends React.PureComponent<Props> {
   render() {
     const {escapeHtml = true, SyntaxHighlighter} = this.props;
@@ -131,19 +187,7 @@ export default class MarkdownRenderer extends React.PureComponent<Props> {
       <ReactMarkdown
         escapeHtml={this.props.escapeHtml}
         source={this.props.source}
-        renderers={{
-          code(props) {
-            return (
-              <CodeBlock SyntaxHighlighter={SyntaxHighlighter} {...props} />
-            );
-          },
-          image: Image,
-          paragraph: P,
-          heading: Heading,
-          link(props) {
-            return <Anchor {...props} />;
-          },
-        }}
+        renderers={defaultRenderers({SyntaxHighlighter})}
         astPlugins={this.props.escapeHtml ? [parseHtml] : []}
       />
     );
@@ -158,21 +202,13 @@ export class RssMarkdownRenderer extends React.PureComponent<Props> {
         escapeHtml={this.props.escapeHtml}
         source={this.props.source}
         renderers={{
-          code(props) {
-            return (
-              <CodeBlock SyntaxHighlighter={SyntaxHighlighter} {...props} />
-            );
-          },
+          ...defaultRenderers({SyntaxHighlighter}),
           image(props) {
             return <PlainImage isRss={true} {...props} />;
           },
-          paragraph: P,
           heading(props) {
             const {level, ...restProps} = props;
             return <Heading level={level + 2} {...restProps} />;
-          },
-          link(props) {
-            return <Anchor {...props} />;
           },
         }}
         astPlugins={this.props.escapeHtml ? [parseHtml] : []}

@@ -8,8 +8,14 @@ import type {Comment_comment} from './__generated__/Comment_comment.graphql';
 import LoadingSpinner from './loadingSpinner';
 import MarkdownRenderer from './MarkdownRenderer';
 import idx from 'idx';
-import {Box, Heading, Text, TextArea, Tabs, Tab} from 'grommet';
-import {formatDistance, format} from 'date-fns';
+import {Box} from 'grommet/components/Box';
+import {Heading} from 'grommet/components/Heading';
+import {Text} from 'grommet/components/Text';
+import {TextArea} from 'grommet/components/TextArea';
+import {Tabs} from 'grommet/components/Tabs';
+import {Tab} from 'grommet/components/Tab';
+import format from 'date-fns/format';
+import formatDistance from 'date-fns/formatDistance';
 import EmailReplyParser from 'email-reply-parser';
 import imageUrl from './imageUrl';
 

@@ -7,11 +7,12 @@ import idx from 'idx';
 import graphql from 'babel-plugin-relay/macro';
 import {environment} from './Environment';
 import {fetchQuery} from 'react-relay';
-import {computePostDate} from './Post';
+import {computePostDate, postPath} from './Post';
 import {RssMarkdownRenderer} from './MarkdownRenderer';
 import {ServerStyleSheet} from 'styled-components';
 import inlineCss from 'inline-css/lib/inline-css';
-import {Grommet, Box} from 'grommet';
+import {Grommet} from 'grommet/components/Grommet';
+import {Box} from 'grommet/components/Box';
 import {theme} from './App';
 import appCss from './App.css';
 import githubStyle from 'react-syntax-highlighter/dist/cjs/styles/hljs/github';
@@ -62,9 +63,13 @@ function renderPostHtml(post) {
       </Grommet>,
     ),
   );
-  const css = sheet.instance.tags.map(t => t.css()).join('\n');
+
+  const css = sheet.instance.toString();
   return inlineCss(markup, `${appCss.toString()}\n${css}`, {codeBlocks: {}});
 }
+
+// TODO: Get BASE_URL from config
+const BASE_URL = 'https://onegraph.com';
 
 // TODO: make these fields configurable
 export async function buildFeed() {
@@ -81,17 +86,17 @@ export async function buildFeed() {
     title: 'OneGraph Product Updates',
     description:
       'Keep up to date with the latest product features from OneGraph',
-    id: 'https://onegraph.com/changelog',
-    link: 'https://onegraph.com/changelog',
+    id: BASE_URL,
+    link: BASE_URL,
     language: 'en',
-    image: 'https://onegraph.com/changelog/logo.png',
-    favicon: 'https://onegraph.com/favicon.ico',
+    image: `${BASE_URL}/logo.png`,
+    favicon: `${BASE_URL}/favicon.ico`,
     updated: latestPost ? computePostDate(latestPost) : null,
     generator: '',
     feedLinks: {
-      json: 'https://onegraph.com/changelog/feed.json',
-      atom: 'https://onegraph.com/changelog/feed.atom',
-      rss2: 'https://onegraph.com/changelog/feed.rss',
+      json: `${BASE_URL}/feed.json`,
+      atom: `${BASE_URL}/feed.atom`,
+      rss2: `${BASE_URL}/feed.rss`,
     },
   });
 
@@ -101,7 +106,7 @@ export async function buildFeed() {
       const body = feed.addItem({
         title: post.title,
         id: post.id,
-        link: `https://onegraph.com/changelog/post/${post.number}`,
+        link: `${BASE_URL}${postPath({post})}`,
         content,
         author: (post.assignees.nodes || []).map(node =>
           node

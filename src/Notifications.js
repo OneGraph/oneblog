@@ -1,8 +1,11 @@
 // @flow
 
 import * as React from 'react';
-import {Box, Button, Layer} from 'grommet';
-import {StatusGood, FormClose} from 'grommet-icons';
+import {Box} from 'grommet/components/Box';
+import {Button} from 'grommet/components/Button';
+import {Layer} from 'grommet/components/Layer';
+import {StatusGood} from 'grommet-icons/icons/StatusGood';
+import {FormClose} from 'grommet-icons/icons/FormClose';
 
 export const NotificationContext = React.createContext<*>({
   error: (msg: string) => undefined,
