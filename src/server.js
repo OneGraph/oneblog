@@ -5,6 +5,7 @@ import React from 'react';
 import {StaticRouter, matchPath} from 'react-router-dom';
 import {ServerStyleSheet} from 'styled-components';
 import express from 'express';
+import cookieParser from 'cookie-parser';
 import {renderToString} from 'react-dom/server';
 import {fetchQuery} from 'react-relay';
 import {createEnvironment} from './Environment';
@@ -122,13 +123,27 @@ function createApp(basePath: ?string) {
     })
     .get('/*', async (req, res) => {
       try {
-        res.set('Cache-Control', 'public, max-age=300, s-maxage=300');
         const recordSource = new RecordSource();
         const cache = new RelayQueryResponseCache({
           size: 250,
           ttl: 1000 * 60 * 10,
         });
-        const environment = createEnvironment(recordSource, cache);
+
+        let accessToken;
+        try {
+          const cookie = req.cookies[process.env.RAZZLE_ONEGRAPH_APP_ID];
+          if (cookie) {
+            accessToken = JSON.parse(cookie).accessToken;
+          }
+        } catch (e) {
+          console.error('Error parsing cookie', e);
+        }
+
+        const environment = createEnvironment(
+          recordSource,
+          cache,
+          accessToken ? {Authorization: `Bearer ${accessToken}`} : null,
+        );
 
         // Prep cache
         for (const routeConfig of routes) {
@@ -159,6 +174,11 @@ function createApp(basePath: ?string) {
         if (context.url) {
           res.redirect(context.url);
         } else {
+          if (accessToken) {
+            res.set('Cache-Control', 'private, max-age=3600, s-maxage=3600');
+          } else {
+            res.set('Cache-Control', 'public, max-age=3600, s-maxage=3600');
+          }
           res.status(200).send(
             buildHtml({
               markup,
@@ -191,6 +211,7 @@ function createApp(basePath: ?string) {
   return server
     .disable('x-powered-by')
     .use(express.static(process.env.RAZZLE_PUBLIC_DIR))
+    .use(cookieParser())
     .use(basePath || '/', appRouter);
 }
 

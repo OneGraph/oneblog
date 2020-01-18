@@ -2,6 +2,7 @@
 
 import {Environment, Network, RecordSource, Store} from 'relay-runtime';
 import RelayQueryResponseCache from './relayResponseCache';
+import Cookies from 'universal-cookie';
 
 import OneGraphAuth from 'onegraph-auth';
 
@@ -26,10 +27,34 @@ class AuthDummy {
   }
 }
 
+class CookieStorage implements Storage {
+  _cookies: Cookies = new Cookies();
+  getItem = (key: string): ?string => {
+    return this._cookies.get(key, {doNotParse: true});
+  };
+  setItem = (key: string, value: string): void => {
+    console.log('setting', key, value);
+    console.log('env', process.env);
+    const options = {
+      path: '/',
+      secure: process.env.NODE_ENV === 'development' ? false : true,
+      sameSite: 'strict',
+      expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 7), // 1 week
+    };
+    console.log('options', options);
+    this._cookies.set(key, value, options);
+    console.log('set to', this._cookies.get(key, {doNotParse: true}));
+  };
+  removeItem = (key: string): void => {
+    this._cookies.remove(key);
+  };
+}
+
 export const onegraphAuth = global.window
   ? new OneGraphAuth({
       appId: ONEGRAPH_APP_ID,
       communicationMode: 'post_message',
+      storage: new CookieStorage(),
     })
   : new AuthDummy();
 
@@ -37,7 +62,7 @@ function getQueryId(operation) {
   return operation.id || operation.text;
 }
 
-function makeFetchQuery(cache) {
+function makeFetchQuery(cache, headers?: ?{[key: string]: string}) {
   return async function fetchQuery(operation, rawVariables, cacheConfig) {
     const variables = {};
     // Bit of a hack to prevent Relay from sending null values for variables
@@ -71,6 +96,7 @@ function makeFetchQuery(cache) {
           'Content-Type': 'application/json',
           Accept: 'application/json',
           ...onegraphAuth.authHeaders(),
+          ...(headers ? headers : {}),
         },
         body: requestBody,
       },
@@ -101,9 +127,10 @@ function makeFetchQuery(cache) {
 export function createEnvironment(
   recordSource: RecordSource,
   cache: RelayQueryResponseCache,
+  headers?: ?{[key: string]: string},
 ) {
   return new Environment({
-    network: Network.create(makeFetchQuery(cache)),
+    network: Network.create(makeFetchQuery(cache, headers)),
     store: new Store(recordSource),
   });
 }
