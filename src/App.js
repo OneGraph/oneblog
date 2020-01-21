@@ -241,7 +241,7 @@ export default class App extends React.Component<
                 wrap={true}>
                 <Heading level={1}>
                   <Link style={{color: 'inherit'}} to="/">
-                    OneBlog Test
+                    {process.env.RAZZLE_TITLE || 'OneBlog'}
                   </Link>
                 </Heading>
               </Box>
