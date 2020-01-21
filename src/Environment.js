@@ -27,23 +27,19 @@ class AuthDummy {
   }
 }
 
-class CookieStorage implements Storage {
+class CookieStorage {
   _cookies: Cookies = new Cookies();
   getItem = (key: string): ?string => {
     return this._cookies.get(key, {doNotParse: true});
   };
   setItem = (key: string, value: string): void => {
-    console.log('setting', key, value);
-    console.log('env', process.env);
     const options = {
       path: '/',
       secure: process.env.NODE_ENV === 'development' ? false : true,
       sameSite: 'strict',
       expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 7), // 1 week
     };
-    console.log('options', options);
     this._cookies.set(key, value, options);
-    console.log('set to', this._cookies.get(key, {doNotParse: true}));
   };
   removeItem = (key: string): void => {
     this._cookies.remove(key);
