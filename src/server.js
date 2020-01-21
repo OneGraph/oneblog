@@ -19,7 +19,7 @@ import {Helmet} from 'react-helmet';
 // $FlowFixMe
 const assets = require(process.env.RAZZLE_ASSETS_MANIFEST);
 
-const siteHostname = process.env.RAZZLE_SITE_HOSTNAME;
+const siteHostname = process.env.RAZZLE_SITE_HOSTNAME || process.env.URL;
 
 function buildHtml({
   markup,
