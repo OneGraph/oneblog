@@ -13,6 +13,7 @@ import {Heading} from 'grommet/components/Heading';
 import {Image as GrommetImage} from 'grommet/components/Image';
 import {Box} from 'grommet/components/Box';
 import {Text} from 'grommet/components/Text';
+import {ResponsiveContext} from 'grommet/contexts/ResponsiveContext';
 import emoji from './emoji';
 
 type Props = {
@@ -176,6 +177,7 @@ const defaultRenderers = ({SyntaxHighlighter}) => ({
   },
   image: Image,
   paragraph(props) {
+    const size = React.useContext(ResponsiveContext);
     if (typeof window === 'undefined') {
       return <P {...props} />;
     }
@@ -197,10 +199,13 @@ const defaultRenderers = ({SyntaxHighlighter}) => ({
         return (
           <Embed
             url={link.props.href}
-            fallback={() => <P {...props} />}
+            fallback={<P {...props} />}
             renderVoid={() => <P {...props} />}
             renderWrap={x => (
-              <Box margin={{vertical: 'medium'}} align="center">
+              // Don't try to center on mobile -- bug with twitter embed will cause it to shift to the right
+              <Box
+                margin={{vertical: 'large'}}
+                align={size === 'small' ? null : 'center'}>
                 {x}
               </Box>
             )}
