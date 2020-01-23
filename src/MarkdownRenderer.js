@@ -2,6 +2,7 @@
 
 import React from 'react';
 import ReactMarkdown from 'react-markdown/with-html';
+import Embed from 'react-embed';
 import htmlParser from 'react-markdown/plugins/html-parser';
 import type SyntaxHighlighter from 'react-syntax-highlighter';
 import GifPlayer from './GifPlayer';
@@ -161,6 +162,10 @@ export function emojify(s: string): string {
   return emojified;
 }
 
+function Link(props) {
+  return <Anchor {...props} />;
+}
+
 const defaultRenderers = ({SyntaxHighlighter}) => ({
   text(props) {
     const text = props.children;
@@ -170,11 +175,44 @@ const defaultRenderers = ({SyntaxHighlighter}) => ({
     return <CodeBlock SyntaxHighlighter={SyntaxHighlighter} {...props} />;
   },
   image: Image,
-  paragraph: P,
-  heading: Heading,
-  link(props) {
-    return <Anchor {...props} />;
+  paragraph(props) {
+    if (typeof window === 'undefined') {
+      return <P {...props} />;
+    }
+    const isLink =
+      props.children &&
+      props.children.length === 1 &&
+      props.children[0].type === Link;
+
+    if (isLink) {
+      const link = props.children[0];
+      const isSelfLink =
+        link.props.href &&
+        link.props.children &&
+        link.props.children.length === 1 &&
+        link.props.children[0].props &&
+        link.props.children[0].props.value === link.props.href;
+      if (isSelfLink) {
+        const a = link;
+        return (
+          <Embed
+            url={link.props.href}
+            fallback={() => <P {...props} />}
+            renderVoid={() => <P {...props} />}
+            renderWrap={x => (
+              <Box margin={{vertical: 'medium'}} align="center">
+                {x}
+              </Box>
+            )}
+          />
+        );
+      }
+    }
+
+    return <P {...props} />;
   },
+  heading: Heading,
+  link: Link,
   linkReference(props) {
     return <Anchor {...props} />;
   },
