@@ -7,7 +7,7 @@ import {QueryRenderer, fetchQuery} from 'react-relay';
 import Posts from './Posts';
 import Post from './Post';
 import Comments from './Comments';
-import {onegraphAuth} from './Environment';
+import {onegraphAuth, defaultCache} from './Environment';
 import {Router, Location} from '@reach/router';
 import Link from './PreloadLink';
 import idx from 'idx';
@@ -247,13 +247,12 @@ export default class App extends React.Component<
       .then(isLoggedIn => this.setState({isLoggedIn}));
   }
   _login = () => {
-    onegraphAuth
-      .login('github')
-      .then(() =>
-        onegraphAuth
-          .isLoggedIn('github')
-          .then(isLoggedIn => this.setState({isLoggedIn})),
-      );
+    onegraphAuth.login('github').then(() =>
+      onegraphAuth.isLoggedIn('github').then(isLoggedIn => {
+        defaultCache.clear();
+        this.setState({isLoggedIn});
+      }),
+    );
   };
   _logout = () => {
     onegraphAuth
@@ -291,7 +290,9 @@ export default class App extends React.Component<
                   <Router primary={true} basepath={this.props.basepath}>
                     {routes.map((routeConfig, i) => (
                       <Route
-                        key={i}
+                        key={`${
+                          this.state.isLoggedIn ? 'logged-in' : 'logged-out'
+                        }-${i}`}
                         path={routeConfig.path}
                         environment={this.props.environment}
                         routeConfig={routeConfig}

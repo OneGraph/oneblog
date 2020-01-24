@@ -168,7 +168,7 @@ const recordSource =
     ? new RecordSource(window.__RELAY_BOOTSTRAP_DATA__)
     : new RecordSource();
 
-const defaultCache = new RelayQueryResponseCache({
+export const defaultCache = new RelayQueryResponseCache({
   size: 250,
   ttl: 1000 * 60 * 10,
 });
