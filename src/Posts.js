@@ -6,7 +6,6 @@ import {createPaginationContainer, type RelayProp} from 'react-relay';
 import Post from './Post';
 import type {Posts_repository} from './__generated__/Posts_repository.graphql';
 import LoadingSpinner from './loadingSpinner';
-import idx from 'idx';
 import {Box} from 'grommet/components/Box';
 
 type Props = {|
@@ -24,9 +23,8 @@ const Posts = ({relay, repository}: Props) => {
       window.requestAnimationFrame(() => {
         scheduledRef.current = false;
         if (
-          window.innerHeight +
-            idx(document, _ => _.documentElement.scrollTop) >=
-          (idx(document, _ => _.documentElement.offsetHeight) || 0) - 500
+          window.innerHeight + document.documentElement?.scrollTop >=
+          (document.documentElement?.offsetHeight || 0) - 500
         ) {
           if (!isLoading && !relay.isLoading() && relay.hasMore()) {
             setIsLoading(true);

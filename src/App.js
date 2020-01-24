@@ -10,7 +10,6 @@ import Comments from './Comments';
 import {onegraphAuth, defaultCache} from './Environment';
 import {Router, Location} from '@reach/router';
 import Link from './PreloadLink';
-import idx from 'idx';
 import {NotificationContainer} from './Notifications';
 import OneGraphLogo from './oneGraphLogo';
 import {Grommet} from 'grommet/components/Grommet';
@@ -61,9 +60,8 @@ const postsRootQuery = graphql`
   }
 `;
 
-const ErrorBox = ({error}: {error: Error}) => {
-  // $FlowFixMe
-  const relayError = idx(error, _ => _.source.errors[0].message);
+const ErrorBox = ({error}: {error: any}) => {
+  const relayError = error?.source?.errors?.[0]?.message;
   return (
     <Box gap="xsmall" justify="center" align="center" direction="row">
       <StatusCritical color="status-error" />{' '}
@@ -136,9 +134,13 @@ const PostRoot = ({
   if (!props) {
     return null;
   }
-  const post = idx(props, _ => _.gitHub.repository.issue);
-  const labels = idx(post, _ => _.labels.nodes) || [];
-  if (!post || !labels.map(l => l.name.toLowerCase()).includes('publish')) {
+  const post = props.gitHub?.repository?.issue;
+  const labels = post?.labels?.nodes;
+  if (
+    !post ||
+    !labels ||
+    !labels.find(l => l && l.name.toLowerCase() === 'publish')
+  ) {
     return <ErrorBox error={new Error('Missing post.')} />;
   } else {
     return (

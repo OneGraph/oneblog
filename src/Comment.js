@@ -7,7 +7,6 @@ import {PostBox, ReactionBar} from './Post';
 import type {Comment_comment} from './__generated__/Comment_comment.graphql';
 import LoadingSpinner from './loadingSpinner';
 import MarkdownRenderer from './MarkdownRenderer';
-import idx from 'idx';
 import {Box} from 'grommet/components/Box';
 import {Heading} from 'grommet/components/Heading';
 import {Text} from 'grommet/components/Text';
@@ -35,12 +34,11 @@ function Comment({comment, relay}: Props) {
           width={24}
           height={24}
           style={{borderRadius: '50%'}}
-          src={imageUrl({src: idx(comment, _ => _.author.avatarUrl)})}
+          src={imageUrl({src: comment.author?.avatarUrl})}
         />
         <Text size="xsmall">
-          <a href={idx(comment, _ => _.author.url)}>
-            {idx(comment, _ => _.author.name) ||
-              idx(comment, _ => _.author.login)}
+          <a href={comment.author?.url}>
+            {comment.author?.name || comment.author?.login}
           </a>{' '}
           commented{' '}
           <span title={format(new Date(comment.createdAt), 'PPP, pp')}>

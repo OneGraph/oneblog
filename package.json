@@ -71,14 +71,13 @@
     ]
   },
   "devDependencies": {
+    "@babel/plugin-proposal-optional-chaining": "^7.8.3",
     "@babel/preset-flow": "^7.0.0",
     "@dwwoelfel/relay-compiler": "5.0.1-alpha1",
-    "babel-plugin-idx": "^2.4.0",
     "babel-plugin-macros": "^2.6.1",
     "babel-plugin-relay": "^5.0.0",
     "firebase-tools": "7.2.4",
     "flow-bin": "^0.105.1",
-    "idx": "^2.5.6",
     "netlify-cli": "^2.4.8",
     "netlify-lambda": "^1.6.2",
     "now": "^16.1.1",

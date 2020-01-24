@@ -3,7 +3,6 @@
 import React from 'react';
 import {renderToStaticMarkup} from 'react-dom/server';
 import {Feed} from 'feed';
-import idx from 'idx';
 import graphql from 'babel-plugin-relay/macro';
 import {environment} from './Environment';
 import {fetchQuery} from 'react-relay';
@@ -92,7 +91,7 @@ export async function buildFeed({
     {},
   );
 
-  const posts = idx(data, _ => _.gitHub.repository.issues.nodes) || [];
+  const posts = data.gitHub?.repository?.issues.nodes || [];
   const latestPost = posts[0];
 
   const baseUrl = removeTrailingSlash(

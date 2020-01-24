@@ -12,7 +12,6 @@ import {PostBox, ReactionBar} from './Post';
 import type {Comments_post} from './__generated__/Comments_post.graphql';
 import LoadingSpinner from './loadingSpinner';
 import MarkdownRenderer from './MarkdownRenderer';
-import idx from 'idx';
 import {Box} from 'grommet/components/Box';
 import {Heading} from 'grommet/components/Heading';
 import {Text} from 'grommet/components/Text';
