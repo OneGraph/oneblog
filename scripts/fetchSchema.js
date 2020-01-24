@@ -65,6 +65,8 @@ const persistQueryConfigDirective = `
     fixedVariables: PersistedQueryFixedVariablesConfiguration
     "List of variables that the user can provide"
     freeVariables: [String!]
+    "Number of seconds to cache the results of the query"
+    cacheSeconds: Float
   ) on QUERY | MUTATION | SUBSCRIPTION
 `;
 
