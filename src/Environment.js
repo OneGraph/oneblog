@@ -25,6 +25,9 @@ class AuthDummy {
   logout(x: any) {
     return Promise.resolve(null);
   }
+  destroy() {
+    return null;
+  }
 }
 
 class CookieStorage {
@@ -58,6 +61,34 @@ function getQueryId(operation) {
   return operation.id || operation.text;
 }
 
+async function sendRequest({appId, onegraphAuth, headers, requestBody}) {
+  const response = await fetch(
+    'https://serve.onegraph.com/graphql?app_id=' + ONEGRAPH_APP_ID,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+        ...onegraphAuth.authHeaders(),
+        ...(headers ? headers : {}),
+      },
+      body: requestBody,
+    },
+  );
+  return await response.json();
+}
+
+// Fix problem where relay gets nonnull `data` field and does weird things to the cache
+function maybeNullOutQuery(json) {
+  if (json.data && json.data.gitHub == null) {
+    return {
+      ...json,
+      data: null,
+    };
+  }
+  return json;
+}
+
 function makeFetchQuery(cache, headers?: ?{[key: string]: string}) {
   return async function fetchQuery(operation, rawVariables, cacheConfig) {
     const variables = {};
@@ -84,35 +115,36 @@ function makeFetchQuery(cache, headers?: ?{[key: string]: string}) {
       variables,
     });
 
-    const resp = fetch(
-      'https://serve.onegraph.com/graphql?app_id=' + ONEGRAPH_APP_ID,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Accept: 'application/json',
-          ...onegraphAuth.authHeaders(),
-          ...(headers ? headers : {}),
-        },
-        body: requestBody,
-      },
-    ).then(response =>
-      response.json().then(json => {
-        // Clear full cache on mutation or if we get an error
-        if (isMutation || !json.data || !json.data.gitHub) {
-          cache.clear();
-        }
-        if (json.data.gitHub == null) {
-          return {
-            ...json,
-            data: null,
-          };
-        }
-        return json;
-      }),
-    );
+    const appId = ONEGRAPH_APP_ID;
 
-    // TODO: clear auth on 401
+    const resp = sendRequest({
+      appId,
+      onegraphAuth,
+      headers,
+      requestBody,
+    }).then(async json => {
+      // Clear full cache on mutation
+      if (isMutation) {
+        cache.clear();
+      }
+      if (
+        json.errors &&
+        (headers || Object.keys(onegraphAuth.authHeaders()).length)
+      ) {
+        // Clear auth on any error and try again
+        onegraphAuth.destroy();
+        const newJson = await sendRequest({
+          appId,
+          onegraphAuth,
+          headers: {},
+          requestBody,
+        });
+        return maybeNullOutQuery(newJson);
+      } else {
+        return maybeNullOutQuery(json);
+      }
+    });
+
     if (isQuery) {
       cache.set(queryId, variables, resp);
     }
