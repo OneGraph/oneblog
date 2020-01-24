@@ -71,3 +71,7 @@ blockquote {
   margin-inline-end: 0;
   padding-left: 1em;
 }
+
+li p {
+  margin: 0;
+}
