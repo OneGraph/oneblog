@@ -43,7 +43,7 @@ export class NotificationContainer extends React.PureComponent<Props, State> {
       ({notifications}) => ({
         notifications: {...notifications, [id]: notification},
       }),
-      () => setTimeout(() => this._removeNotification(id), 5000000),
+      () => setTimeout(() => this._removeNotification(id), 5000),
     );
   };
   _error = (message: string) => {
@@ -66,6 +66,7 @@ export class NotificationContainer extends React.PureComponent<Props, State> {
           <Layer
             position="top-right"
             modal={false}
+            responsive={false}
             plain
             margin={{vertical: 'medium', horizontal: 'small'}}>
             {Object.keys(notifications).map(k => (
@@ -80,8 +81,9 @@ export class NotificationContainer extends React.PureComponent<Props, State> {
                 justify="between"
                 round="medium"
                 elevation="medium"
+                color="white"
                 background={
-                  notifications[k].status === 'success'
+                  notifications[k].level === 'success'
                     ? 'status-ok'
                     : 'status-error'
                 }

@@ -1,7 +1,7 @@
 [build]
   command = "yarn install && yarn relay && yarn build && yarn build:netlify-functions"
   publish = "build/public"
-  functions = "build-netlify-functions/"
+  functions = "built-netlify-functions/"
   environment = { NETLIFY = "true" }
 
 [context]

@@ -168,6 +168,13 @@ function Link(props) {
 }
 
 const defaultRenderers = ({SyntaxHighlighter}) => ({
+  blockquote(props) {
+    return (
+      <Text color="dark-3">
+        <blockquote {...props} />
+      </Text>
+    );
+  },
   text(props) {
     const text = props.children;
     return emojify(text);

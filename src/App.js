@@ -8,7 +8,7 @@ import Posts from './Posts';
 import Post from './Post';
 import Comments from './Comments';
 import {onegraphAuth} from './Environment';
-import {Route, Switch} from 'react-router-dom';
+import {Router, Location} from '@reach/router';
 import Link from './PreloadLink';
 import idx from 'idx';
 import {NotificationContainer} from './Notifications';
@@ -23,9 +23,9 @@ import {ResponsiveContext} from 'grommet/contexts/ResponsiveContext';
 import {generate} from 'grommet/themes/base';
 import {deepMerge} from 'grommet/utils/object';
 import {StatusCritical} from 'grommet-icons/icons/StatusCritical';
-import {matchPath} from 'react-router-dom';
 import UserContext from './UserContext';
 import {Helmet} from 'react-helmet';
+import {ScrollContext} from 'gatsby-react-router-scroll';
 
 import type {App_ViewerQueryResponse} from './__generated__/App_Query.graphql';
 import type {Environment} from 'relay-runtime';
@@ -148,16 +148,43 @@ const PostRoot = ({
   }
 };
 
-const RenderRoute = ({routeConfig, environment, match}) => (
+const RenderRoute = ({routeConfig, environment, ...props}) => (
   <QueryRenderer
     dataFrom="STORE_THEN_NETWORK"
     fetchPolicy="store-and-network"
     environment={environment}
     query={routeConfig.query}
-    variables={routeConfig.getVariables(match)}
+    variables={routeConfig.getVariables(props)}
     render={routeConfig.component}
   />
 );
+
+const Route = ({path, routeConfig, environment, Component, ...props}) => {
+  return (
+    <div className="layout">
+      <Box
+        gridArea="header"
+        direction="row"
+        align="center"
+        justify="center"
+        pad={{horizontal: 'medium', vertical: 'medium'}}
+        wrap={true}>
+        <Heading level={1}>
+          <Link style={{color: 'inherit'}} to="/">
+            {process.env.RAZZLE_TITLE || 'OneBlog'}
+          </Link>
+        </Heading>
+      </Box>
+      <Box gridArea="main">
+        <Component
+          routeConfig={routeConfig}
+          environment={environment}
+          {...props}
+        />
+      </Box>
+    </div>
+  );
+};
 
 export const routes = [
   {
@@ -165,7 +192,7 @@ export const routes = [
     exact: true,
     strict: false,
     query: postsRootQuery,
-    getVariables: (match: any) => ({}),
+    getVariables: (props: any) => ({}),
     component: PostsRoot,
   },
   {
@@ -173,15 +200,42 @@ export const routes = [
     exact: true,
     strict: false,
     query: postRootQuery,
-    getVariables: (match: any) => ({
-      issueNumber: parseInt(match.params.issueNumber, 10),
+    getVariables: (props: any) => ({
+      issueNumber: parseInt(props.issueNumber, 10),
     }),
     component: PostRoot,
   },
 ];
 
+function shouldUpdateScroll(prevRouterProps, {location}) {
+  const {pathname, hash} = location;
+
+  if (prevRouterProps) {
+    const {
+      location: {pathname: oldPathname},
+    } = prevRouterProps;
+    if (oldPathname === pathname) {
+      // Scroll to element if it exists, if it doesn't, or no hash is provided,
+      // scroll to top.
+      return hash ? decodeURI(hash.slice(1)) : [0, 0];
+    }
+  }
+  return true;
+}
+
+function ScrollContextWrapper({location, children}) {
+  if (typeof window === 'undefined') {
+    return children;
+  }
+  return (
+    <ScrollContext location={location} shouldUpdateScroll={shouldUpdateScroll}>
+      {children}
+    </ScrollContext>
+  );
+}
+
 export default class App extends React.Component<
-  {environment: Environment},
+  {environment: Environment, basepath: string},
   {isLoggedIn: boolean},
 > {
   state = {
@@ -231,40 +285,23 @@ export default class App extends React.Component<
         </Helmet>
         <NotificationContainer>
           <Grommet theme={theme}>
-            <div className="layout">
-              <Box
-                gridArea="header"
-                direction="row"
-                align="center"
-                justify="center"
-                pad={{horizontal: 'medium', vertical: 'medium'}}
-                wrap={true}>
-                <Heading level={1}>
-                  <Link style={{color: 'inherit'}} to="/">
-                    {process.env.RAZZLE_TITLE || 'OneBlog'}
-                  </Link>
-                </Heading>
-              </Box>
-              <Box gridArea="main">
-                <Switch>
-                  {routes.map((routeConfig, i) => (
-                    <Route
-                      key={i}
-                      path={routeConfig.path}
-                      exact={routeConfig.exact}
-                      strict={routeConfig.strict}
-                      render={props => (
-                        <RenderRoute
-                          environment={this.props.environment}
-                          match={props.match}
-                          routeConfig={routeConfig}
-                        />
-                      )}
-                    />
-                  ))}
-                </Switch>
-              </Box>
-            </div>
+            <Location>
+              {({location}) => (
+                <ScrollContextWrapper location={location}>
+                  <Router primary={true} basepath={this.props.basepath}>
+                    {routes.map((routeConfig, i) => (
+                      <Route
+                        key={i}
+                        path={routeConfig.path}
+                        environment={this.props.environment}
+                        routeConfig={routeConfig}
+                        Component={RenderRoute}
+                      />
+                    ))}
+                  </Router>
+                </ScrollContextWrapper>
+              )}
+            </Location>
           </Grommet>
         </NotificationContainer>
       </UserContext.Provider>

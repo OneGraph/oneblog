@@ -2,7 +2,8 @@
 
 import App, {routes} from './App';
 import React from 'react';
-import {StaticRouter, matchPath} from 'react-router-dom';
+import {ServerLocation, isRedirect} from '@reach/router';
+import {pick} from '@reach/router/lib/utils';
 import {ServerStyleSheet} from 'styled-components';
 import express from 'express';
 import cookieParser from 'cookie-parser';
@@ -146,64 +147,60 @@ function createApp(basePath: ?string) {
         );
 
         // Prep cache
-        for (const routeConfig of routes) {
-          const match = matchPath(req.path, routeConfig);
-          if (match) {
-            // Makes relay put result of the query into the record store
-            await fetchQuery(
-              environment,
-              routeConfig.query,
-              routeConfig.getVariables(match),
-            );
-            break;
-          }
+        const match = pick(routes, req.url);
+        if (match) {
+          await fetchQuery(
+            environment,
+            match.route.query,
+            match.route.getVariables(match.params),
+          );
         }
 
         const sheet = new ServerStyleSheet();
-        const context = {};
 
         const markup = renderToString(
           sheet.collectStyles(
-            <StaticRouter context={context} location={req.url}>
-              <App environment={environment} />
-            </StaticRouter>,
+            <ServerLocation url={req.url}>
+              <App environment={environment} basepath={basePath || '/'} />
+            </ServerLocation>,
           ),
         );
         const helmet = Helmet.renderStatic();
         const styleTags = sheet.getStyleTags();
-        if (context.url) {
-          res.redirect(context.url);
+        if (accessToken) {
+          res.set('Cache-Control', 'private, max-age=3600, s-maxage=3600');
         } else {
-          if (accessToken) {
-            res.set('Cache-Control', 'private, max-age=3600, s-maxage=3600');
-          } else {
-            res.set('Cache-Control', 'public, max-age=3600, s-maxage=3600');
-          }
+          res.set('Cache-Control', 'public, max-age=3600, s-maxage=3600');
+        }
+        res.status(200).send(
+          buildHtml({
+            markup,
+            styleTags,
+            bootstrapData: recordSource.toJSON(),
+            basePath,
+            htmlAttributes: helmet.htmlAttributes.toString(),
+            title: helmet.title.toString(),
+            meta: helmet.meta.toString(),
+          }),
+        );
+      } catch (e) {
+        if (isRedirect(e)) {
+          res.redirect(e.uri);
+        } else {
+          console.error(e);
+
           res.status(200).send(
             buildHtml({
-              markup,
-              styleTags,
-              bootstrapData: recordSource.toJSON(),
+              markup: null,
+              styleTags: null,
+              bootstrapData: null,
               basePath,
-              htmlAttributes: helmet.htmlAttributes.toString(),
-              title: helmet.title.toString(),
-              meta: helmet.meta.toString(),
+              htmlAttributes: '',
+              title: '',
+              meta: '',
             }),
           );
         }
-      } catch (e) {
-        console.error(e);
-        res.status(200).send(
-          buildHtml({
-            markup: null,
-            styleTags: null,
-            bootstrapData: null,
-            basePath,
-            htmlAttributes: '',
-            title: '',
-            meta: '',
-          }),
-        );
       }
     });
 

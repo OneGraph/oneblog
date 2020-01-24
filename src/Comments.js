@@ -161,12 +161,7 @@ function Comments({post, relay, postId}: Props) {
                 </Box>
               </Tab>
             </Tabs>
-            <Box
-              border={{
-                size: 'xsmall',
-                side: 'bottom',
-                color: 'rgba(0,0,0,0.1)',
-              }}>
+            <Box>
               <Box pad="small" align="end">
                 <Button
                   fill={false}
@@ -177,14 +172,12 @@ function Comments({post, relay, postId}: Props) {
               </Box>
             </Box>
           </Box>
-
           <Box style={{visibility: isLoggedIn ? 'hidden' : 'visible'}}>
             <GitHubLoginButton onClick={login} label="Log in with GitHub" />
           </Box>
         </Stack>
       </PostBox>
-
-      <Box height="small" />
+      <Box height="xsmall" />
     </Box>
   );
 }
