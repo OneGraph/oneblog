@@ -36,32 +36,17 @@ code {
 }
 
 .layout {
-  display: grid;
   box-sizing: border-box;
+  max-width: 704px;
+  margin: auto;
   width: 100%;
   height: 100%;
-  grid-template-areas:
-    "header"
-    "main";
-  grid-template-columns: auto;
   -webkit-box-pack: center;
   -webkit-justify-content: center;
   -ms-flex-pack: center;
   justify-content: center;
   grid-template-rows: auto 1fr;
   overflow-wrap: break-word;
-}
-
-@media(max-width: 800px) {
-  .layout {
-    grid-template-areas:
-      "header"
-      "main";
-    grid-template-columns: auto;
-  }
-  .sidebar {
-    display: none;
-  }
 }
 
 blockquote {

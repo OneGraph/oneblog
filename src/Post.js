@@ -225,9 +225,10 @@ type Props = {
 export function PostBox({children}: {children: React.Node}) {
   return (
     <Box
-      margin="medium"
+      pad="medium"
       style={{
         maxWidth: 704,
+        width: '100%',
         borderRadius: 2,
       }}>
       {children}
