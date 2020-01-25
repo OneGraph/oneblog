@@ -68,18 +68,18 @@ export default createFragmentContainer(Comment, {
       author {
         ... on GitHubUser {
           name
-          avatarUrl
+          avatarUrl(size: 96)
           login
           url
         }
         ... on GitHubBot {
-          avatarUrl
+          avatarUrl(size: 96)
           login
           url
         }
         ... on GitHubOrganization {
           name
-          avatarUrl
+          avatarUrl(size: 96)
           login
           url
         }

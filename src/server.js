@@ -16,6 +16,7 @@ import RelayQueryResponseCache from './relayResponseCache';
 import {buildFeed} from './RssFeed';
 import {imageProxy, firstFrame} from './imageProxy';
 import {Helmet} from 'react-helmet';
+import config from './config';
 
 // $FlowFixMe
 const assets = require(process.env.RAZZLE_ASSETS_MANIFEST);
@@ -132,7 +133,7 @@ function createApp(basePath: ?string) {
 
         let accessToken;
         try {
-          const cookie = req.cookies[process.env.RAZZLE_ONEGRAPH_APP_ID];
+          const cookie = req.cookies[config.appId];
           if (cookie) {
             accessToken = JSON.parse(cookie).accessToken;
           }

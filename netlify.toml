@@ -14,6 +14,7 @@
   RAZZLE_TITLE = "The title of the blog"
   RAZZLE_DESCRIPTION="Description of the blog"
   RAZZLE_SITE_HOSTNAME="Hostname for your blog, e.g. https://example.com"
+  RAZZLE_DEFAULT_GITHUB_LOGIN="The github login for the owner of the blog"
   OG_GITHUB_TOKEN = "The server-side token from OneGraph that will be used in persisted queries"
   OG_DASHBOARD_ACCESS_TOKEN = "The OneGraph API token that allows the build to create persisted queries"
 

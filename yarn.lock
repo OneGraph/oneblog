@@ -6774,10 +6774,17 @@ graphql@^14.4.2:
   dependencies:
     iterall "^1.2.2"
 
-grommet-icons@^4.2.0, grommet-icons@^4.3.0:
+grommet-icons@^4.2.0:
   version "4.3.0"
   resolved "https://registry.yarnpkg.com/grommet-icons/-/grommet-icons-4.3.0.tgz#a06d58da537e4e4d3b76cfd0314cc3cde6ce208f"
   integrity sha512-0E5rjP8jAA4gfij1zyRdXvfgThgzWO59Y/u2RWyFK/s3AKwDYpHNi1+YdJYPXXe2mjHjAj0tfsXaGswtv48DPA==
+  dependencies:
+    grommet-styles "^0.2.0"
+
+grommet-icons@^4.4.0:
+  version "4.4.0"
+  resolved "https://registry.yarnpkg.com/grommet-icons/-/grommet-icons-4.4.0.tgz#6503a33ca29e3c9d89ba56ef1b2bc786222e62a7"
+  integrity sha512-uOc3rsgIBVOm/iuN8dj2lKuBq0uhIPYxH84zDoY0jrJZLjcVH1bHUQLlv0R/e9oB/pCFYEBse1mnvps+f3ylmw==
   dependencies:
     grommet-styles "^0.2.0"
 

@@ -533,7 +533,7 @@ export default createFragmentContainer(Post, {
           id
           name
           login
-          avatarUrl
+          avatarUrl(size: 96)
           url
         }
       }
@@ -555,7 +555,7 @@ export default createFragmentContainer(Post, {
         name
         owner {
           login
-          avatarUrl(size: 192)
+          avatarUrl(size: 96)
         }
       }
     }

@@ -3,14 +3,9 @@
 import {Environment, Network, RecordSource, Store} from 'relay-runtime';
 import RelayQueryResponseCache from './relayResponseCache';
 import Cookies from 'universal-cookie';
+import config from './config';
 
 import OneGraphAuth from 'onegraph-auth';
-
-const ONEGRAPH_APP_ID = process.env.RAZZLE_ONEGRAPH_APP_ID;
-
-if (!ONEGRAPH_APP_ID) {
-  throw new Error('Must add RAZZLE_ONEGRAPH_APP_ID to .env');
-}
 
 class AuthDummy {
   isLoggedIn(x: any) {
@@ -51,7 +46,7 @@ class CookieStorage {
 
 export const onegraphAuth = global.window
   ? new OneGraphAuth({
-      appId: ONEGRAPH_APP_ID,
+      appId: config.appId,
       communicationMode: 'post_message',
       storage: new CookieStorage(),
     })
@@ -63,7 +58,7 @@ function getQueryId(operation) {
 
 async function sendRequest({appId, onegraphAuth, headers, requestBody}) {
   const response = await fetch(
-    'https://serve.onegraph.com/graphql?app_id=' + ONEGRAPH_APP_ID,
+    'https://serve.onegraph.com/graphql?app_id=' + config.appId,
     {
       method: 'POST',
       headers: {
@@ -115,7 +110,7 @@ function makeFetchQuery(cache, headers?: ?{[key: string]: string}) {
       variables,
     });
 
-    const appId = ONEGRAPH_APP_ID;
+    const appId = config.appId;
 
     const resp = sendRequest({
       appId,
