@@ -58,12 +58,14 @@ export const theme = deepMerge(generate(24, 10), {
       radius: 4,
     },
     extend(props) {
-      return css`
-        &:hover {
-          box-shadow: none;
-          color: ${props.theme.global.colors.brand};
-        }
-      `;
+      return props.plain
+        ? null
+        : css`
+            &:hover {
+              box-shadow: none;
+              color: ${props.theme.global.colors.brand};
+            }
+          `;
     },
   },
 });
