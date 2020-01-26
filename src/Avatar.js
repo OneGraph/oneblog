@@ -21,28 +21,36 @@ export default function Avatar() {
 
   return (
     <>
-      <Box
-        align="center"
-        justify="center"
-        onClick={() => setShowOptions(!showOptions)}
-        ref={ref}
-        round="xsmall"
-        style={{
-          height: 32,
-          width: 32,
-          overflow: 'hidden',
-          cursor: 'pointer',
-        }}>
-        {viewer ? (
+      {viewer ? (
+        <Box
+          align="center"
+          justify="center"
+          onClick={() => setShowOptions(!showOptions)}
+          ref={ref}
+          round="xsmall"
+          style={{
+            height: 32,
+            width: 32,
+            overflow: 'hidden',
+            cursor: 'pointer',
+          }}>
           <Image
             style={{height: 32, width: 32}}
             fit="contain"
             src={imageUrl({src: viewer.avatarUrl})}
           />
-        ) : (
-          <MoreVertical />
-        )}
-      </Box>
+        </Box>
+      ) : (
+        <Button
+          plain
+          onClick={() => login()}
+          label={
+            <Text size="xsmall" color="dark-5">
+              Login
+            </Text>
+          }
+        />
+      )}
       {ref.current && showOptions ? (
         <Drop
           style={{margin: 12, paddingTop: 12, paddingBottom: 12}}
@@ -60,7 +68,7 @@ export default function Avatar() {
                     rel="noreferrer noopener"
                     fill="horizontal"
                     alignSelf="start"
-                    style={{padding: 8, display: 'flex'}}
+                    style={{padding: 12, display: 'flex'}}
                     plain
                     hoverIndicator="accent-4"
                     label={<Text size="small">Create new Post</Text>}
@@ -70,7 +78,7 @@ export default function Avatar() {
                 <Button
                   fill="horizontal"
                   alignSelf="start"
-                  style={{padding: 8, display: 'flex'}}
+                  style={{padding: 12, display: 'flex'}}
                   plain
                   hoverIndicator="accent-4"
                   onClick={() => {
@@ -79,12 +87,6 @@ export default function Avatar() {
                   label={<Text size="small">Sign out</Text>}
                   icon={<Logout size="16px" />}
                 />
-
-                <Text
-                  style={{paddingLeft: 8, paddingRight: 8, paddingTop: 4}}
-                  size="xsmall">
-                  Logged in as {viewer.login}
-                </Text>
               </>
             ) : (
               <Button

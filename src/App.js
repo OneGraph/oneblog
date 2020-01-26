@@ -5,7 +5,7 @@ import './App.css';
 import graphql from 'babel-plugin-relay/macro';
 import {QueryRenderer, fetchQuery} from 'react-relay';
 import Posts from './Posts';
-import Post from './Post';
+import Post, {PostBox} from './Post';
 import Comments from './Comments';
 import {onegraphAuth, defaultCache} from './Environment';
 import {Router, Location} from '@reach/router';
@@ -50,6 +50,11 @@ export const theme = deepMerge(generate(24, 10), {
       family:
         '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif',
     },
+  },
+  anchor: {
+    fontWeight: 'normal',
+    textDecoration: 'underline',
+    color: null,
   },
 });
 
@@ -198,47 +203,36 @@ const RenderRoute = ({routeConfig, environment, ...props}) => (
 const Route = ({path, routeConfig, environment, Component, ...props}) => {
   return (
     <div>
-      <Header
-        background="brand"
-        direction="row"
-        align="center"
-        justify="center"
-        pad="small"
-        elevation="small">
-        <Box
-          direction="row"
-          pad={{horizontal: 'medium'}}
-          flex="grow"
-          justify="between"
-          wrap
-          style={{maxWidth: 1080}}>
-          <Box width="32px" />
-          <Box wrap align="center">
-            <Heading
-              style={{marginTop: 0, marginBottom: 0, textAlign: 'center'}}
-              level={2}>
-              <Link
-                getProps={({isCurrent}) => ({
-                  style: isCurrent
-                    ? {
-                        textDecoration: 'none',
-                        color: 'inherit',
-                        cursor: 'auto',
-                      }
-                    : {color: 'inherit'},
-                })}
-                to="/">
-                {config.title || 'OneBlog'}
-              </Link>
-            </Heading>
-          </Box>
-          <Box width="32px">
-            <Avatar />
-          </Box>
-        </Box>
-      </Header>
+      <Box margin="medium" style={{position: 'absolute', top: 0, right: 0}}>
+        <Avatar />
+      </Box>
       <div className="layout">
         <Box>
+          <PostBox>
+            <Box
+              pad={{horizontal: 'medium'}}
+              border={{
+                size: 'xsmall',
+                side: 'bottom',
+                color: 'rgba(0,0,0,0.1)',
+              }}>
+              <Heading style={{marginTop: 0}} level={1}>
+                <Link
+                  getProps={({isCurrent}) => ({
+                    style: isCurrent
+                      ? {
+                          textDecoration: 'none',
+                          color: 'inherit',
+                          cursor: 'auto',
+                        }
+                      : {color: 'inherit'},
+                  })}
+                  to="/">
+                  {config.title || 'OneBlog'}
+                </Link>
+              </Heading>
+            </Box>
+          </PostBox>
           <Component
             routeConfig={routeConfig}
             environment={environment}
