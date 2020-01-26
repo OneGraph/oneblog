@@ -28,6 +28,8 @@ import {ScrollContext} from 'gatsby-react-router-scroll';
 import Avatar from './Avatar';
 import config from './config';
 import {css} from 'styled-components';
+import {editIssueUrl} from './issueUrls';
+import {Github} from 'grommet-icons/icons/Github';
 
 import type {LoginStatus} from './UserContext';
 import type {App_QueryResponse} from './__generated__/App_Query.graphql';
@@ -70,11 +72,11 @@ export const theme = deepMerge(generate(24, 10), {
   },
 });
 
-function Header({gitHub}) {
+function Header({gitHub, adminLinks}) {
   return (
     <>
       <Box margin="medium" style={{position: 'absolute', top: 0, right: 0}}>
-        <Avatar gitHub={gitHub} />
+        <Avatar gitHub={gitHub} adminLinks={adminLinks} />
       </Box>
       <PostBox>
         <Box
@@ -151,7 +153,7 @@ const PostsRoot = ({
   } else {
     return (
       <>
-        <Header gitHub={props.gitHub} />
+        <Header gitHub={props.gitHub} adminLinks={[]} />
         <Posts repository={respository} />
       </>
     );
@@ -182,6 +184,7 @@ export const postRootQuery = graphql`
           }
           title
           id
+          number
           ...Post_post
           ...Comments_post
         }
@@ -218,7 +221,16 @@ const PostRoot = ({
         <Helmet>
           <title>{post.title}</title>
         </Helmet>
-        <Header gitHub={props.gitHub} />
+        <Header
+          gitHub={props.gitHub}
+          adminLinks={[
+            {
+              label: 'Edit post',
+              href: editIssueUrl({issueNumber: post.number}),
+              icon: <Github size="16px" />,
+            },
+          ]}
+        />
         <Post context="details" post={post} />
         <Comments post={post} postId={post.id} />
       </>

@@ -12,7 +12,7 @@ import {Add} from 'grommet-icons/icons/Add';
 import {MoreVertical} from 'grommet-icons/icons/MoreVertical';
 import {Github} from 'grommet-icons/icons/Github';
 import GitHubLoginButton from './GitHubLoginButton';
-import newIssueUrl from './newIssueUrl';
+import {newIssueUrl} from './issueUrls';
 import {createFragmentContainer, type RelayProp} from 'react-relay';
 import graphql from 'babel-plugin-relay/macro';
 
@@ -44,12 +44,15 @@ function checkIsAdmin(
   return viewerIsAdmin || MANAGE_LABEL_ROLES.includes(viewerPermission);
 }
 
+type AdminLink = {href: string, label: string, icon: any};
+
 type Props = {
   relay: RelayProp,
   gitHub: Avatar_gitHub,
+  adminLinks: ?Array<AdminLink>,
 };
 
-function Avatar({relay, gitHub}: Props) {
+function Avatar({relay, gitHub, adminLinks: extraAdminLinks}: Props) {
   const ref = React.useRef();
   const {loginStatus, logout, login} = React.useContext(UserContext);
   const [showOptions, setShowOptions] = React.useState(false);
@@ -60,6 +63,13 @@ function Avatar({relay, gitHub}: Props) {
 
   const viewer = gitHub.viewer;
 
+  const adminLinks = [
+    {
+      href: newIssueUrl(),
+      label: 'Create New Post',
+      icon: <Github size="16px" />,
+    },
+  ].concat(extraAdminLinks || []);
   const isAdmin = checkIsAdmin(loginStatus, gitHub.repository);
   return (
     <>
@@ -103,20 +113,23 @@ function Avatar({relay, gitHub}: Props) {
           <Box align="start">
             {loginStatus === 'logged-in' ? (
               <>
-                {isAdmin ? (
-                  <Button
-                    href={newIssueUrl()}
-                    target="_blank"
-                    rel="noreferrer noopener"
-                    fill="horizontal"
-                    alignSelf="start"
-                    style={{padding: 12, display: 'flex'}}
-                    plain
-                    hoverIndicator="accent-4"
-                    label={<Text size="small">Create new Post</Text>}
-                    icon={<Github size="16px" />}
-                  />
-                ) : null}
+                {isAdmin
+                  ? adminLinks.map(({href, label, icon}) => (
+                      <Button
+                        key={href}
+                        href={href}
+                        target="_blank"
+                        rel="noreferrer noopener"
+                        fill="horizontal"
+                        alignSelf="start"
+                        style={{padding: 12, display: 'flex'}}
+                        plain
+                        hoverIndicator="accent-4"
+                        label={<Text size="small">{label}</Text>}
+                        icon={icon}
+                      />
+                    ))
+                  : null}
                 <Button
                   fill="horizontal"
                   alignSelf="start"
