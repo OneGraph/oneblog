@@ -250,7 +250,8 @@ export const ReactionBar = ({
   const {error: notifyError} = React.useContext(NotificationContext);
   const [showReactionPopover, setShowReactionPopover] = React.useState(false);
   const popoverInstance = React.useRef();
-  const {isLoggedIn, login} = React.useContext(UserContext);
+  const {loginStatus, login} = React.useContext(UserContext);
+  const isLoggedIn = loginStatus === 'logged-in';
 
   const usedReactions = (reactionGroups || []).filter(
     g => g.users.totalCount > 0,
@@ -438,7 +439,8 @@ export const Post = ({relay, post, context}: Props) => {
   const [showReactionPopover, setShowReactionPopover] = React.useState(false);
   const postDate = React.useMemo(() => computePostDate(post), [post]);
   const popoverInstance = React.useRef();
-  const {isLoggedIn, login} = React.useContext(UserContext);
+  const {loginStatus, login} = React.useContext(UserContext);
+  const isLoggedIn = loginStatus === 'logged-in';
 
   const usedReactions = (post.reactionGroups || []).filter(
     g => g.users.totalCount > 0,

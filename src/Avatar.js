@@ -13,15 +13,57 @@ import {MoreVertical} from 'grommet-icons/icons/MoreVertical';
 import {Github} from 'grommet-icons/icons/Github';
 import GitHubLoginButton from './GitHubLoginButton';
 import newIssueUrl from './newIssueUrl';
+import {createFragmentContainer, type RelayProp} from 'react-relay';
+import graphql from 'babel-plugin-relay/macro';
 
-export default function Avatar() {
+import type {LoginStatus} from './UserContext';
+import type {
+  Avatar_gitHub,
+  GitHubRepositoryPermission,
+} from './__generated__/Avatar_gitHub.graphql';
+
+const MANAGE_LABEL_ROLES: Array<GitHubRepositoryPermission> = [
+  'ADMIN',
+  'MAINTAIN',
+  'WRITE',
+  'TRIAGE',
+];
+
+function checkIsAdmin(
+  loginStatus: LoginStatus,
+  repository: ?{|
+    +viewerPermission: ?GitHubRepositoryPermission,
+    +viewerCanAdminister: boolean,
+  |},
+) {
+  if (loginStatus !== 'logged-in') {
+    return false;
+  }
+  const viewerIsAdmin = repository?.viewerCanAdminister;
+  const viewerPermission = repository?.viewerPermission;
+  return viewerIsAdmin || MANAGE_LABEL_ROLES.includes(viewerPermission);
+}
+
+type Props = {
+  relay: RelayProp,
+  gitHub: Avatar_gitHub,
+};
+
+function Avatar({relay, gitHub}: Props) {
   const ref = React.useRef();
-  const {viewer, logout, login} = React.useContext(UserContext);
+  const {loginStatus, logout, login} = React.useContext(UserContext);
   const [showOptions, setShowOptions] = React.useState(false);
 
+  if (loginStatus === 'checking' || loginStatus === 'error') {
+    return null;
+  }
+
+  const viewer = gitHub.viewer;
+
+  const isAdmin = checkIsAdmin(loginStatus, gitHub.repository);
   return (
     <>
-      {viewer ? (
+      {loginStatus === 'logged-in' ? (
         <Box
           align="center"
           justify="center"
@@ -59,9 +101,9 @@ export default function Avatar() {
           onClickOutside={() => setShowOptions(false)}
           onEsc={() => setShowOptions(false)}>
           <Box align="start">
-            {viewer ? (
+            {loginStatus === 'logged-in' ? (
               <>
-                {viewer.isAdmin ? (
+                {isAdmin ? (
                   <Button
                     href={newIssueUrl()}
                     target="_blank"
@@ -108,3 +150,22 @@ export default function Avatar() {
     </>
   );
 }
+
+export default createFragmentContainer(Avatar, {
+  gitHub: graphql`
+    fragment Avatar_gitHub on GitHubQuery
+      @argumentDefinitions(
+        repoName: {type: "String!"}
+        repoOwner: {type: "String!"}
+      ) {
+      viewer {
+        login
+        avatarUrl(size: 96)
+      }
+      repository(name: $repoName, owner: $repoOwner) {
+        viewerPermission
+        viewerCanAdminister
+      }
+    }
+  `,
+});

@@ -2,22 +2,16 @@
 
 import React from 'react';
 
-export type Viewer = {
-  login: string,
-  avatarUrl: string,
-  isAdmin: boolean,
-};
+export type LoginStatus = 'checking' | 'logged-in' | 'logged-out' | 'error';
 
 export type UserContextType = {
-  isLoggedIn: boolean,
-  viewer: ?Viewer,
+  loginStatus: LoginStatus,
   login: () => void,
   logout: () => void,
 };
 
 const UserContext = React.createContext<UserContextType>({
-  isLoggedIn: false,
-  viewer: null,
+  loginStatus: 'checking',
   login: () => undefined,
   logout: () => undefined,
 });

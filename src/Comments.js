@@ -55,7 +55,9 @@ let tempId = 0;
 
 function Comments({post, relay, postId}: Props) {
   const {error: notifyError} = React.useContext(NotificationContext);
-  const {isLoggedIn, login} = React.useContext(UserContext);
+  const {loginStatus, login} = React.useContext(UserContext);
+
+  const isLoggedIn = loginStatus === 'logged-in';
 
   const [comment, setComment] = React.useState('');
   const [saving, setSaving] = React.useState(false);

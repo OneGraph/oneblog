@@ -16,7 +16,6 @@ import {Grommet} from 'grommet/components/Grommet';
 import {Grid} from 'grommet/components/Grid';
 import {Box} from 'grommet/components/Box';
 import {Heading} from 'grommet/components/Heading';
-import {Header} from 'grommet/components/Header';
 import {Text} from 'grommet/components/Text';
 import {Anchor} from 'grommet/components/Anchor';
 import {ResponsiveContext} from 'grommet/contexts/ResponsiveContext';
@@ -29,12 +28,8 @@ import {ScrollContext} from 'gatsby-react-router-scroll';
 import Avatar from './Avatar';
 import config from './config';
 
-import type {Viewer} from './UserContext';
+import type {LoginStatus} from './UserContext';
 import type {App_QueryResponse} from './__generated__/App_Query.graphql';
-import type {
-  App_PermissionsQueryResponse,
-  GitHubRepositoryPermission,
-} from './__generated__/App_PermissionsQuery.graphql';
 import type {App_PostQueryResponse} from './__generated__/App_PostQuery.graphql';
 import type {Environment} from 'relay-runtime';
 import type {RelayNetworkError} from 'react-relay';
@@ -58,23 +53,40 @@ export const theme = deepMerge(generate(24, 10), {
   },
 });
 
-const permissionsQuery = graphql`
-  query App_PermissionsQuery($repoName: String!, $repoOwner: String!)
-    @persistedQueryConfiguration(
-      fixedVariables: {environmentVariable: "REPOSITORY_FIXED_VARIABLES"}
-    ) {
-    gitHub {
-      viewer {
-        login
-        avatarUrl(size: 96)
-      }
-      repository(name: $repoName, owner: $repoOwner) {
-        viewerPermission
-        viewerCanAdminister
-      }
-    }
-  }
-`;
+function Header({gitHub}) {
+  return (
+    <>
+      <Box margin="medium" style={{position: 'absolute', top: 0, right: 0}}>
+        <Avatar gitHub={gitHub} />
+      </Box>
+      <PostBox>
+        <Box
+          pad={{horizontal: 'medium'}}
+          border={{
+            size: 'xsmall',
+            side: 'bottom',
+            color: 'rgba(0,0,0,0.1)',
+          }}>
+          <Heading style={{marginTop: 0}} level={1}>
+            <Link
+              getProps={({isCurrent}) => ({
+                style: isCurrent
+                  ? {
+                      textDecoration: 'none',
+                      color: 'inherit',
+                      cursor: 'auto',
+                    }
+                  : {color: 'inherit'},
+              })}
+              to="/">
+              {config.title || 'OneBlog'}
+            </Link>
+          </Heading>
+        </Box>
+      </PostBox>
+    </>
+  );
+}
 
 const postsRootQuery = graphql`
   # repoName and repoOwner provided by fixedVariables
@@ -85,6 +97,7 @@ const postsRootQuery = graphql`
       cacheSeconds: 300
     ) {
     gitHub {
+      ...Avatar_gitHub @arguments(repoName: $repoName, repoOwner: $repoOwner)
       repository(name: $repoName, owner: $repoOwner) {
         ...Posts_repository
       }
@@ -119,7 +132,12 @@ const PostsRoot = ({
   if (!respository) {
     return <ErrorBox error={new Error('Repository not found.')} />;
   } else {
-    return <Posts repository={respository} />;
+    return (
+      <>
+        <Header gitHub={props.gitHub} />
+        <Posts repository={respository} />
+      </>
+    );
   }
 };
 
@@ -137,6 +155,7 @@ export const postRootQuery = graphql`
       cacheSeconds: 300
     ) {
     gitHub {
+      ...Avatar_gitHub @arguments(repoName: $repoName, repoOwner: $repoOwner)
       repository(name: $repoName, owner: $repoOwner) {
         issue(number: $issueNumber) {
           labels(first: 100) {
@@ -178,13 +197,14 @@ const PostRoot = ({
     return <ErrorBox error={new Error('Missing post.')} />;
   } else {
     return (
-      <Box>
+      <>
         <Helmet>
           <title>{post.title}</title>
         </Helmet>
+        <Header gitHub={props.gitHub} />
         <Post context="details" post={post} />
         <Comments post={post} postId={post.id} />
-      </Box>
+      </>
     );
   }
 };
@@ -202,44 +222,12 @@ const RenderRoute = ({routeConfig, environment, ...props}) => (
 
 const Route = ({path, routeConfig, environment, Component, ...props}) => {
   return (
-    <div>
-      <Box margin="medium" style={{position: 'absolute', top: 0, right: 0}}>
-        <Avatar />
-      </Box>
-      <div className="layout">
-        <Box>
-          <PostBox>
-            <Box
-              pad={{horizontal: 'medium'}}
-              border={{
-                size: 'xsmall',
-                side: 'bottom',
-                color: 'rgba(0,0,0,0.1)',
-              }}>
-              <Heading style={{marginTop: 0}} level={1}>
-                <Link
-                  getProps={({isCurrent}) => ({
-                    style: isCurrent
-                      ? {
-                          textDecoration: 'none',
-                          color: 'inherit',
-                          cursor: 'auto',
-                        }
-                      : {color: 'inherit'},
-                  })}
-                  to="/">
-                  {config.title || 'OneBlog'}
-                </Link>
-              </Heading>
-            </Box>
-          </PostBox>
-          <Component
-            routeConfig={routeConfig}
-            environment={environment}
-            {...props}
-          />
-        </Box>
-      </div>
+    <div className="layout">
+      <Component
+        routeConfig={routeConfig}
+        environment={environment}
+        {...props}
+      />
     </div>
   );
 };
@@ -292,63 +280,33 @@ function ScrollContextWrapper({location, children}) {
   );
 }
 
-const MANAGE_LABEL_ROLES: Array<GitHubRepositoryPermission> = [
-  'ADMIN',
-  'MAINTAIN',
-  'WRITE',
-  'TRIAGE',
-];
-
 export default class App extends React.PureComponent<
   {environment: Environment, basepath: string},
-  {isLoggedIn: boolean, viewer: ?Viewer},
+  {
+    loginStatus: LoginStatus,
+  },
 > {
   state = {
-    isLoggedIn: false,
+    loginStatus: 'checking',
     viewer: null,
   };
   componentDidMount() {
-    onegraphAuth.isLoggedIn('github').then(isLoggedIn => {
-      this.setState({isLoggedIn});
-      this._setViewer();
-    });
+    onegraphAuth
+      .isLoggedIn('github')
+      .then(isLoggedIn => {
+        this.setState({loginStatus: isLoggedIn ? 'logged-in' : 'logged-out'});
+      })
+      .catch(e => {
+        console.error('Error checking login status', e);
+        this.setState({loginStatus: 'error'});
+      });
   }
-  _setViewer = async () => {
-    if (!this.state.isLoggedIn) {
-      this.setState({viewer: null});
-    } else {
-      try {
-        const res: App_PermissionsQueryResponse = await fetchQuery(
-          this.props.environment,
-          permissionsQuery,
-          {},
-        );
-        const viewerIsAdmin = res.gitHub?.repository?.viewerCanAdminister;
-        const viewerPermission = res.gitHub?.repository?.viewerPermission;
-        const viewer = res.gitHub?.viewer;
-        if (!viewer) {
-          this.setState({viewer: null});
-        } else {
-          this.setState({
-            viewer: {
-              ...viewer,
-              isAdmin:
-                viewerIsAdmin || MANAGE_LABEL_ROLES.includes(viewerPermission),
-            },
-          });
-        }
-      } catch (e) {
-        console.error('error getting viewer', e);
-        this.setState({viewer: null});
-      }
-    }
-  };
+
   _login = () => {
     onegraphAuth.login('github').then(() =>
       onegraphAuth.isLoggedIn('github').then(isLoggedIn => {
         defaultCache.clear();
-        this.setState({isLoggedIn});
-        this._setViewer();
+        this.setState({loginStatus: isLoggedIn ? 'logged-in' : 'logged-out'});
       }),
     );
   };
@@ -357,8 +315,7 @@ export default class App extends React.PureComponent<
       onegraphAuth.isLoggedIn('github').then(isLoggedIn => {
         defaultCache.clear();
         onegraphAuth.destroy();
-        this.setState({isLoggedIn});
-        this._setViewer();
+        this.setState({loginStatus: isLoggedIn ? 'logged-in' : 'logged-out'});
       }),
     );
   };
@@ -366,8 +323,7 @@ export default class App extends React.PureComponent<
     return (
       <UserContext.Provider
         value={{
-          isLoggedIn: this.state.isLoggedIn,
-          viewer: this.state.viewer,
+          loginStatus: this.state.loginStatus,
           login: this._login,
           logout: this._logout,
         }}>
@@ -388,7 +344,9 @@ export default class App extends React.PureComponent<
                     {routes.map((routeConfig, i) => (
                       <Route
                         key={`${
-                          this.state.isLoggedIn ? 'logged-in' : 'logged-out'
+                          this.state.loginStatus === 'logged-in'
+                            ? 'logged-in'
+                            : 'logged-out'
                         }-${i}`}
                         path={routeConfig.path}
                         environment={this.props.environment}
