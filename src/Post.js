@@ -364,7 +364,10 @@ export const ReactionBar = ({
           className="add-reaction-emoji"
           onClick={() => setShowReactionPopover(!showReactionPopover)}>
           <AddIcon width="12" />
-          <EmojiIcon width="24" style={{stroke: 'rgba(0,0,0,0)'}} />
+          <EmojiIcon
+            width="24"
+            style={{marginLeft: 2, stroke: 'rgba(0,0,0,0)'}}
+          />
         </span>
       </Tippy>
     </Box>
