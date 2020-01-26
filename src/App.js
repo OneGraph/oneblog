@@ -139,6 +139,7 @@ export const postRootQuery = graphql`
               name
             }
           }
+          title
           id
           ...Post_post
           ...Comments_post
@@ -173,6 +174,9 @@ const PostRoot = ({
   } else {
     return (
       <Box>
+        <Helmet>
+          <title>{post.title}</title>
+        </Helmet>
         <Post context="details" post={post} />
         <Comments post={post} postId={post.id} />
       </Box>
