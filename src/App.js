@@ -27,10 +27,12 @@ import {Helmet} from 'react-helmet';
 import {ScrollContext} from 'gatsby-react-router-scroll';
 import Avatar from './Avatar';
 import config from './config';
+import {css} from 'styled-components';
 
 import type {LoginStatus} from './UserContext';
 import type {App_QueryResponse} from './__generated__/App_Query.graphql';
 import type {App_PostQueryResponse} from './__generated__/App_PostQuery.graphql';
+
 import type {Environment} from 'relay-runtime';
 import type {RelayNetworkError} from 'react-relay';
 
@@ -50,6 +52,19 @@ export const theme = deepMerge(generate(24, 10), {
     fontWeight: 'normal',
     textDecoration: 'underline',
     color: null,
+  },
+  button: {
+    border: {
+      radius: 4,
+    },
+    extend(props) {
+      return css`
+        &:hover {
+          box-shadow: none;
+          color: ${props.theme.global.colors.brand};
+        }
+      `;
+    },
   },
 });
 
