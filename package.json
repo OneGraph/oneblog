@@ -15,7 +15,6 @@
     "firebase-functions": "^3.3.0",
     "gatsby-react-router-scroll": "^2.1.20",
     "gif-stream": "^1.1.0",
-    "graphql": "^14.4.2",
     "grommet": "2.9.0",
     "grommet-icons": "^4.4.0",
     "highlightjs-graphql": "^1.0.1",
@@ -33,7 +32,7 @@
     "react-relay": "^5.0.0",
     "react-syntax-highlighter": "^11.0.2",
     "sentence-case": "^3.0.3",
-    "serialize-javascript": "^1.7.0",
+    "serialize-javascript": "^2.1.2",
     "styled-components": "^5.0.0",
     "universal-cookie": "^4.0.3"
   },
@@ -85,7 +84,8 @@
     "razzle": "^3.0.0",
     "relay-test-utils": "^5.0.0",
     "require-times": "^1.1.0",
-    "source-map-explorer": "^2.0.1"
+    "source-map-explorer": "^2.0.1",
+    "graphql": "^14.4.2"
   },
   "babelMacros": {
     "relay": {}
