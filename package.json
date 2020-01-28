@@ -29,7 +29,7 @@
     "react-embed": "^2.7.1",
     "react-helmet": "^5.2.1",
     "react-markdown": "^4.3.1",
-    "react-relay": "^5.0.0",
+    "react-relay": "^8.0.0",
     "react-syntax-highlighter": "^11.0.2",
     "sentence-case": "^3.0.3",
     "serialize-javascript": "^2.1.2",
@@ -72,20 +72,20 @@
   "devDependencies": {
     "@babel/plugin-proposal-optional-chaining": "^7.8.3",
     "@babel/preset-flow": "^7.0.0",
-    "@dwwoelfel/relay-compiler": "5.0.1-alpha1",
     "babel-plugin-macros": "^2.6.1",
-    "babel-plugin-relay": "^5.0.0",
+    "babel-plugin-relay": "^8.0.0",
     "firebase-tools": "7.2.4",
-    "flow-bin": "^0.105.1",
+    "flow-bin": "^0.117.0",
+    "graphql": "^14.4.2",
     "netlify-cli": "^2.4.8",
     "netlify-lambda": "^1.6.2",
     "now": "^16.1.1",
     "prettier": "^1.18.2",
     "razzle": "^3.0.0",
-    "relay-test-utils": "^5.0.0",
+    "relay-compiler": "^8.0.0",
+    "relay-test-utils": "^8.0.0",
     "require-times": "^1.1.0",
-    "source-map-explorer": "^2.0.1",
-    "graphql": "^14.4.2"
+    "source-map-explorer": "^2.0.1"
   },
   "babelMacros": {
     "relay": {}

@@ -1,6 +1,6 @@
 // @flow
 
-import stableCopy from 'relay-runtime/lib/stableCopy';
+import stableCopy from 'relay-runtime/lib/util/stableCopy';
 
 import type {Variables} from 'relay-runtime/lib/RelayRuntimeTypes';
 import type {GraphQLResponse} from 'relay-runtime/lib/RelayNetworkTypes';

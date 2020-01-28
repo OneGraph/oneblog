@@ -127,7 +127,12 @@ const postsRootQuery = graphql`
 const ErrorBox = ({error}: {error: any}) => {
   const relayError = error?.source?.errors?.[0]?.message;
   return (
-    <Box gap="xsmall" justify="center" align="center" direction="row">
+    <Box
+      margin={{vertical: 'large'}}
+      gap="xsmall"
+      justify="center"
+      align="center"
+      direction="row">
       <StatusCritical color="status-error" />{' '}
       <Text size="medium">{relayError || error.message}</Text>
     </Box>

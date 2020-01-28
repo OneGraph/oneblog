@@ -65,6 +65,7 @@ async function sendRequest({appId, onegraphAuth, headers, requestBody}) {
         'Content-Type': 'application/json',
         Accept: 'application/json',
         ...onegraphAuth.authHeaders(),
+        // $FlowFixMe
         ...(headers ? headers : {}),
       },
       body: requestBody,
@@ -152,9 +153,10 @@ export function createEnvironment(
   cache: RelayQueryResponseCache,
   headers?: ?{[key: string]: string},
 ) {
+  const store = new Store(recordSource);
   return new Environment({
     network: Network.create(makeFetchQuery(cache, headers)),
-    store: new Store(recordSource),
+    store,
   });
 }
 
