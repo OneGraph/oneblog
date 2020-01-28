@@ -3,11 +3,18 @@
 import React from 'react';
 import './App.css';
 import graphql from 'babel-plugin-relay/macro';
+import stableCopy from 'relay-runtime/lib/util/stableCopy';
 import {QueryRenderer, fetchQuery} from 'react-relay';
+import {
+  RelayEnvironmentProvider,
+  usePreloadedQuery,
+  useLazyLoadQuery,
+  preloadQuery,
+} from 'react-relay/hooks';
 import Posts from './Posts';
 import Post, {PostBox} from './Post';
 import Comments from './Comments';
-import {onegraphAuth, defaultCache} from './Environment';
+import {onegraphAuth} from './Environment';
 import {Router, Location} from '@reach/router';
 import Link from './PreloadLink';
 import {NotificationContainer} from './Notifications';
@@ -30,9 +37,14 @@ import config from './config';
 import {css} from 'styled-components';
 import {editIssueUrl} from './issueUrls';
 import {Github} from 'grommet-icons/icons/Github';
+import PreloadCache from './preloadQueryCache';
+import PreloadCacheContext from './PreloadCacheContext';
 
 import type {LoginStatus} from './UserContext';
-import type {App_QueryResponse} from './__generated__/App_Query.graphql';
+import type {
+  App_QueryResponse,
+  App_Query,
+} from './__generated__/App_Query.graphql';
 import type {App_PostQueryResponse} from './__generated__/App_PostQuery.graphql';
 
 import type {Environment} from 'relay-runtime';
@@ -139,31 +151,43 @@ const ErrorBox = ({error}: {error: any}) => {
   );
 };
 
-const PostsRoot = ({
-  error,
-  props,
-}: {
-  error: ?Error,
-  props: ?App_QueryResponse,
-}) => {
-  if (error) {
-    return <ErrorBox error={error} />;
+class ErrorBoundary extends React.Component<{children: *}, {error: ?Error}> {
+  constructor(props) {
+    super(props);
+    this.state = {error: null};
   }
-  if (!props) {
-    return null;
+
+  static getDerivedStateFromError(error) {
+    return {
+      error,
+    };
   }
-  const respository = props.gitHub ? props.gitHub.repository : null;
-  if (!respository) {
+
+  render() {
+    if (this.state.error != null) {
+      return <ErrorBox error={this.state.error} />;
+    }
+    return this.props.children;
+  }
+}
+
+function PostsRoot({preloadedQuery}: {preloadedQuery: any}) {
+  const data: App_QueryResponse = usePreloadedQuery<App_QueryResponse>(
+    postsRootQuery,
+    preloadedQuery,
+  );
+  const respository = data?.gitHub ? data?.gitHub.repository : null;
+  if (!respository || !data.gitHub) {
     return <ErrorBox error={new Error('Repository not found.')} />;
   } else {
     return (
       <>
-        <Header gitHub={props.gitHub} adminLinks={[]} />
+        <Header gitHub={data.gitHub} adminLinks={[]} />
         <Posts repository={respository} />
       </>
     );
   }
-};
+}
 
 export const postRootQuery = graphql`
   # repoName and repoOwner provided by fixedVariables
@@ -179,6 +203,12 @@ export const postRootQuery = graphql`
       cacheSeconds: 300
     ) {
     gitHub {
+      viewer {
+        login
+        name
+        avatarUrl(size: 96)
+        url
+      }
       ...Avatar_gitHub @arguments(repoName: $repoName, repoOwner: $repoOwner)
       repository(name: $repoName, owner: $repoOwner) {
         issue(number: $issueNumber) {
@@ -199,22 +229,17 @@ export const postRootQuery = graphql`
 `;
 
 // TODO: Handle missing post
-const PostRoot = ({
-  error,
-  props,
-}: {
-  error: ?Error,
-  props: ?App_PostQueryResponse,
-}) => {
-  if (error) {
-    return <ErrorBox error={error} />;
-  }
-  if (!props) {
-    return null;
-  }
-  const post = props.gitHub?.repository?.issue;
+function PostRoot({preloadedQuery}: {preloadedQuery: any}) {
+  const data: App_PostQueryResponse = usePreloadedQuery<App_PostQueryResponse>(
+    postRootQuery,
+    preloadedQuery,
+  );
+
+  const post = data?.gitHub?.repository?.issue;
   const labels = post?.labels?.nodes;
   if (
+    !data ||
+    !data.gitHub ||
     !post ||
     !labels ||
     !labels.find(l => l && l.name.toLowerCase() === 'publish')
@@ -227,7 +252,7 @@ const PostRoot = ({
           <title>{post.title}</title>
         </Helmet>
         <Header
-          gitHub={props.gitHub}
+          gitHub={data.gitHub}
           adminLinks={[
             {
               label: 'Edit post',
@@ -237,55 +262,63 @@ const PostRoot = ({
           ]}
         />
         <Post context="details" post={post} />
-        <Comments post={post} postId={post.id} />
+        <Comments post={post} postId={post.id} viewer={data?.gitHub?.viewer} />
       </>
     );
   }
-};
+}
 
-const RenderRoute = ({routeConfig, environment, ...props}) => (
-  <QueryRenderer
-    dataFrom="STORE_THEN_NETWORK"
-    fetchPolicy="store-and-network"
-    environment={environment}
-    query={routeConfig.query}
-    variables={routeConfig.getVariables(props)}
-    render={routeConfig.component}
-  />
-);
-
-const Route = ({path, routeConfig, environment, Component, ...props}) => {
+function Route({cache, path, routeConfig, environment, ...props}) {
   return (
     <div className="layout">
-      <Component
-        routeConfig={routeConfig}
-        environment={environment}
-        {...props}
-      />
+      <ErrorBoundary>
+        <React.Suspense fallback={null}>
+          <routeConfig.component
+            preloadedQuery={routeConfig.preload(cache, environment, props)}
+          />
+        </React.Suspense>
+      </ErrorBoundary>
     </div>
   );
-};
+}
 
-export const routes = [
-  {
-    path: '/',
-    exact: true,
-    strict: false,
-    query: postsRootQuery,
-    getVariables: (props: any) => ({}),
-    component: PostsRoot,
+function makeRoute({path, query, getVariables, component}) {
+  return {
+    path,
+    query,
+    getVariables,
+    component,
+    preload(cache: PreloadCache, environment: Environment, props: any) {
+      return cache.get(environment, query, getVariables(props), {
+        fetchPolicy: 'store-and-network',
+      });
+    },
+  };
+}
+
+const postsRoute = makeRoute({
+  path: '/',
+  query: postsRootQuery,
+  getVariables(props: any) {
+    return {};
   },
-  {
-    path: '/post/:issueNumber/:slug?',
-    exact: true,
-    strict: false,
-    query: postRootQuery,
-    getVariables: (props: any) => ({
+  component: PostsRoot,
+});
+
+export const postRoute = makeRoute({
+  path: '/post/:issueNumber/:slug?',
+  query: postRootQuery,
+  getVariables(props: any) {
+    return {
       issueNumber: parseInt(props.issueNumber, 10),
-    }),
-    component: PostRoot,
+    };
   },
-];
+  component: PostRoot,
+});
+
+const postRouteNoSlug = {...postRoute, path: '/post/:issueNumber'};
+
+export const routes = [postsRoute, postRoute, postRouteNoSlug];
 
 function shouldUpdateScroll(prevRouterProps, {location}) {
   const {pathname, hash} = location;
@@ -314,52 +347,57 @@ function ScrollContextWrapper({location, children}) {
   );
 }
 
-export default class App extends React.PureComponent<
-  {environment: Environment, basepath: string},
-  {
-    loginStatus: LoginStatus,
-  },
-> {
-  state = {
-    loginStatus: 'checking',
-    viewer: null,
-  };
-  componentDidMount() {
+export default function App({
+  environment,
+  basepath,
+}: {
+  environment: Environment,
+  basepath: string,
+}) {
+  const [loginStatus, setLoginStatus] = React.useReducer(
+    (_state, newState) => newState,
+    'checking',
+  );
+
+  const cache = React.useContext(PreloadCacheContext);
+
+  React.useEffect(() => {
     onegraphAuth
       .isLoggedIn('github')
       .then(isLoggedIn => {
-        this.setState({loginStatus: isLoggedIn ? 'logged-in' : 'logged-out'});
+        setLoginStatus(isLoggedIn ? 'logged-in' : 'logged-out');
       })
       .catch(e => {
         console.error('Error checking login status', e);
-        this.setState({loginStatus: 'error'});
+        setLoginStatus('error');
       });
-  }
+  }, []);
 
-  _login = () => {
+  const login = () => {
     onegraphAuth.login('github').then(() =>
       onegraphAuth.isLoggedIn('github').then(isLoggedIn => {
-        defaultCache.clear();
-        this.setState({loginStatus: isLoggedIn ? 'logged-in' : 'logged-out'});
+        cache.clear(environment);
+        setLoginStatus(isLoggedIn ? 'logged-in' : 'logged-out');
       }),
     );
   };
-  _logout = () => {
+  const logout = () => {
     onegraphAuth.logout('github').then(() =>
       onegraphAuth.isLoggedIn('github').then(isLoggedIn => {
-        defaultCache.clear();
+        cache.clear(environment);
         onegraphAuth.destroy();
-        this.setState({loginStatus: isLoggedIn ? 'logged-in' : 'logged-out'});
+        setLoginStatus(isLoggedIn ? 'logged-in' : 'logged-out');
       }),
     );
   };
-  render() {
-    return (
+
+  return (
+    <RelayEnvironmentProvider environment={environment}>
       <UserContext.Provider
         value={{
-          loginStatus: this.state.loginStatus,
-          login: this._login,
-          logout: this._logout,
+          loginStatus,
+          login,
+          logout,
         }}>
         <Helmet
           defaultTitle={config.title}
@@ -374,18 +412,18 @@ export default class App extends React.PureComponent<
             <Location>
               {({location}) => (
                 <ScrollContextWrapper location={location}>
-                  <Router primary={true} basepath={this.props.basepath}>
+                  <Router primary={true} basepath={basepath}>
                     {routes.map((routeConfig, i) => (
                       <Route
                         key={`${
-                          this.state.loginStatus === 'logged-in'
+                          loginStatus === 'logged-in'
                             ? 'logged-in'
                             : 'logged-out'
                         }-${i}`}
                         path={routeConfig.path}
-                        environment={this.props.environment}
+                        environment={environment}
+                        cache={cache}
                         routeConfig={routeConfig}
-                        Component={RenderRoute}
                       />
                     ))}
                   </Router>
@@ -395,6 +433,6 @@ export default class App extends React.PureComponent<
           </Grommet>
         </NotificationContainer>
       </UserContext.Provider>
-    );
-  }
+    </RelayEnvironmentProvider>
+  );
 }

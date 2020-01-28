@@ -14,11 +14,13 @@ import {Github} from 'grommet-icons/icons/Github';
 import GitHubLoginButton from './GitHubLoginButton';
 import {newIssueUrl} from './issueUrls';
 import {createFragmentContainer, type RelayProp} from 'react-relay';
+import {useFragment} from 'react-relay/hooks';
 import graphql from 'babel-plugin-relay/macro';
 
 import type {LoginStatus} from './UserContext';
 import type {
-  Avatar_gitHub,
+  Avatar_gitHub$key,
+  Avatar_gitHub$data,
   GitHubRepositoryPermission,
 } from './__generated__/Avatar_gitHub.graphql';
 
@@ -47,12 +49,30 @@ function checkIsAdmin(
 type AdminLink = {href: string, label: string, icon: any};
 
 type Props = {
-  relay: RelayProp,
-  gitHub: Avatar_gitHub,
+  gitHub: Avatar_gitHub$key,
   adminLinks: ?Array<AdminLink>,
 };
 
-function Avatar({relay, gitHub, adminLinks: extraAdminLinks}: Props) {
+export default function Avatar({gitHub, adminLinks: extraAdminLinks}: Props) {
+  const data: Avatar_gitHub$data = useFragment(
+    graphql`
+      fragment Avatar_gitHub on GitHubQuery
+        @argumentDefinitions(
+          repoName: {type: "String!"}
+          repoOwner: {type: "String!"}
+        ) {
+        viewer {
+          login
+          avatarUrl(size: 96)
+        }
+        repository(name: $repoName, owner: $repoOwner) {
+          viewerPermission
+          viewerCanAdminister
+        }
+      }
+    `,
+    gitHub,
+  );
   const ref = React.useRef();
   const {loginStatus, logout, login} = React.useContext(UserContext);
   const [showOptions, setShowOptions] = React.useState(false);
@@ -61,7 +81,7 @@ function Avatar({relay, gitHub, adminLinks: extraAdminLinks}: Props) {
     return null;
   }
 
-  const viewer = gitHub.viewer;
+  const viewer = data.viewer;
 
   const adminLinks = [
     {
@@ -70,7 +90,7 @@ function Avatar({relay, gitHub, adminLinks: extraAdminLinks}: Props) {
       icon: <Github size="16px" />,
     },
   ].concat(extraAdminLinks || []);
-  const isAdmin = checkIsAdmin(loginStatus, gitHub.repository);
+  const isAdmin = checkIsAdmin(loginStatus, data.repository);
   return (
     <>
       {loginStatus === 'logged-in' ? (
@@ -163,22 +183,3 @@ function Avatar({relay, gitHub, adminLinks: extraAdminLinks}: Props) {
     </>
   );
 }
-
-export default createFragmentContainer(Avatar, {
-  gitHub: graphql`
-    fragment Avatar_gitHub on GitHubQuery
-      @argumentDefinitions(
-        repoName: {type: "String!"}
-        repoOwner: {type: "String!"}
-      ) {
-      viewer {
-        login
-        avatarUrl(size: 96)
-      }
-      repository(name: $repoName, owner: $repoOwner) {
-        viewerPermission
-        viewerCanAdminister
-      }
-    }
-  `,
-});

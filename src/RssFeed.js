@@ -4,7 +4,7 @@ import React from 'react';
 import {renderToStaticMarkup} from 'react-dom/server';
 import {Feed} from 'feed';
 import graphql from 'babel-plugin-relay/macro';
-import {environment} from './Environment';
+import {createEnvironment, recordSource} from './Environment';
 import {fetchQuery} from 'react-relay';
 import {computePostDate, postPath} from './Post';
 import {RssMarkdownRenderer} from './MarkdownRenderer';
@@ -85,6 +85,7 @@ export async function buildFeed({
   basePath?: ?string,
   siteHostname?: ?string,
 }) {
+  const environment = createEnvironment(recordSource, null, null);
   const data: RssFeed_QueryResponse = await fetchQuery(
     environment,
     feedQuery,

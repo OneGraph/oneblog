@@ -1,9 +1,9 @@
 // @flow
 
 import {Environment, Network, RecordSource, Store} from 'relay-runtime';
-import RelayQueryResponseCache from './relayResponseCache';
 import Cookies from 'universal-cookie';
 import config from './config';
+import PreloadCache from './preloadQueryCache';
 
 import OneGraphAuth from 'onegraph-auth';
 
@@ -27,20 +27,22 @@ class AuthDummy {
 
 class CookieStorage {
   _cookies: Cookies = new Cookies();
-  getItem = (key: string): ?string => {
-    return this._cookies.get(key, {doNotParse: true});
-  };
-  setItem = (key: string, value: string): void => {
-    const options = {
+  _getOptions = () => {
+    return {
       path: '/',
       secure: process.env.NODE_ENV === 'development' ? false : true,
       sameSite: 'strict',
       expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 7), // 1 week
     };
-    this._cookies.set(key, value, options);
+  };
+  getItem = (key: string): ?string => {
+    return this._cookies.get(key, {doNotParse: true});
+  };
+  setItem = (key: string, value: string): void => {
+    this._cookies.set(key, value, this._getOptions());
   };
   removeItem = (key: string): void => {
-    this._cookies.remove(key);
+    this._cookies.remove(key, this._getOptions());
   };
 }
 
@@ -76,7 +78,7 @@ async function sendRequest({appId, onegraphAuth, headers, requestBody}) {
 
 // Fix problem where relay gets nonnull `data` field and does weird things to the cache
 function maybeNullOutQuery(json) {
-  if (json.data && json.data.gitHub == null) {
+  if (json.data && !json.data.gitHub) {
     return {
       ...json,
       data: null,
@@ -85,7 +87,11 @@ function maybeNullOutQuery(json) {
   return json;
 }
 
-function makeFetchQuery(cache, headers?: ?{[key: string]: string}) {
+function makeFetchQuery(
+  headers?: ?{[key: string]: string},
+  preloadCache: ?PreloadCache,
+  getEnvironment,
+) {
   return async function fetchQuery(operation, rawVariables, cacheConfig) {
     const variables = {};
     // Bit of a hack to prevent Relay from sending null values for variables
@@ -97,13 +103,8 @@ function makeFetchQuery(cache, headers?: ?{[key: string]: string}) {
     }
     const queryId = getQueryId(operation);
     const forceFetch = cacheConfig && cacheConfig.force;
-    const fromCache = cache.get(queryId, variables);
     const isMutation = operation.operationKind === 'mutation';
     const isQuery = operation.operationKind === 'query';
-
-    if (isQuery && fromCache !== null && !forceFetch) {
-      return fromCache;
-    }
 
     const requestBody = JSON.stringify({
       doc_id: operation.id,
@@ -113,61 +114,55 @@ function makeFetchQuery(cache, headers?: ?{[key: string]: string}) {
 
     const appId = config.appId;
 
-    const resp = sendRequest({
+    const json = await sendRequest({
       appId,
       onegraphAuth,
       headers,
       requestBody,
-    }).then(async json => {
-      // Clear full cache on mutation
-      if (isMutation) {
-        cache.clear();
-      }
-      if (
-        json.errors &&
-        (headers || Object.keys(onegraphAuth.authHeaders()).length)
-      ) {
-        // Clear auth on any error and try again
-        onegraphAuth.destroy();
-        const newJson = await sendRequest({
-          appId,
-          onegraphAuth,
-          headers: {},
-          requestBody,
-        });
-        return maybeNullOutQuery(newJson);
-      } else {
-        return maybeNullOutQuery(json);
-      }
     });
 
-    if (isQuery) {
-      cache.set(queryId, variables, resp);
+    if (isMutation && preloadCache) {
+      getEnvironment();
+      preloadCache.clear(getEnvironment());
     }
-    return await resp;
+
+    if (
+      json.errors &&
+      (headers || Object.keys(onegraphAuth.authHeaders()).length)
+    ) {
+      // Clear auth on any error and try again
+      onegraphAuth.destroy();
+      const newJson = await sendRequest({
+        appId,
+        onegraphAuth,
+        headers: {},
+        requestBody,
+      });
+      return maybeNullOutQuery(newJson);
+    } else {
+      return maybeNullOutQuery(json);
+    }
   };
 }
 
 export function createEnvironment(
   recordSource: RecordSource,
-  cache: RelayQueryResponseCache,
   headers?: ?{[key: string]: string},
+  preloadCache: ?PreloadCache,
 ) {
   const store = new Store(recordSource);
-  return new Environment({
-    network: Network.create(makeFetchQuery(cache, headers)),
+  let environment;
+  const getEnvironment = () => environment;
+  environment = new Environment({
+    network: Network.create(
+      makeFetchQuery(headers, preloadCache, getEnvironment),
+    ),
     store,
   });
+  return environment;
 }
 
-const recordSource =
+export const recordSource =
   typeof window !== 'undefined' && window.__RELAY_BOOTSTRAP_DATA__
     ? new RecordSource(window.__RELAY_BOOTSTRAP_DATA__)
     : new RecordSource();
-
-export const defaultCache = new RelayQueryResponseCache({
-  size: 250,
-  ttl: 1000 * 60 * 10,
-});
-
-export const environment = createEnvironment(recordSource, defaultCache);

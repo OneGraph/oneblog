@@ -8,6 +8,7 @@ import {
   fetchQuery,
   type RelayProp,
 } from 'react-relay';
+import {useRelayEnvironment} from 'react-relay/hooks';
 import MarkdownRenderer from './MarkdownRenderer';
 import formatDate from 'date-fns/format';
 import EmojiIcon from './emojiIcon';
@@ -15,7 +16,7 @@ import AddIcon from './addIcon';
 import Tippy, {TippyGroup} from '@tippy.js/react';
 import 'tippy.js/themes/light-border.css';
 import Link from './PreloadLink';
-import {postRootQuery} from './App';
+import {postRoute} from './App';
 import GitHubLoginButton from './GitHubLoginButton';
 import {NotificationContext} from './Notifications';
 import {Box} from 'grommet/components/Box';
@@ -28,6 +29,7 @@ import unified from 'unified';
 import parse from 'remark-parse';
 import imageUrl from './imageUrl';
 import {Helmet} from 'react-helmet';
+import PreloadCacheContext from './PreloadCacheContext';
 
 import type {Post_post} from './__generated__/Post_post.graphql';
 
@@ -238,15 +240,14 @@ export function PostBox({children}: {children: React.Node}) {
 
 export const ReactionBar = ({
   reactionGroups,
-  relay,
   subjectId,
   pad,
 }: {
   reactionGroups: *,
-  relay: RelayProp,
   subjectId: string,
   pad?: string,
 }) => {
+  const environment = useRelayEnvironment();
   const {error: notifyError} = React.useContext(NotificationContext);
   const [showReactionPopover, setShowReactionPopover] = React.useState(false);
   const popoverInstance = React.useRef();
@@ -336,7 +337,7 @@ export const ReactionBar = ({
                 popoverInstance.current && popoverInstance.current.hide();
                 try {
                   await removeReaction({
-                    environment: relay.environment,
+                    environment,
                     content,
                     subjectId,
                   });
@@ -348,7 +349,7 @@ export const ReactionBar = ({
                 popoverInstance.current && popoverInstance.current.hide();
                 try {
                   await addReaction({
-                    environment: relay.environment,
+                    environment,
                     content,
                     subjectId,
                   });
@@ -438,6 +439,13 @@ export function computePostDate(post: {
 }
 
 export const Post = ({relay, post, context}: Props) => {
+  const environment = useRelayEnvironment();
+  const cache = React.useContext(PreloadCacheContext);
+  React.useEffect(() => {
+    if (context === 'list') {
+      postRoute.preload(cache, environment, {issueNumber: post.number});
+    }
+  }, [cache, environment, context]);
   const {error: notifyError} = React.useContext(NotificationContext);
   const [showReactionPopover, setShowReactionPopover] = React.useState(false);
   const postDate = React.useMemo(() => computePostDate(post), [post]);
@@ -456,14 +464,7 @@ export const Post = ({relay, post, context}: Props) => {
           {context === 'details' ? (
             post.title
           ) : (
-            <Link
-              style={{color: 'inherit'}}
-              to={postPath({post})}
-              onMouseOver={() =>
-                fetchQuery(relay.environment, postRootQuery, {
-                  issueNumber: post.number,
-                })
-              }>
+            <Link style={{color: 'inherit'}} to={postPath({post})}>
               {post.title}
             </Link>
           )}
