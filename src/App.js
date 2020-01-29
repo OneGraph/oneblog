@@ -17,7 +17,7 @@ import Comments from './Comments';
 import {onegraphAuth} from './Environment';
 import {Router, Location} from '@reach/router';
 import Link from './PreloadLink';
-import {NotificationContainer} from './Notifications';
+import {NotificationContainer, NotificationContext} from './Notifications';
 import OneGraphLogo from './oneGraphLogo';
 import {Grommet} from 'grommet/components/Grommet';
 import {Grid} from 'grommet/components/Grid';
@@ -146,7 +146,22 @@ const ErrorBox = ({error}: {error: any}) => {
       align="center"
       direction="row">
       <StatusCritical color="status-error" />{' '}
-      <Text size="medium">{relayError || error.message}</Text>
+      <Text size="medium">
+        {relayError || error.message}
+        {error.type === 'missing-cors' ? (
+          <div>
+            {' '}
+            Allow the current URL in the CORS Origins form on the{' '}
+            <a
+              target="_blank"
+              rel="noreferrer noopener"
+              href={`https://www.onegraph.com/dashboard/app/${config.appId}`}>
+              OneGraph Dashboard
+            </a>
+            .
+          </div>
+        ) : null}
+      </Text>
     </Box>
   );
 };
@@ -228,7 +243,6 @@ export const postRootQuery = graphql`
   }
 `;
 
-// TODO: Handle missing post
 function PostRoot({preloadedQuery}: {preloadedQuery: any}) {
   const data: App_PostQueryResponse = usePreloadedQuery<App_PostQueryResponse>(
     postRootQuery,
@@ -268,19 +282,30 @@ function PostRoot({preloadedQuery}: {preloadedQuery: any}) {
   }
 }
 
-function Route({cache, path, routeConfig, environment, ...props}) {
+const Route = React.memo(function RendeRoute({
+  cache,
+  routeConfig,
+  environment,
+  ...props
+}) {
+  const notificationContext = React.useContext(NotificationContext);
   return (
-    <div className="layout">
-      <ErrorBoundary>
-        <React.Suspense fallback={null}>
-          <routeConfig.component
-            preloadedQuery={routeConfig.preload(cache, environment, props)}
-          />
-        </React.Suspense>
-      </ErrorBoundary>
+    <div style={{position: 'relative'}}>
+      <div className="layout">
+        <ErrorBoundary>
+          <React.Suspense fallback={null}>
+            <routeConfig.component
+              preloadedQuery={routeConfig.preload(cache, environment, {
+                ...props,
+                notificationContext,
+              })}
+            />
+          </React.Suspense>
+        </ErrorBoundary>
+      </div>
     </div>
   );
-}
+});
 
 function makeRoute({path, query, getVariables, component}) {
   return {
@@ -289,9 +314,31 @@ function makeRoute({path, query, getVariables, component}) {
     getVariables,
     component,
     preload(cache: PreloadCache, environment: Environment, props: any) {
-      return cache.get(environment, query, getVariables(props), {
-        fetchPolicy: 'store-and-network',
-      });
+      const preloadedQuery = cache.get(
+        environment,
+        query,
+        getVariables(props),
+        {
+          fetchPolicy: 'store-and-network',
+        },
+      );
+      if (props.notificationContext) {
+        try {
+          preloadedQuery.source.subscribe({
+            complete: () => {
+              props.notificationContext.clearCorsViolation();
+            },
+            error: e => {
+              if (e.type === 'missing-cors') {
+                props.notificationContext.setCorsViolation();
+              }
+            },
+          });
+        } catch (e) {
+          console.error('error in cors check', e);
+        }
+      }
+      return preloadedQuery;
     },
   };
 }

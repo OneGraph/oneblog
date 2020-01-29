@@ -58,7 +58,7 @@ function getQueryId(operation) {
   return operation.id || operation.text;
 }
 
-async function sendRequest({appId, onegraphAuth, headers, requestBody}) {
+async function sendRequest({onegraphAuth, headers, requestBody}) {
   const response = await fetch(
     'https://serve.onegraph.com/graphql?app_id=' + config.appId,
     {
@@ -74,6 +74,20 @@ async function sendRequest({appId, onegraphAuth, headers, requestBody}) {
     },
   );
   return await response.json();
+}
+
+async function checkifCorsRequired(): Promise<boolean> {
+  try {
+    const response = await fetch(
+      'https://serve.onegraph.com/is-cors-origin-allowed?app_id=' +
+        config.appId,
+    );
+    const json = await response.json();
+    return !json.allowed;
+  } catch (e) {
+    console.error('Error checking if CORS required');
+    return false;
+  }
 }
 
 // Fix problem where relay gets nonnull `data` field and does weird things to the cache
@@ -114,33 +128,43 @@ function makeFetchQuery(
 
     const appId = config.appId;
 
-    const json = await sendRequest({
-      appId,
-      onegraphAuth,
-      headers,
-      requestBody,
-    });
-
-    if (isMutation && preloadCache) {
-      getEnvironment();
-      preloadCache.clear(getEnvironment());
-    }
-
-    if (
-      json.errors &&
-      (headers || Object.keys(onegraphAuth.authHeaders()).length)
-    ) {
-      // Clear auth on any error and try again
-      onegraphAuth.destroy();
-      const newJson = await sendRequest({
-        appId,
+    try {
+      const json = await sendRequest({
         onegraphAuth,
-        headers: {},
+        headers,
         requestBody,
       });
-      return maybeNullOutQuery(newJson);
-    } else {
-      return maybeNullOutQuery(json);
+
+      if (isMutation && preloadCache) {
+        getEnvironment();
+        preloadCache.clear(getEnvironment());
+      }
+
+      if (
+        json.errors &&
+        (headers || Object.keys(onegraphAuth.authHeaders()).length)
+      ) {
+        // Clear auth on any error and try again
+        onegraphAuth.destroy();
+        const newJson = await sendRequest({
+          onegraphAuth,
+          headers: {},
+          requestBody,
+        });
+        return maybeNullOutQuery(newJson);
+      } else {
+        return maybeNullOutQuery(json);
+      }
+    } catch (e) {
+      if (typeof window !== 'undefined') {
+        const isCorsRequired = await checkifCorsRequired();
+        if (isCorsRequired) {
+          const error = new Error('Missing CORS origin.');
+          (error: any).type = 'missing-cors';
+          throw error;
+        }
+      }
+      throw e;
     }
   };
 }
