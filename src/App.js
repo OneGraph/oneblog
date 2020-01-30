@@ -282,19 +282,21 @@ function PostRoot({preloadedQuery}: {preloadedQuery: any}) {
   }
 }
 
-const Route = React.memo(function RendeRoute({
+const Route = React.memo(function Route({
   cache,
   routeConfig,
   environment,
   ...props
 }) {
   const notificationContext = React.useContext(NotificationContext);
+  const {loginStatus} = React.useContext(UserContext);
   return (
     <div style={{position: 'relative'}}>
       <div className="layout">
         <ErrorBoundary>
           <React.Suspense fallback={null}>
             <routeConfig.component
+              key={loginStatus === 'logged-in' ? 'logged-in' : 'logged-out'}
               preloadedQuery={routeConfig.preload(cache, environment, {
                 ...props,
                 notificationContext,
@@ -462,11 +464,7 @@ export default function App({
                   <Router primary={true} basepath={basepath}>
                     {routes.map((routeConfig, i) => (
                       <Route
-                        key={`${
-                          loginStatus === 'logged-in'
-                            ? 'logged-in'
-                            : 'logged-out'
-                        }-${i}`}
+                        key={i}
                         path={routeConfig.path}
                         environment={environment}
                         cache={cache}
