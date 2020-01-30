@@ -110,8 +110,13 @@ function PlainImage(imageProps) {
   );
 }
 
+function isGif(src: string) {
+  const srcUrl = new URL(src);
+  return srcUrl.pathname.endsWith('gif');
+}
+
 function Image(props) {
-  if (props.src && props.src.endsWith('gif')) {
+  if (props.src && isGif(props.src)) {
     return <GifPlayer style={{maxWidth: '100%'}} src={props.src} />;
   }
   return <PlainImage {...props} />;
