@@ -94,6 +94,40 @@ function buildHtml({
 </html>`;
 }
 
+const MEDIUM_REGEX = /[0-9a-f]{8,16}$/;
+
+function getMediumId(req) {
+  const path = req.path;
+
+  if (!path) {
+    return null;
+  }
+  const match = path.match(MEDIUM_REGEX);
+
+  if (match && match[0]) {
+    return match[0];
+  }
+  return null;
+}
+
+async function findMediumRedirect(req): Promise<?number> {
+  const mediumId = getMediumId(req);
+  if (mediumId) {
+    try {
+      const res = await fetch(
+        `https://medium-oneblog-importer-o3e76jeu3q-uc.a.run.app/redirects/${config.repoOwner}/${config.repoName}/${mediumId}`,
+      );
+      const json = await res.json();
+      if (json.status === 'found' && json.issue && json.issue.number) {
+        return json.issue.number;
+      }
+    } catch (e) {
+      console.error('Error finding Medium redirect', e);
+      return null;
+    }
+  }
+}
+
 const SUPPORTED_FEED_EXTENSIONS = ['rss', 'atom', 'json'];
 
 function createApp(basePath: ?string) {
@@ -126,6 +160,11 @@ function createApp(basePath: ?string) {
     })
     .get('/*', async (req, res) => {
       try {
+        const mediumRedirectIssueNumber = await findMediumRedirect(req);
+        if (mediumRedirectIssueNumber) {
+          res.redirect(301, `/post/${mediumRedirectIssueNumber}`);
+          return;
+        }
         const recordSource = new RecordSource();
 
         let accessToken;
