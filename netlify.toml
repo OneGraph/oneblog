@@ -24,6 +24,11 @@
   status = 200
 
 [[redirects]]
+  from = "/:top"
+  to = "/.netlify/functions/index/:top"
+  status = 200
+
+[[redirects]]
   from = "/post/*"
   to = "/.netlify/functions/index/post/:splat"
   status = 200
