@@ -228,7 +228,9 @@ const defaultRenderers = ({SyntaxHighlighter}) => ({
 
     return <P {...props} />;
   },
-  heading: Heading,
+  heading(props) {
+    return <Heading {...props} level={props.level + 1} />;
+  },
   link: Link,
   linkReference(props) {
     return <Anchor {...props} />;
