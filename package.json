@@ -58,11 +58,7 @@
     "extends": "react-app"
   },
   "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
+    "production": [">0.2%", "not dead", "not op_mini all"],
     "development": [
       "last 1 chrome version",
       "last 1 firefox version",
@@ -74,12 +70,10 @@
     "@babel/preset-flow": "^7.0.0",
     "babel-plugin-macros": "^2.6.1",
     "babel-plugin-relay": "^8.0.0",
-    "firebase-tools": "7.2.4",
     "flow-bin": "^0.117.0",
     "graphql": "^14.4.2",
     "netlify-cli": "^2.4.8",
     "netlify-lambda": "^1.6.2",
-    "now": "^16.1.1",
     "prettier": "^1.18.2",
     "razzle": "^3.0.0",
     "relay-compiler": "^8.0.0",

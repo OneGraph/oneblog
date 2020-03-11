@@ -2,7 +2,7 @@
 
 This repo powers the OneGraph Product Updates blog at [onegraph.com/changelog](https://www.onegraph.com/changelog).
 
-All of the posts on the changelog are stored as [issues on this very repo](https://github.com/OneGraph/onegraph-changelog/issues?utf8=%E2%9C%93&q=is%3Aissue+label%3Apublish+).
+All of the posts on the changelog are stored as [issues on the OneGraph changelog repo](https://github.com/OneGraph/onegraph-changelog/issues?utf8=%E2%9C%93&q=is%3Aissue+label%3Apublish+).
 
 When you visit the page at [onegraph.com/changelog](https://www.onegraph.com/changelog), a GraphQL query fetches the issues from GitHub via OneGraph's persisted queries and renders them as blog posts.
 
@@ -12,7 +12,13 @@ If you'd like to learn more about persisted queries, email [persist@onegraph.com
 
 ## Setup
 
-Use an existing OneGraph app or sign up sign up at [OneGraph](https://www.onegraph.com) to create a new app. Update the `/.env` file to update the `RAZZLE_ONEGRAPH_APP_ID` with your app's id. This would also be a good time to replace `REPOSITORY_FIXED_VARIABLES` in the `/.env` file with the repo name and owner for the repo you'd like to back your blog (it uses this repo's issues by default).
+Use an existing OneGraph app or sign up sign up at [OneGraph](https://www.onegraph.com) to create a new app.
+
+Copy `/.env.example` to `/.env` and update `RAZZLE_ONEGRAPH_APP_ID` with your app's id. This would also be a good time to replace `RAZZLE_GITHUB_REPO_OWNER` and `RAZZLE_GITHUB_REPO_NAME` in the `/.env` file with the repo name and owner for the repo you'd like to back your blog. You should also set `RAZZLE_TITLE` and `RAZZLE_DESCRIPTION`.
+
+To create the token that's stored with the persisted query, you'll need to get a OneGraph token with GitHub credentials. Go the "Server-side Auth" tab in the OneGraph dashboard for your app, click the "Create Token" button, and add GitHub to the services. Set the token as `OG_GITHUB_TOKEN` in `.env`
+
+You'll also need to get an API token for OneGraph itself to store persisted queries. Go to the "Persisted queries" tab on the OneGraph dashboard, scroll down, and click "Create token". This will create a scoped token for your app that can create persisted queries on your behalf. Set the token as `OG_DASHBOARD_ACCESS_TOKEN` in `.env`.
 
 Remove the generated files (they're tied to the OneGraph app they were generated with)
 
@@ -33,16 +39,10 @@ yarn install
 
 This project uses Relay as its GraphQL client because of its high-quality compiler and great support for persisted queries.
 
-To create the token that's stored with the persisted query, you'll need to get a OneGraph token with GitHub credentials. Go the "Server-side Auth" tab in the OneGraph dashboard for your app, click the "Create Token" button, and add GitHub to the services. Export `OG_GITHUB_TOKEN` when you run the Relay compiler.
-
-You'll also need to get an API token for OneGraph itself to store persisted queries. Go to the "Persisted queries" tab on the OneGraph dashboard, scroll down, and click "Create token". This will create a scoped token for your app that can create persisted queries on your behalf. Use the token as `OG_DASHBOARD_ACCESS_TOKEN` below.
-
 In another terminal window, start the relay compiler
 
 ```
-OG_GITHUB_TOKEN='<your-github-token>' \
-  OG_DASHBOARD_ACCESS_TOKEN='<your-onegraph-access-token>' \
-  yarn relay --watch
+yarn relay --watch
 ```
 
 You may need to install [watchman](https://facebook.github.io/watchman/), a file watching service. On mac, do `brew install watchman`. On Windows or Linux, follow the instructions at [https://facebook.github.io/watchman/docs/install.html](https://facebook.github.io/watchman/docs/install.html).
@@ -67,9 +67,21 @@ For each of these, you'll have to add the site that you're deploying to on the C
 
 The project can use Firebase Hosting for static files and a Firebase Function to do server-side rendering.
 
-The Firebase config lives in `/firebase.json` and `/.firebaserc`. You'll want to edit `/.firebaserc` to use your firebase project.
+There are sample firebase configs at `/firebase.json.example` and `/.firebaserc.example`. Copy those to `/firebase.json` and `/.firebaserc`. You'll want to edit `/.firebaserc` to use your firebase project.
 
-To deploy
+```
+cp firebase.json.example firebase.json
+cp .firebaserc.example .firebaserc
+```
+
+
+Then add `firebase-tools` as a dev dependency.
+
+```
+yarn add --dev firebase-tools
+```
+
+Now you can deploy to firebase.
 
 ```
 yarn build
@@ -82,7 +94,17 @@ To see it in action, visit [https://onechangelog.web.app](https://onechangelog.w
 
 ### Deploying with Zeit
 
-The project can be deployed with Now v2. The config lives in `/now.json`.
+The project can be deployed with Now v2. There is a sample config at `/now.json.example`. First, copy it to `/now.json`.
+
+```
+cp now.json.example now.json
+```
+
+Then add `now` as a dev dependency
+
+```
+yarn add --dev now
+```
 
 To deploy
 
@@ -131,7 +153,7 @@ Then run
 yarn deploy:fly
 ```
 
-That will build a Docker image and upload it to Fly.io. You do not have to have Docker running on your machine. If it is not running Fly.io, will build the Docker file for you with their hosted builders.
+That will build a Docker image and upload it to Fly.io. You do not have to have Docker running on your machine. If it is not running, Fly.io will build the Docker file for you with their hosted builders.
 
 If you see an error when you visit the site, make sure the site's origin is listed in the CORS origins for your app on the OneGraph dashboard.
 
