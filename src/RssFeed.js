@@ -16,6 +16,7 @@ import {theme} from './App';
 import appCss from './App.css';
 import githubStyle from 'react-syntax-highlighter/dist/cjs/styles/hljs/github';
 import ReactSyntaxHighlighter from 'react-syntax-highlighter/dist/cjs/default-highlight';
+import config from './config';
 import type {RssFeed_QueryResponse} from './__generated__/RssFeed_Query.graphql';
 
 const feedQuery = graphql`
@@ -100,9 +101,8 @@ export async function buildFeed({
   );
 
   const feed = new Feed({
-    title: 'OneGraph Product Updates',
-    description:
-      'Keep up to date with the latest product features from OneGraph',
+    title: config.title,
+    description: config.description,
     id: baseUrl,
     link: baseUrl,
     language: 'en',
