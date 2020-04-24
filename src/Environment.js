@@ -175,6 +175,7 @@ export function createEnvironment(
   preloadCache: ?PreloadCache,
 ) {
   const store = new Store(recordSource);
+  store.holdGC();
   let environment;
   const getEnvironment = () => environment;
   environment = new Environment({
