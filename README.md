@@ -81,6 +81,15 @@ Then add `firebase-tools` as a dev dependency.
 yarn add --dev firebase-tools
 ```
 
+Finally, set engines.node to "10" in the package.json
+
+```diff
+-  }
++  },
++  "engines": {"node": "10"}
+ }
+```
+
 Now you can deploy to firebase.
 
 ```
