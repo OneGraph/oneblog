@@ -32,7 +32,7 @@
     "react-relay": "0.0.0-experimental-5f1cb628",
     "react-syntax-highlighter": "^11.0.2",
     "sentence-case": "^3.0.3",
-    "serialize-javascript": "^2.1.2",
+    "serialize-javascript": "^3.1.0",
     "styled-components": "^5.0.0",
     "universal-cookie": "^4.0.3"
   },
