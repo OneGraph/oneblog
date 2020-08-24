@@ -632,6 +632,7 @@ function importLanguage(
       return import('react-syntax-highlighter/dist/esm/languages/hljs/qml');
     case 'r':
       return import('react-syntax-highlighter/dist/esm/languages/hljs/r');
+    case 'reason':
     case 'reasonml':
       return import(
         'react-syntax-highlighter/dist/esm/languages/hljs/reasonml'
