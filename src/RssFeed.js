@@ -4,7 +4,7 @@ import React from 'react';
 import {renderToStaticMarkup} from 'react-dom/server';
 import {Feed} from 'feed';
 import graphql from 'babel-plugin-relay/macro';
-import {createEnvironment, recordSource} from './Environment';
+import {createEnvironment} from './Environment';
 import {fetchQuery} from 'react-relay';
 import {computePostDate, postPath} from './Post';
 import {RssMarkdownRenderer} from './MarkdownRenderer';
@@ -12,12 +12,12 @@ import {ServerStyleSheet} from 'styled-components';
 import inlineCss from 'inline-css/lib/inline-css';
 import {Grommet} from 'grommet/components/Grommet';
 import {Box} from 'grommet/components/Box';
-import {theme} from './App';
 import appCss from './App.css';
 import githubStyle from 'react-syntax-highlighter/dist/cjs/styles/hljs/github';
 import ReactSyntaxHighlighter from 'react-syntax-highlighter/dist/cjs/default-highlight';
 import config from './config';
 import type {RssFeed_QueryResponse} from './__generated__/RssFeed_Query.graphql';
+import theme from './lib/theme';
 
 const feedQuery = graphql`
   query RssFeed_Query($repoOwner: String!, $repoName: String!)
@@ -86,7 +86,7 @@ export async function buildFeed({
   basePath?: ?string,
   siteHostname?: ?string,
 }) {
-  const environment = createEnvironment(recordSource, null, null);
+  const environment = createEnvironment();
   const data: RssFeed_QueryResponse = await fetchQuery(
     environment,
     feedQuery,

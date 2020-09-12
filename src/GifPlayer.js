@@ -1,7 +1,6 @@
 // @flow
 
 import React from 'react';
-import './gifplayer.css';
 import imageUrl from './imageUrl';
 import base64Encode from './base64Encode';
 

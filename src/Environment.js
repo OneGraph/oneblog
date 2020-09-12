@@ -1,11 +1,12 @@
 // @flow
 
+import React from 'react';
 import {Environment, Network, RecordSource, Store} from 'relay-runtime';
-import Cookies from 'universal-cookie';
 import config from './config';
-import PreloadCache from './preloadQueryCache';
 
 import OneGraphAuth from 'onegraph-auth';
+
+import type {RecordMap} from 'relay-runtime/store/RelayStoreTypes';
 
 class AuthDummy {
   isLoggedIn(x: any) {
@@ -25,40 +26,18 @@ class AuthDummy {
   }
 }
 
-class CookieStorage {
-  _cookies: Cookies = new Cookies();
-  _getOptions = () => {
-    return {
-      path: '/',
-      secure: process.env.NODE_ENV === 'development' ? false : true,
-      sameSite: 'strict',
-      expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 7), // 1 week
-    };
-  };
-  getItem = (key: string): ?string => {
-    return this._cookies.get(key, {doNotParse: true});
-  };
-  setItem = (key: string, value: string): void => {
-    this._cookies.set(key, value, this._getOptions());
-  };
-  removeItem = (key: string): void => {
-    this._cookies.remove(key, this._getOptions());
-  };
-}
-
-export const onegraphAuth = global.window
-  ? new OneGraphAuth({
-      appId: config.appId,
-      communicationMode: 'post_message',
-      storage: new CookieStorage(),
-    })
-  : new AuthDummy();
+export const onegraphAuth =
+  typeof window !== 'undefined'
+    ? new OneGraphAuth({
+        appId: config.appId,
+      })
+    : new AuthDummy();
 
 function getQueryId(operation) {
   return operation.id || operation.text;
 }
 
-async function sendRequest({onegraphAuth, headers, requestBody}) {
+async function sendRequest({onegraphAuth, requestBody}) {
   const response = await fetch(
     'https://serve.onegraph.com/graphql?app_id=' + config.appId,
     {
@@ -67,8 +46,6 @@ async function sendRequest({onegraphAuth, headers, requestBody}) {
         'Content-Type': 'application/json',
         Accept: 'application/json',
         ...onegraphAuth.authHeaders(),
-        // $FlowFixMe
-        ...(headers ? headers : {}),
       },
       body: requestBody,
     },
@@ -101,11 +78,9 @@ function maybeNullOutQuery(json) {
   return json;
 }
 
-function makeFetchQuery(
-  headers?: ?{[key: string]: string},
-  preloadCache: ?PreloadCache,
-  getEnvironment,
-) {
+type FetchQueryOpts = {onCorsError?: ?() => void};
+
+function createFetchQuery(opts: ?FetchQueryOpts) {
   return async function fetchQuery(operation, rawVariables, cacheConfig) {
     const variables = {};
     // Bit of a hack to prevent Relay from sending null values for variables
@@ -131,19 +106,10 @@ function makeFetchQuery(
     try {
       const json = await sendRequest({
         onegraphAuth,
-        headers,
         requestBody,
       });
 
-      if (isMutation && preloadCache) {
-        getEnvironment();
-        preloadCache.clear(getEnvironment());
-      }
-
-      if (
-        json.errors &&
-        (headers || Object.keys(onegraphAuth.authHeaders()).length)
-      ) {
+      if (json.errors && Object.keys(onegraphAuth.authHeaders()).length) {
         // Clear auth on any error and try again
         onegraphAuth.destroy();
         const newJson = await sendRequest({
@@ -161,6 +127,9 @@ function makeFetchQuery(
         if (isCorsRequired) {
           const error = new Error('Missing CORS origin.');
           (error: any).type = 'missing-cors';
+          if (opts?.onCorsError) {
+            opts.onCorsError();
+          }
           throw error;
         }
       }
@@ -169,25 +138,38 @@ function makeFetchQuery(
   };
 }
 
-export function createEnvironment(
-  recordSource: RecordSource,
-  headers?: ?{[key: string]: string},
-  preloadCache: ?PreloadCache,
-) {
+export function createEnvironment(opts?: ?FetchQueryOpts) {
+  const recordSource = new RecordSource();
   const store = new Store(recordSource);
   store.holdGC();
-  let environment;
-  const getEnvironment = () => environment;
-  environment = new Environment({
-    network: Network.create(
-      makeFetchQuery(headers, preloadCache, getEnvironment),
-    ),
+  return new Environment({
+    network: Network.create(createFetchQuery(opts)),
     store,
   });
+}
+
+let globalEnvironment;
+
+export function initEnvironment(
+  initialRecords: ?RecordMap,
+  opts?: ?FetchQueryOpts,
+) {
+  const environment = globalEnvironment ?? createEnvironment(opts);
+  if (initialRecords) {
+    environment.getStore().publish(new RecordSource(initialRecords));
+  }
+
+  if (typeof window !== 'undefined') {
+    globalEnvironment = environment;
+  }
+
   return environment;
 }
 
-export const recordSource =
-  typeof window !== 'undefined' && window.__RELAY_BOOTSTRAP_DATA__
-    ? new RecordSource(window.__RELAY_BOOTSTRAP_DATA__)
-    : new RecordSource();
+export function useEnvironment(
+  initialRecords: ?RecordMap,
+  opts?: ?FetchQueryOpts,
+) {
+  const store = React.useMemo(() => initEnvironment(initialRecords, opts), []);
+  return store;
+}

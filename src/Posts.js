@@ -2,14 +2,14 @@
 
 import React from 'react';
 import graphql from 'babel-plugin-relay/macro';
-import {createPaginationContainer, type RelayProp} from 'react-relay';
+import {createPaginationContainer, type RelayPaginationProp} from 'react-relay';
 import Post from './Post';
 import type {Posts_repository} from './__generated__/Posts_repository.graphql';
 import LoadingSpinner from './loadingSpinner';
 import {Box} from 'grommet/components/Box';
 
 type Props = {|
-  relay: RelayProp,
+  relay: RelayPaginationProp,
   repository: Posts_repository,
 |};
 
@@ -23,7 +23,7 @@ const Posts = ({relay, repository}: Props) => {
       window.requestAnimationFrame(() => {
         scheduledRef.current = false;
         if (
-          window.innerHeight + document.documentElement?.scrollTop >=
+          window.innerHeight + (document.documentElement?.scrollTop ?? 0) >=
           (document.documentElement?.offsetHeight || 0) - 500
         ) {
           if (!isLoading && !relay.isLoading() && relay.hasMore()) {

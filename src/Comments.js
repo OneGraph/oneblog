@@ -5,7 +5,7 @@ import graphql from 'babel-plugin-relay/macro';
 import {
   commitMutation,
   createPaginationContainer,
-  type RelayProp,
+  type RelayPaginationProp,
 } from 'react-relay';
 import {useRelayEnvironment} from 'react-relay/hooks';
 import {ConnectionHandler} from 'relay-runtime';
@@ -29,10 +29,10 @@ import UserContext from './UserContext';
 import GitHubLoginButton from './GitHubLoginButton';
 
 type Props = {
-  relay: RelayProp,
+  relay: RelayPaginationProp,
   post: Comments_post,
   postId: string,
-  viewer: {login: string, name: string, avatarUrl: string, url: string},
+  viewer: {+login: string, +name: ?string, +avatarUrl: string, +url: string},
 };
 
 // n.b. no accessToken in the persistedQueryConfiguration for this mutation,
@@ -60,7 +60,7 @@ function CommentInput({
   viewer,
 }: {
   postId: string,
-  viewer: {login: string, avatarUrl: string, name: string, url: string},
+  viewer: {+login: string, +name: ?string, +avatarUrl: string, +url: string},
 }) {
   const environment = useRelayEnvironment();
   const {error: notifyError} = React.useContext(NotificationContext);
@@ -78,18 +78,23 @@ function CommentInput({
         data.gitHub.addComment.commentEdge.node.__id,
       );
       const post = store.get(postId);
-      const ch = ConnectionHandler;
-      const comments = ConnectionHandler.getConnection(
-        post,
-        'Comments_post_comments',
-      );
-      const edge = ConnectionHandler.createEdge(
-        store,
-        comments,
-        newComment,
-        'GitHubIssueComment',
-      );
-      ConnectionHandler.insertEdgeAfter(comments, edge);
+      if (newComment && post) {
+        const ch = ConnectionHandler;
+
+        const comments = ConnectionHandler.getConnection(
+          post,
+          'Comments_post_comments',
+        );
+        if (comments) {
+          const edge = ConnectionHandler.createEdge(
+            store,
+            comments,
+            newComment,
+            'GitHubIssueComment',
+          );
+          ConnectionHandler.insertEdgeAfter(comments, edge);
+        }
+      }
     };
     commitMutation(environment, {
       mutation: addCommentMutation,
@@ -104,6 +109,7 @@ function CommentInput({
         setComment('');
       },
       onError: err => {
+        console.error('Error saving commeent', err);
         notifyError('Error saving comment. Please try again.');
         setSaving(false);
       },

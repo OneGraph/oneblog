@@ -5,13 +5,18 @@ const {parse, print} = require('graphql');
 require('dotenv').config();
 
 if (
-  !process.env['REPOSITORY_FIXED_VARIABLES'] &&
-  process.env['RAZZLE_GITHUB_REPO_OWNER'] &&
-  process.env['RAZZLE_GITHUB_REPO_NAME']
+  (!process.env['REPOSITORY_FIXED_VARIABLES'] &&
+    // Backwards compat with older apps that started with razzle
+    (process.env['RAZZLE_GITHUB_REPO_OWNER'] &&
+      process.env['RAZZLE_GITHUB_REPO_NAME'])) ||
+  (process.env['NEXT_PUBLIC_GITHUB_REPO_OWNER'] &&
+    process.env['NEXT_PUBLIC_GITHUB_REPO_NAME'])
 ) {
-  process.env['REPOSITORY_FIXED_VARIABLES'] = `{"repoName": "${
-    process.env['RAZZLE_GITHUB_REPO_NAME']
-  }", "repoOwner": "${process.env['RAZZLE_GITHUB_REPO_OWNER']}"}`;
+  process.env['REPOSITORY_FIXED_VARIABLES'] = `{"repoName": "${process.env[
+    'RAZZLE_GITHUB_REPO_NAME'
+  ] || process.env['NEXT_PUBLIC_GITHUB_REPO_NAME']}", "repoOwner": "${process
+    .env['RAZZLE_GITHUB_REPO_OWNER'] ||
+    process.env['NEXT_PUBLIC_GITHUB_REPO_OWNER']}"}`;
 }
 
 const PERSIST_QUERY_MUTATION = `
@@ -138,7 +143,10 @@ async function persistQuery(queryText) {
   const variables = {
     query: print(transformedAst),
     // This is your app's app id, edit `/.env` to change it
-    appId: process.env.RAZZLE_ONEGRAPH_APP_ID,
+    appId:
+      process.env.NEXT_PUBLIC_ONEGRAPH_APP_ID ||
+      // Backwards compat with older apps that started with razzle
+      process.env.RAZZLE_ONEGRAPH_APP_ID,
     accessToken: accessToken || null,
     freeVariables: [...freeVariables],
     fixedVariables: fixedVariables,

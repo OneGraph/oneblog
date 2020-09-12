@@ -4,7 +4,6 @@ import React from 'react';
 import ReactMarkdown from 'react-markdown/with-html';
 import Embed from 'react-embed';
 import htmlParser from 'react-markdown/plugins/html-parser';
-import type SyntaxHighlighter from 'react-syntax-highlighter';
 import GifPlayer from './GifPlayer';
 import imageUrl from './imageUrl';
 import {Anchor} from 'grommet/components/Anchor';
@@ -15,6 +14,8 @@ import {Box} from 'grommet/components/Box';
 import {Text} from 'grommet/components/Text';
 import {ResponsiveContext} from 'grommet/contexts/ResponsiveContext';
 import emoji from './emoji';
+
+type SyntaxHighlighter = any;
 
 type Props = {
   source: string,

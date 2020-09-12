@@ -1,12 +1,44 @@
 [ignore]
+module.system=haste
+module.system.haste.use_name_reducers=true
+# get basename
+module.system.haste.name_reducers='^.*/\([a-zA-Z0-9$_.-]+\.js\(\.flow\)?\)$' -> '\1'
+# strip .js or .js.flow suffix
+module.system.haste.name_reducers='^\(.*\)\.js\(\.flow\)?$' -> '\1'
 
-[include]
+module.system.haste.paths.excludes=.*/__tests__/.*
+module.system.haste.paths.excludes=.*/__mocks__/.*
+module.system.haste.paths.includes=<PROJECT_ROOT>/node_modules/fbjs/lib/.*
 
-[libs]
-
-[lints]
-
-[options]
+esproposal.class_static_fields=enable
+esproposal.class_instance_fields=enable
 esproposal.optional_chaining=enable
 
+munge_underscores=true
+
+suppress_type=$FlowIssue
+suppress_type=$FlowFixMe
+suppress_type=$FlowFixMeProps
+suppress_type=$FlowFixMeState
+
+well_formed_exports=true
+types_first=true
+experimental.abstract_locations=true
+
+esproposal.optional_chaining=enable
+
+[lints]
+untyped-type-import=error
+
 [strict]
+deprecated-type
+nonstrict-import
+sketchy-null
+unclear-type
+unsafe-getters-setters
+untyped-import
+untyped-type-import
+
+[declarations]
+<PROJECT_ROOT>/node_modules/.*
+.*/__generated__/.*

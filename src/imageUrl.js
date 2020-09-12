@@ -2,7 +2,7 @@
 
 import base64Encode from './base64Encode';
 
-export default ({
+const imageUrl = ({
   src,
   firstFrame,
 }: {
@@ -10,7 +10,9 @@ export default ({
   firstFrame?: ?boolean,
 }): ?string => {
   if (src) {
-    return `/image/${firstFrame ? 'firstFrame/' : ''}${base64Encode(src)}`;
+    return `/api/image/${firstFrame ? 'firstFrame/' : ''}${base64Encode(src)}`;
   }
   return src;
 };
+
+export default imageUrl;

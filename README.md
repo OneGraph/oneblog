@@ -14,7 +14,7 @@ If you'd like to learn more about persisted queries, email [persist@onegraph.com
 
 Use an existing OneGraph app or sign up sign up at [OneGraph](https://www.onegraph.com) to create a new app.
 
-Copy `/.env.example` to `/.env` and update `RAZZLE_ONEGRAPH_APP_ID` with your app's id. This would also be a good time to replace `RAZZLE_GITHUB_REPO_OWNER` and `RAZZLE_GITHUB_REPO_NAME` in the `/.env` file with the repo name and owner for the repo you'd like to back your blog. You should also set `RAZZLE_TITLE` and `RAZZLE_DESCRIPTION`.
+Copy `/.env.example` to `/.env` and update `NEXT_PUBLIC_ONEGRAPH_APP_ID` with your app's id. This would also be a good time to replace `NEXT_PUBLIC_GITHUB_REPO_OWNER` and `NEXT_PUBLIC_GITHUB_REPO_NAME` in the `/.env` file with the repo name and owner for the repo you'd like to back your blog. You should also set `NEXT_PUBLIC_TITLE` and `NEXT_PUBLIC_DESCRIPTION`.
 
 To create the token that's stored with the persisted query, you'll need to get a OneGraph token with GitHub credentials. Go the "Server-side Auth" tab in the OneGraph dashboard for your app, click the "Create Token" button, and add GitHub to the services. Set the token as `OG_GITHUB_TOKEN` in `.env`
 

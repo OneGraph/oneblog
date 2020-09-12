@@ -8,6 +8,8 @@
           user-select: none;
   -webkit-touch-callout: none;
   -webkit-tap-highlight-color: transparent;
+  width: 100%;
+  min-height: 100px;
 }
 .gif-player .play-button {
   background-color: rgba(0, 0, 0, 0.5);
