@@ -1,11 +1,11 @@
 [build]
-  command = "yarn install && yarn relay && yarn build && yarn build:netlify-functions"
-  publish = "build/public"
-  functions = "built-netlify-functions/"
+  command = "yarn install && yarn relay && yarn build && yarn next-on-netlify"
+  publish = "out_publish"
+  functions = "out_functions/"
   environment = { NETLIFY = "true" }
 
 [context]
-  environment = { NETLIFY = "true", AWS_LAMBDA_JS_RUNTIME = "nodejs12.x" }
+  environment = { NETLIFY = "true"}
 
 [template.environment]
   NEXT_PUBLIC_ONEGRAPH_APP_ID = "Your OneGraph app id"
@@ -19,26 +19,6 @@
   OG_DASHBOARD_ACCESS_TOKEN = "The OneGraph API token that allows the build to create persisted queries"
 
 [[redirects]]
-  from = "/"
-  to = "/.netlify/functions/index/"
-  status = 200
-
-[[redirects]]
-  from = "/:top"
-  to = "/.netlify/functions/index/:top"
-  status = 200
-
-[[redirects]]
-  from = "/post/*"
-  to = "/.netlify/functions/index/post/:splat"
-  status = 200
-
-[[redirects]]
   from = "/feed*"
-  to = "/.netlify/functions/index/feed:splat"
-  status = 200
-
-[[redirects]]
-  from = "/image*"
-  to = "/.netlify/functions/index/image:splat"
+  to = "/.netlify/functions/next_api_feed_ext"
   status = 200

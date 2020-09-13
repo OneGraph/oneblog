@@ -67,6 +67,7 @@
     "eslint": "^7.8.1",
     "flow-bin": "^0.133.0",
     "graphql": "^14.4.2",
+    "next-on-netlify": "^2.4.0",
     "prettier": "^1.18.2",
     "razzle": "^3.0.0",
     "relay-compiler": "^8.0.0",

@@ -100,12 +100,28 @@ function isGitHubUrl(url: string): boolean {
   );
 }
 
+// workaround for netlify (res.redirect is broken)
+function redirect(res, statusOrUrl, url) {
+  if (typeof statusOrUrl === 'string') {
+    url = statusOrUrl;
+    statusOrUrl = 307;
+  }
+  if (typeof statusOrUrl !== 'number' || typeof url !== 'string') {
+    throw new Error(
+      `Invalid redirect arguments. Please use a single argument URL, e.g. res.redirect('/destination') or use a status code and URL, e.g. res.redirect(307, '/destination').`,
+    );
+  }
+  res.writeHead(statusOrUrl, {Location: url});
+  res.end();
+  return res;
+}
+
 export const firstFrame = (req, res) => {
   const url = decodeUrl(req.params.base64Url);
 
   if (!isGitHubUrl(url)) {
     console.warn('Non-GitHub url, redirecting', url);
-    res.redirect(url);
+    redirect(res, url);
     return;
   }
 
@@ -132,7 +148,7 @@ export const firstFrame = (req, res) => {
 export const proxyImage = (res, url) => {
   if (!isGitHubUrl(url)) {
     console.warn('Non-GitHub url, redirecting', url);
-    res.redirect(url);
+    redirect(res, url);
     return;
   }
 
@@ -146,7 +162,7 @@ export const proxyImage = (res, url) => {
       }
       if (contentLength && contentLength >= 4500000) {
         // Lambda can't handle anything larger than 5mb, so we'll redirect to the original url instead
-        res.redirect(url);
+        redirect(res, url);
       } else {
         res.status(resp.statusCode);
         for (const k of Object.keys(resp.headers)) {

@@ -1,5 +1,5 @@
 module.exports = () => {
-  return {
+  const opts = {
     env: {
       // Backwards compatibility for people migrating from RAZZLE
       NEXT_PUBLIC_SITE_HOSTNAME:
@@ -55,4 +55,8 @@ module.exports = () => {
       return config;
     },
   };
+  if (process.env.NETLIFY) {
+    opts.target = 'serverless';
+  }
+  return opts;
 };
