@@ -9,20 +9,16 @@ import {
 } from 'react-relay';
 import {useRelayEnvironment} from 'react-relay/hooks';
 import {ConnectionHandler} from 'relay-runtime';
-import {PostBox, ReactionBar} from './Post';
+import {PostBox} from './Post';
 import type {Comments_post} from './__generated__/Comments_post.graphql';
-import LoadingSpinner from './loadingSpinner';
 import MarkdownRenderer from './MarkdownRenderer';
 import {Box} from 'grommet/components/Box';
-import {Heading} from 'grommet/components/Heading';
 import {Text} from 'grommet/components/Text';
 import {TextArea} from 'grommet/components/TextArea';
 import {Tabs} from 'grommet/components/Tabs';
 import {Tab} from 'grommet/components/Tab';
 import {Button} from 'grommet/components/Button';
 import {Stack} from 'grommet/components/Stack';
-import format from 'date-fns/format';
-import formatDistance from 'date-fns/formatDistance';
 import Comment from './Comment';
 import {NotificationContext} from './Notifications';
 import UserContext from './UserContext';
@@ -79,8 +75,6 @@ function CommentInput({
       );
       const post = store.get(postId);
       if (newComment && post) {
-        const ch = ConnectionHandler;
-
         const comments = ConnectionHandler.getConnection(
           post,
           'Comments_post_comments',

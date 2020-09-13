@@ -3,7 +3,6 @@
 import React from 'react';
 import config from '../../config';
 import {fetchQuery} from 'react-relay';
-import {RecordSource} from 'relay-runtime';
 import {useRouter} from 'next/router';
 import {query, PostRoot} from '../../PostRoot';
 import {getStaticPaths as generateStaticPaths} from '../../staticPaths';
@@ -43,7 +42,7 @@ async function findMediumRedirect(path): Promise<?number> {
 
 export async function getStaticProps(context: any) {
   const slug = context.params.slug;
-  const path = context.params.slug[context.params.slug.length - 1];
+  const path = slug[slug.length - 1];
   const mediumRedirectIssueNumber = await findMediumRedirect(path);
   let issueNumber;
   if (mediumRedirectIssueNumber) {

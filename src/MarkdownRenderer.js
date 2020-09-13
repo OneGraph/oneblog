@@ -9,7 +9,6 @@ import imageUrl from './imageUrl';
 import {Anchor} from 'grommet/components/Anchor';
 import {Paragraph} from 'grommet/components/Paragraph';
 import {Heading} from 'grommet/components/Heading';
-import {Image as GrommetImage} from 'grommet/components/Image';
 import {Box} from 'grommet/components/Box';
 import {Text} from 'grommet/components/Text';
 import {ResponsiveContext} from 'grommet/contexts/ResponsiveContext';
@@ -37,33 +36,33 @@ class CodeBlock extends React.PureComponent<
     SyntaxHighlighter: this.props.SyntaxHighlighter,
   };
   componentDidMount() {
-    this.props.language === 'backmatter' || this.state.SyntaxHighlighter
-      ? null
-      : Promise.all([
-          import('react-syntax-highlighter/dist/esm/light'),
-          import('react-syntax-highlighter/dist/esm/styles/hljs/github'),
-          importLanguage(this.props.language),
-        ])
-          .then(
-            ([
-              {default: SyntaxHighlighter},
-              {default: style},
-              languageImport,
-            ]) => {
-              if (languageImport && languageImport.default) {
-                SyntaxHighlighter.registerLanguage(
-                  this.props.language,
-                  languageImport.default,
-                );
-              }
-              this.setState({
-                SyntaxHighlighter: props => (
-                  <SyntaxHighlighter style={style} {...props} />
-                ),
-              });
-            },
-          )
-          .catch(e => console.error('Error loading syntax highlighter', e));
+    if (this.props.language !== 'backmatter' && !this.state.SyntaxHighlighter) {
+      Promise.all([
+        import('react-syntax-highlighter/dist/esm/light'),
+        import('react-syntax-highlighter/dist/esm/styles/hljs/github'),
+        importLanguage(this.props.language),
+      ])
+        .then(
+          ([
+            {default: SyntaxHighlighter},
+            {default: style},
+            languageImport,
+          ]) => {
+            if (languageImport && languageImport.default) {
+              SyntaxHighlighter.registerLanguage(
+                this.props.language,
+                languageImport.default,
+              );
+            }
+            this.setState({
+              SyntaxHighlighter: props => (
+                <SyntaxHighlighter style={style} {...props} />
+              ),
+            });
+          },
+        )
+        .catch(e => console.error('Error loading syntax highlighter', e));
+    }
   }
   render() {
     const {language, value} = this.props;
@@ -94,6 +93,7 @@ function PlainImage(imageProps) {
   const {isRss, src, ...props} = imageProps;
   return (
     <Box as="span" style={{display: 'block'}}>
+      {/*eslint-disable-next-line jsx-a11y/alt-text*/}
       <img style={{maxWidth: '100%'}} src={imageUrl({src})} {...props} />
       {props.isRss ? <br /> : null}
       {props.title ? (
@@ -125,6 +125,46 @@ function Image(props) {
 
 function P(props) {
   return <Paragraph fill={true} {...props} />;
+}
+
+function ParagraphWrapper(props) {
+  const size = React.useContext(ResponsiveContext);
+  if (typeof window === 'undefined') {
+    return <P {...props} />;
+  }
+  const isLink =
+    props.children &&
+    props.children.length === 1 &&
+    props.children[0].type === Link;
+
+  if (isLink) {
+    const link = props.children[0];
+    const isSelfLink =
+      link.props.href &&
+      link.props.children &&
+      link.props.children.length === 1 &&
+      link.props.children[0].props &&
+      link.props.children[0].props.value === link.props.href;
+    if (isSelfLink) {
+      return (
+        <Embed
+          url={link.props.href}
+          fallback={<P {...props} />}
+          renderVoid={() => <P {...props} />}
+          renderWrap={x => (
+            // Don't try to center on mobile -- bug with twitter embed will cause it to shift to the right
+            <Box
+              margin={{vertical: 'large'}}
+              align={size === 'small' ? null : 'center'}>
+              {x}
+            </Box>
+          )}
+        />
+      );
+    }
+  }
+
+  return <P {...props} />;
 }
 
 const parseHtml = htmlParser({
@@ -189,46 +229,7 @@ const defaultRenderers = ({SyntaxHighlighter}) => ({
     return <CodeBlock SyntaxHighlighter={SyntaxHighlighter} {...props} />;
   },
   image: Image,
-  paragraph(props) {
-    const size = React.useContext(ResponsiveContext);
-    if (typeof window === 'undefined') {
-      return <P {...props} />;
-    }
-    const isLink =
-      props.children &&
-      props.children.length === 1 &&
-      props.children[0].type === Link;
-
-    if (isLink) {
-      const link = props.children[0];
-      const isSelfLink =
-        link.props.href &&
-        link.props.children &&
-        link.props.children.length === 1 &&
-        link.props.children[0].props &&
-        link.props.children[0].props.value === link.props.href;
-      if (isSelfLink) {
-        const a = link;
-        return (
-          <Embed
-            url={link.props.href}
-            fallback={<P {...props} />}
-            renderVoid={() => <P {...props} />}
-            renderWrap={x => (
-              // Don't try to center on mobile -- bug with twitter embed will cause it to shift to the right
-              <Box
-                margin={{vertical: 'large'}}
-                align={size === 'small' ? null : 'center'}>
-                {x}
-              </Box>
-            )}
-          />
-        );
-      }
-    }
-
-    return <P {...props} />;
-  },
+  paragraph: ParagraphWrapper,
   heading(props) {
     return <Heading {...props} level={props.level + 1} />;
   },
@@ -243,7 +244,7 @@ export default class MarkdownRenderer extends React.PureComponent<Props> {
     const {escapeHtml = true, SyntaxHighlighter} = this.props;
     return (
       <ReactMarkdown
-        escapeHtml={this.props.escapeHtml}
+        escapeHtml={escapeHtml}
         source={this.props.source}
         renderers={defaultRenderers({SyntaxHighlighter})}
         astPlugins={this.props.escapeHtml ? [parseHtml] : []}
@@ -257,7 +258,7 @@ export class RssMarkdownRenderer extends React.PureComponent<Props> {
     const {escapeHtml = true, SyntaxHighlighter} = this.props;
     return (
       <ReactMarkdown
-        escapeHtml={this.props.escapeHtml}
+        escapeHtml={escapeHtml}
         source={this.props.source}
         renderers={{
           ...defaultRenderers({SyntaxHighlighter}),

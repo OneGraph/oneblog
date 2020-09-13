@@ -1,5 +1,3 @@
-// @flow
-
 const https = require('https');
 const PixelStream = require('pixel-stream');
 const neuquant = require('neuquant');
@@ -84,7 +82,7 @@ function padBase64String(input: string): string {
 function decodeUrl(base64Url) {
   return Buffer.from(
     padBase64String(base64Url)
-      .replace(/\-/g, '+')
+      .replace(/-/g, '+')
       .replace(/_/g, '/'),
     'base64',
   ).toString('utf-8');

@@ -5,8 +5,8 @@ import '../App.css';
 import '../gifplayer.css';
 import 'tippy.js/themes/light-border.css';
 
-import {createEnvironment, onegraphAuth, useEnvironment} from '../Environment';
-import {RelayEnvironmentProvider, useLazyLoadQuery} from 'react-relay/hooks';
+import {onegraphAuth, useEnvironment} from '../Environment';
+import {RelayEnvironmentProvider} from 'react-relay/hooks';
 import UserContext from '../UserContext';
 import {NotificationContainer, NotificationContext} from '../Notifications';
 import {Grommet} from 'grommet/components/Grommet';

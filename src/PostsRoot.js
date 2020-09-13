@@ -2,7 +2,6 @@
 
 import React from 'react';
 import Header from './Header';
-import {fetchQuery} from 'react-relay';
 import {useLazyLoadQuery} from 'react-relay/hooks';
 import graphql from 'babel-plugin-relay/macro';
 import Posts from './Posts';

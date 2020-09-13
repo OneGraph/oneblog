@@ -7,6 +7,7 @@ export type Config = {
   title: string,
   description: ?string,
   defaultLogin: ?string,
+  siteHostname: string,
 };
 
 function ensureEnv(s, variable: string): string {

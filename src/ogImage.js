@@ -6,7 +6,7 @@ import {fetchQuery} from 'react-relay';
 import {createEnvironment} from './Environment';
 import unified from 'unified';
 import parse from 'remark-parse';
-import {getWithRedirect, proxyImage} from './imageProxy';
+import {proxyImage} from './imageProxy';
 
 const postQuery = graphql`
   query ogImage_PostQuery(
@@ -104,7 +104,7 @@ function respondWithCodeImage(
   });
 }
 
-export const ogImage = async (req, res) => {
+export const ogImage = async (req: any, res: any) => {
   const postNumber = parseInt(req.params.postNumber, 10);
 
   const data = await fetchQuery(createEnvironment(), postQuery, {

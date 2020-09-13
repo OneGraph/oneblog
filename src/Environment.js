@@ -33,10 +33,6 @@ export const onegraphAuth =
       })
     : new AuthDummy();
 
-function getQueryId(operation) {
-  return operation.id || operation.text;
-}
-
 async function sendRequest({onegraphAuth, requestBody}) {
   const response = await fetch(
     'https://serve.onegraph.com/graphql?app_id=' + config.appId,
@@ -90,18 +86,12 @@ function createFetchQuery(opts: ?FetchQueryOpts) {
         variables[k] = rawVariables[k];
       }
     }
-    const queryId = getQueryId(operation);
-    const forceFetch = cacheConfig && cacheConfig.force;
-    const isMutation = operation.operationKind === 'mutation';
-    const isQuery = operation.operationKind === 'query';
 
     const requestBody = JSON.stringify({
       doc_id: operation.id,
       query: operation.text,
       variables,
     });
-
-    const appId = config.appId;
 
     try {
       const json = await sendRequest({
@@ -170,6 +160,7 @@ export function useEnvironment(
   initialRecords: ?RecordMap,
   opts?: ?FetchQueryOpts,
 ) {
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const store = React.useMemo(() => initEnvironment(initialRecords, opts), []);
   return store;
 }

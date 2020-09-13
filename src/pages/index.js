@@ -2,7 +2,6 @@
 
 import React from 'react';
 import {fetchQuery} from 'react-relay';
-import {RecordSource} from 'relay-runtime';
 import {query, PostsRoot} from '../PostsRoot';
 import {createEnvironment} from '../Environment';
 

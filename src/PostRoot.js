@@ -1,7 +1,7 @@
 // @flow
 
 import React from 'react';
-import {useRelayEnvironment, useLazyLoadQuery} from 'react-relay/hooks';
+import {useLazyLoadQuery} from 'react-relay/hooks';
 import graphql from 'babel-plugin-relay/macro';
 import Header from './Header';
 import {editIssueUrl} from './issueUrls';

@@ -1,5 +1,5 @@
 import React from 'react';
-import {Box, Text} from 'grommet';
+import {Box, Text, Grommet} from 'grommet';
 import config from './config';
 
 export default function Attribution() {
