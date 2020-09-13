@@ -11,6 +11,7 @@ import Post from './Post';
 import ErrorBox from './ErrorBox';
 import Head from './Head';
 import config from './config';
+import Attribution from './Attribution';
 import type {
   PostRoot_PostQuery,
   PostRoot_PostQueryResponse,
@@ -95,6 +96,7 @@ export const PostRoot = ({issueNumber}: {issueNumber: number}) => {
         />
         <Post context="details" post={post} />
         <Comments post={post} postId={post.id} viewer={gitHub.viewer} />
+        <Attribution />
       </>
     );
   }

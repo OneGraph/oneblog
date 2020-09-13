@@ -46,6 +46,7 @@ const config: Config = {
   description: process.env.NEXT_PUBLIC_DESCRIPTION,
   defaultLogin: process.env.NEXT_PUBLIC_DEFAULT_GITHUB_LOGIN,
   siteHostname: removeTrailingSlash(process.env.NEXT_PUBLIC_SITE_HOSTNAME),
+  hideAttribution: process.env.NEXT_PUBLIC_HIDE_ATTRIBUTION,
 };
 
 export default config;
