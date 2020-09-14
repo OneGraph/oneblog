@@ -8,7 +8,7 @@ export default function Attribution() {
   }
   return (
     <Box align="center">
-      <Text>
+      <Text size="xsmall">
         Powered by{' '}
         <a href="https://github.com/OneGraph/oneblog" target="_blank">
           OneBlog

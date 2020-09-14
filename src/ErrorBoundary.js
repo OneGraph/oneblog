@@ -5,10 +5,7 @@ import {NotificationContext} from './Notifications';
 class ErrorBoundary extends React.Component<{children: *}, {error: ?Error}> {
   static contextType = NotificationContext;
 
-  constructor(props) {
-    super(props);
-    this.state = {error: null};
-  }
+  state = {error: null};
 
   static getDerivedStateFromError(error) {
     return {

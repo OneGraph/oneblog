@@ -1,6 +1,9 @@
+// @flow
+
 import React from 'react';
 import {Box, Text} from 'grommet';
 import {StatusCritical} from 'grommet-icons/icons/StatusCritical';
+import config from './config';
 
 const ErrorBox = ({error}: {error: any}) => {
   console.error('error', error);

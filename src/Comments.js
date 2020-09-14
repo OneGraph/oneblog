@@ -141,27 +141,29 @@ function CommentInput({
         interactiveChild={isLoggedIn ? 'first' : 'last'}
         anchor="center">
         <Box style={{opacity: isLoggedIn ? 1 : 0.3}}>
-          <Tabs justify="start">
-            <Tab title={<Text size="small">Write</Text>}>
-              <Box pad="small" height="small">
-                <TextArea
-                  disabled={saving}
-                  placeholder="Leave a comment (supports markdown)"
-                  value={comment}
-                  style={{height: '100%', fontWeight: 'normal'}}
-                  onChange={e => setComment(e.target.value)}
-                />
-              </Box>
-            </Tab>
-            <Tab title={<Text size="small">Preview</Text>}>
-              <Box pad="small" height={{min: 'small'}}>
-                <MarkdownRenderer
-                  escapeHtml={true}
-                  source={comment.trim() ? comment : 'Nothing to preview.'}
-                />
-              </Box>
-            </Tab>
-          </Tabs>
+          <Box height={{min: 'small'}}>
+            <Tabs justify="start">
+              <Tab title={<Text size="small">Write</Text>}>
+                <Box pad="small" height="small">
+                  <TextArea
+                    disabled={saving}
+                    placeholder="Leave a comment (supports markdown)"
+                    value={comment}
+                    style={{height: '100%', fontWeight: 'normal'}}
+                    onChange={e => setComment(e.target.value)}
+                  />
+                </Box>
+              </Tab>
+              <Tab title={<Text size="small">Preview</Text>}>
+                <Box pad="small" height={{min: 'small'}}>
+                  <MarkdownRenderer
+                    escapeHtml={true}
+                    source={comment.trim() ? comment : 'Nothing to preview.'}
+                  />
+                </Box>
+              </Tab>
+            </Tabs>
+          </Box>
           <Box>
             <Box pad="small" align="end">
               <Button

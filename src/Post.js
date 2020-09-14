@@ -5,9 +5,9 @@ import graphql from 'babel-plugin-relay/macro';
 import {
   createFragmentContainer,
   commitMutation,
-  fetchQuery,
   type RelayProp,
 } from 'react-relay';
+import {loadQuery} from 'react-relay/hooks';
 import {useRelayEnvironment} from 'react-relay/hooks';
 import MarkdownRenderer from './MarkdownRenderer';
 import formatDate from 'date-fns/format';
@@ -28,6 +28,7 @@ import unified from 'unified';
 import parse from 'remark-parse';
 import imageUrl from './imageUrl';
 import {query as postRootQuery} from './PostRoot';
+import {query as postsRootQuery} from './PostsRoot';
 
 import type {Post_post} from './__generated__/Post_post.graphql';
 
@@ -446,11 +447,25 @@ export const Post = ({relay, post, context}: Props) => {
   const postDate = React.useMemo(() => computePostDate(post), [post]);
   const number = post.number;
 
+  // Primitive preloading.
+  // Ideally, we would be able to replace nextjs' preloading logic with our own
+  // We like getStaticProps for SSR, but it's more efficient to fetch directly
+  // from OneGraph once the client-side code is loaded, esp. when logged in
   React.useEffect(() => {
     if (context === 'list') {
-      fetchQuery(environment, postRootQuery, {issueNumber: number}).catch(e => {
-        console.error('error preloading query', e);
-      });
+      loadQuery.loadQuery(
+        environment,
+        postRootQuery,
+        {issueNumber: number},
+        {fetchPolicy: 'store-or-network'},
+      );
+    } else if (context === 'details') {
+      loadQuery.loadQuery(
+        environment,
+        postsRootQuery,
+        {},
+        {fetchPolicy: 'store-or-network'},
+      );
     }
   }, [environment, context, number]);
 

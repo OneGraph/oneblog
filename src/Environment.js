@@ -145,7 +145,13 @@ export function initEnvironment(
   opts?: ?FetchQueryOpts,
 ) {
   const environment = globalEnvironment ?? createEnvironment(opts);
-  if (initialRecords) {
+  if (
+    initialRecords &&
+    environment
+      .getStore()
+      .getSource()
+      .getRecordIDs().length <= 1
+  ) {
     environment.getStore().publish(new RecordSource(initialRecords));
   }
 
@@ -160,7 +166,6 @@ export function useEnvironment(
   initialRecords: ?RecordMap,
   opts?: ?FetchQueryOpts,
 ) {
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const store = React.useMemo(() => initEnvironment(initialRecords, opts), []);
-  return store;
+  const store = React.useRef(initEnvironment(initialRecords, opts));
+  return store.current;
 }
