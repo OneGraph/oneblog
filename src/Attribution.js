@@ -7,7 +7,7 @@ export default function Attribution() {
     return null;
   }
   return (
-    <Box align="center">
+    <Box pad={{bottom: 'small'}} align="center">
       <Text size="xsmall">
         Powered by{' '}
         <a href="https://github.com/OneGraph/oneblog" target="_blank">
