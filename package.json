@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@tippy.js/react": "^2.2.2",
+    "@tippyjs/react": "4.1.0",
     "date-fns": "2.9.0",
     "email-reply-parser": "^1.2.1",
     "feed": "^4.0.0",

@@ -88,6 +88,10 @@ function CommentInput({
           );
           ConnectionHandler.insertEdgeAfter(comments, edge);
         }
+        const count = post.getLinkedRecord('comments')?.getValue('totalCount');
+        if (Number.isInteger(count)) {
+          post.getLinkedRecord('comments').setValue(count + 1, 'totalCount');
+        }
       }
     };
     commitMutation(environment, {

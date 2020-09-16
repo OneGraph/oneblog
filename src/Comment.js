@@ -57,6 +57,7 @@ export default function Comment({comment}: Props) {
             nodes {
               login
               name
+              isViewer
             }
           }
         }

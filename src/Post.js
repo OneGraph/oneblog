@@ -13,8 +13,7 @@ import MarkdownRenderer from './MarkdownRenderer';
 import formatDate from 'date-fns/format';
 import EmojiIcon from './emojiIcon';
 import AddIcon from './addIcon';
-import Tippy, {TippyGroup} from '@tippy.js/react';
-// import 'tippy.js/themes/light-border.css';
+import Tippy, {useSingleton} from '@tippyjs/react';
 import Link from 'next/link';
 import GitHubLoginButton from './GitHubLoginButton';
 import {NotificationContext} from './Notifications';
@@ -29,6 +28,7 @@ import parse from 'remark-parse';
 import imageUrl from './imageUrl';
 import {query as postRootQuery} from './PostRoot';
 import {query as postsRootQuery} from './PostsRoot';
+import {Contact} from 'grommet-icons';
 
 import type {Post_post} from './__generated__/Post_post.graphql';
 
@@ -182,17 +182,20 @@ const EmojiPicker = ({
   isLoggedIn,
   login,
 }) => {
-  const reactionContent = reaction => {
+  const reactionContent = (reaction, i) => {
     const isSelected = viewerReactions.includes(reaction);
     return (
       <button
         style={{
+          width: 42,
+          height: 42,
           cursor: 'pointer',
           outline: 'none',
           fontSize: 20,
           padding: '0 5px',
           backgroundColor: isSelected ? '#ddefff' : 'transparent',
-          border: isSelected ? '1px solid #e1e4e8' : '1px solid transparent',
+          border: 'none',
+          borderLeft: i === 0 ? 'none' : '1px solid #e1e4e8',
         }}
         key={reaction}
         onClick={() =>
@@ -203,22 +206,42 @@ const EmojiPicker = ({
     );
   };
   return (
-    <>
-      <p style={{textAlign: 'left', margin: '5px 0 0'}}>Pick your reaction</p>
-      <div style={{height: 1, background: '#ddd', margin: '5px 0'}} />
+    <Box>
+      <Text margin="xsmall" textAlign="center">
+        Pick your reaction
+      </Text>
+
       {isLoggedIn ? (
         <>
-          <div>
-            {reactions.slice(0, 4).map(reaction => reactionContent(reaction))}
-          </div>
-          <div>
-            {reactions.slice(4).map(reaction => reactionContent(reaction))}
-          </div>
+          <Box
+            direction="row"
+            border={{
+              color: '#e1e4e8',
+              style: 'solid',
+              size: '1px',
+              side: 'top',
+            }}>
+            {reactions
+              .slice(0, 4)
+              .map((reaction, i) => reactionContent(reaction, i))}
+          </Box>
+          <Box
+            direction="row"
+            border={{
+              color: '#e1e4e8',
+              style: 'solid',
+              size: '1px',
+              side: 'top',
+            }}>
+            {reactions
+              .slice(4)
+              .map((reaction, i) => reactionContent(reaction, i))}
+          </Box>
         </>
       ) : (
         <GitHubLoginButton onClick={login} />
       )}
-    </>
+    </Box>
   );
 };
 
@@ -246,15 +269,22 @@ export const ReactionBar = ({
   reactionGroups,
   subjectId,
   pad,
+  commentsInfo,
 }: {
   reactionGroups: *,
   subjectId: string,
   pad?: string,
+  commentsInfo?: {
+    href: string,
+    as: string,
+    count: number,
+  },
 }) => {
   const environment = useRelayEnvironment();
   const {error: notifyError} = React.useContext(NotificationContext);
   const [showReactionPopover, setShowReactionPopover] = React.useState(false);
-  const popoverInstance = React.useRef();
+  const [sourceTooltip, targetTooltip] = useSingleton();
+  const [sourceAdd, targetAdd] = useSingleton();
   const {loginStatus, login} = React.useContext(UserContext);
   const isLoggedIn = loginStatus === 'logged-in';
 
@@ -267,13 +297,98 @@ export const ReactionBar = ({
       pad={pad || 'xsmall'}
       direction="row"
       wrap={true}
+      justify="between"
       border={{size: 'xsmall', side: 'top', color: 'rgba(0,0,0,0.1)'}}>
-      <TippyGroup delay={500}>
+      <Box direction="row" wrap={true}>
+        <Tippy
+          singleton={sourceTooltip}
+          arrow={false}
+          theme="light-border"
+          trigger="mouseenter focus click"
+          placement="bottom"
+          theme="light-border"
+          inertia={true}
+          interactive={true}
+          interactiveBorder={10}
+          duration={[75, 75]}
+          delay={500}
+        />
+        <Tippy
+          singleton={sourceAdd}
+          arrow={false}
+          theme="light-border"
+          trigger="click"
+          inertia={true}
+          interactive={true}
+          interactiveBorder={10}
+          duration={[0, 0]}
+          delay={0}
+          hideOnClick={true}
+        />
+        <Tippy
+          singleton={targetAdd}
+          arrow={true}
+          content={
+            <Box>
+              <EmojiPicker
+                isLoggedIn={isLoggedIn}
+                login={login}
+                viewerReactions={usedReactions
+                  .filter(x => x.viewerHasReacted)
+                  .map(x => x.content)}
+                onDeselect={async content => {
+                  sourceAdd?.data?.instance?.hide();
+                  try {
+                    await removeReaction({
+                      environment,
+                      content,
+                      subjectId,
+                    });
+                  } catch (e) {
+                    notifyError('Error removing reaction.');
+                  }
+                }}
+                onSelect={async content => {
+                  sourceAdd?.data?.instance?.hide();
+                  try {
+                    await addReaction({
+                      environment,
+                      content,
+                      subjectId,
+                    });
+                  } catch (e) {
+                    notifyError('Error adding reaction.');
+                  }
+                }}
+              />
+            </Box>
+          }>
+          <span
+            style={{padding: '8px 16px'}}
+            className="add-reaction-emoji"
+            onClick={() => setShowReactionPopover(!showReactionPopover)}>
+            <AddIcon width="12" />
+            <EmojiIcon
+              width="24"
+              style={{marginLeft: 2, stroke: 'rgba(0,0,0,0)'}}
+            />
+          </span>
+        </Tippy>
         {usedReactions.map(g => {
           const total = g.users.totalCount;
-          const reactors = (g.users.nodes || []).map(x =>
-            x ? x.name || x.login : null,
-          );
+          const reactors = [];
+          if (isLoggedIn && g.viewerHasReacted) {
+            reactors.push('You');
+          }
+          for (const user of g.users.nodes || []) {
+            if (
+              user &&
+              (!isLoggedIn || !user.isViewer) &&
+              (user.name || user.login)
+            ) {
+              reactors.push(user.name || user.login);
+            }
+          }
           if (total > 11) {
             reactors.push(`${total - 11} more`);
           }
@@ -285,28 +400,21 @@ export const ReactionBar = ({
 
           return (
             <Tippy
+              singleton={targetTooltip}
               key={g.content}
-              arrow={true}
-              trigger="mouseenter focus click"
-              placement="bottom"
-              flipBehavior={['bottom', 'right']}
-              theme="light-border"
-              inertia={true}
-              interactive={true}
-              animateFill={false}
-              interactiveBorder={10}
-              duration={[75, 75]}
               content={
-                <div>
-                  {reactorsSentence} reacted with{' '}
-                  {lowerCase(sentenceCase(g.content))} emoji
-                </div>
+                <Box pad="xsmall">
+                  <Text size="xsmall">
+                    {reactorsSentence} reacted with{' '}
+                    {lowerCase(sentenceCase(g.content))} emoji
+                  </Text>
+                </Box>
               }>
               <span
                 key={g.content}
                 style={{
                   padding: '0 16px',
-                  borderRight: '1px solid rgba(0,0,0,0.12)',
+                  borderLeft: '1px solid rgba(0,0,0,0.12)',
                   display: 'flex',
                   alignItems: 'center',
                 }}>
@@ -318,63 +426,36 @@ export const ReactionBar = ({
             </Tippy>
           );
         })}
-      </TippyGroup>
-      <Tippy
-        onCreate={instance => (popoverInstance.current = instance)}
-        arrow={true}
-        trigger="click"
-        theme="light-border"
-        inertia={true}
-        interactive={true}
-        animateFill={false}
-        interactiveBorder={10}
-        duration={[300, 75]}
-        content={
-          <div>
-            <EmojiPicker
-              isLoggedIn={isLoggedIn}
-              login={login}
-              viewerReactions={usedReactions
-                .filter(x => x.viewerHasReacted)
-                .map(x => x.content)}
-              onDeselect={async content => {
-                popoverInstance.current && popoverInstance.current.hide();
-                try {
-                  await removeReaction({
-                    environment,
-                    content,
-                    subjectId,
-                  });
-                } catch (e) {
-                  notifyError('Error removing reaction.');
-                }
-              }}
-              onSelect={async content => {
-                popoverInstance.current && popoverInstance.current.hide();
-                try {
-                  await addReaction({
-                    environment,
-                    content,
-                    subjectId,
-                  });
-                } catch (e) {
-                  notifyError('Error adding reaction.');
-                }
-              }}
-            />
-          </div>
-        }>
-        <span
-          style={{padding: '8px 16px'}}
-          className="add-reaction-emoji"
-          onClick={() => setShowReactionPopover(!showReactionPopover)}>
-          <AddIcon width="12" />
-          <EmojiIcon
-            width="24"
-            style={{marginLeft: 2, stroke: 'rgba(0,0,0,0)'}}
-          />
-        </span>
-      </Tippy>
+      </Box>
+      {commentsInfo ? (
+        <Box direction="row" wrap={true}>
+          <Link as={commentsInfo.as} href={commentsInfo.href}>
+            <button
+              style={{
+                cursor: 'pointer',
+                outline: 'none',
+                backgroundColor: 'transparent',
+                border: 'none',
+                margin: 0,
+                padding: 0,
+              }}>
+              <span
+                style={{
+                  padding: '0 16px',
+                  display: 'flex',
+                  alignItems: 'center',
+                }}>
+                <Text
+                  title={
+                    commentsInfo.count ? 'View comments' : 'Leave a comment'
+                  }>
+                  <Contact strokeWidth="1" width="12" />{' '}
+                </Text>
+              </span>
+            </button>
+          </Link>
+        </Box>
+      ) : null}
     </Box>
   );
 };
@@ -522,14 +603,21 @@ export const Post = ({relay, post, context}: Props) => {
           </Box>
         ) : null}
         <Box direction="row" justify="between"></Box>
-        <Text>
-          <MarkdownRenderer escapeHtml={true} source={post.body} />
-        </Text>
+        <MarkdownRenderer escapeHtml={true} source={post.body} />
       </Box>
       <ReactionBar
         relay={relay}
         subjectId={post.id}
         reactionGroups={post.reactionGroups}
+        commentsInfo={
+          context === 'list'
+            ? {
+                href: '/post/[...slug]',
+                as: postPath({post, viewComments: true}),
+                count: post.commentsCount.totalCount,
+              }
+            : null
+        }
       />
     </PostBox>
   );
@@ -561,6 +649,7 @@ export default createFragmentContainer(Post, {
           nodes {
             login
             name
+            isViewer
           }
         }
       }
