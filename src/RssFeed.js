@@ -5,7 +5,7 @@ import {renderToStaticMarkup} from 'react-dom/server';
 import {Feed} from 'feed';
 import graphql from 'babel-plugin-relay/macro';
 import {createEnvironment} from './Environment';
-import {fetchQuery} from 'react-relay';
+import {fetchQuery} from 'react-relay/hooks';
 import {computePostDate, postPath} from './Post';
 import {RssMarkdownRenderer} from './MarkdownRenderer';
 import {ServerStyleSheet} from 'styled-components';
@@ -91,7 +91,7 @@ export async function buildFeed({
     environment,
     feedQuery,
     {},
-  );
+  ).toPromise();
 
   const posts = data.gitHub?.repository?.issues.nodes || [];
   const latestPost = posts[0];

@@ -1,5 +1,5 @@
 import graphql from 'babel-plugin-relay/macro';
-import {fetchQuery} from 'react-relay';
+import {fetchQuery} from 'react-relay/hooks';
 import {createEnvironment} from './Environment';
 import {slugify} from './Post';
 
@@ -49,7 +49,7 @@ export async function getStaticPaths() {
     const data = await fetchQuery(environment, query, {
       count: 100,
       cursor,
-    });
+    }).toPromise();
     cursor = data.gitHub.repository.issues.pageInfo.endCursor;
     // Only get the newest 100 for now to prevent API limits
     // TODO: Find a way to satisfy `getStaticProps` with the results of the

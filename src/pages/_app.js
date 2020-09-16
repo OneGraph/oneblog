@@ -6,7 +6,7 @@ import '../gifplayer.css';
 import 'tippy.js/themes/light-border.css';
 
 import {onegraphAuth, useEnvironment} from '../Environment';
-import {RelayEnvironmentProvider} from 'react-relay/hooks';
+import {RelayEnvironmentProvider, fetchQuery} from 'react-relay/hooks';
 import UserContext from '../UserContext';
 import {NotificationContainer, NotificationContext} from '../Notifications';
 import {Grommet} from 'grommet/components/Grommet';
@@ -14,13 +14,13 @@ import theme from '../lib/theme';
 import Head from '../Head';
 import ErrorBoundary from '../ErrorBoundary';
 import {useRouter} from 'next/router';
+import {query as loginQuery} from '../LoginQuery';
 
 function AppComponent({
   Component,
   pageProps,
   indexPageMemo,
   indexPageScrollPos,
-  loginStatus,
   isIndexPage,
 }: any) {
   React.useEffect(() => {
@@ -34,10 +34,7 @@ function AppComponent({
     const res = (
       <ErrorBoundary>
         <React.Suspense fallback={null}>
-          <Component
-            key={loginStatus === 'logged-in' ? 'logged-in' : 'logged-out'}
-            {...pageProps}
-          />
+          <Component {...pageProps} />
         </React.Suspense>
       </ErrorBoundary>
     );
@@ -75,7 +72,8 @@ function App({Component, pageProps}: any) {
 
   const isIndexPage = router.pathname === '/';
 
-  const handleRouteChangeStart = (x, y, z) => {
+  const handleRouteChangeStart = url => {
+    window.history.scrollRestoration = url === '/' ? 'manual' : 'auto';
     if (isIndexPage) {
       indexPageScrollPos.current = window.scrollY;
     }
@@ -95,9 +93,13 @@ function App({Component, pageProps}: any) {
   });
 
   React.useEffect(() => {
-    onegraphAuth
-      .isLoggedIn('github')
-      .then(isLoggedIn => {
+    Promise.all([
+      onegraphAuth.isLoggedIn('github'),
+      fetchQuery(environment, loginQuery, {})
+        .toPromise()
+        .catch(e => null),
+    ])
+      .then(([isLoggedIn]) => {
         setLoginStatus(isLoggedIn ? 'logged-in' : 'logged-out');
       })
       .catch(e => {
@@ -108,7 +110,13 @@ function App({Component, pageProps}: any) {
 
   const login = () => {
     onegraphAuth.login('github').then(() =>
-      onegraphAuth.isLoggedIn('github').then(isLoggedIn => {
+      Promise.all([
+        onegraphAuth.isLoggedIn('github'),
+        fetchQuery(environment, loginQuery, {})
+          .toPromise()
+          .catch(e => null),
+        ,
+      ]).then(([isLoggedIn, x]) => {
         setLoginStatus(isLoggedIn ? 'logged-in' : 'logged-out');
       }),
     );
@@ -138,7 +146,6 @@ function App({Component, pageProps}: any) {
               pageProps={pageProps}
               indexPageMemo={indexPageMemo}
               indexPageScrollPos={indexPageScrollPos}
-              loginStatus={loginStatus}
               isIndexPage={isIndexPage}
             />
           </div>

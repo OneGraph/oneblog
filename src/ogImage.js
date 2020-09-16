@@ -2,7 +2,7 @@
 
 import https from 'https';
 import graphql from 'babel-plugin-relay/macro';
-import {fetchQuery} from 'react-relay';
+import {fetchQuery} from 'react-relay/hooks';
 import {createEnvironment} from './Environment';
 import unified from 'unified';
 import parse from 'remark-parse';
@@ -109,7 +109,7 @@ export const ogImage = async (req: any, res: any) => {
 
   const data = await fetchQuery(createEnvironment(), postQuery, {
     issueNumber: postNumber,
-  });
+  }).toPromise();
 
   const issue = data.gitHub?.repository?.issue;
   if (

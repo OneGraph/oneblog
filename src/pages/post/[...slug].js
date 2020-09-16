@@ -1,7 +1,7 @@
 // @flow
 
 import React from 'react';
-import {fetchQuery} from 'react-relay';
+import {fetchQuery} from 'react-relay/hooks';
 import {useRouter} from 'next/router';
 import {query, PostRoot} from '../../PostRoot';
 import {getStaticPaths as generateStaticPaths} from '../../staticPaths';
@@ -19,7 +19,7 @@ export async function getStaticProps(context: any) {
     return {props: {}};
   }
   const environment = createEnvironment();
-  await fetchQuery(environment, query, {issueNumber});
+  await fetchQuery(environment, query, {issueNumber}).toPromise();
   return {
     revalidate: 600,
     props: {

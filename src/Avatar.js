@@ -158,6 +158,7 @@ export default function Avatar({gitHub, adminLinks: extraAdminLinks}: Props) {
                   hoverIndicator="accent-4"
                   onClick={() => {
                     logout();
+                    setShowOptions(false);
                   }}
                   label={<Text size="small">Sign out</Text>}
                   icon={<Logout size="16px" />}

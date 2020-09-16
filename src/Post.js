@@ -28,7 +28,7 @@ import parse from 'remark-parse';
 import imageUrl from './imageUrl';
 import {query as postRootQuery} from './PostRoot';
 import {query as postsRootQuery} from './PostsRoot';
-import {Contact} from 'grommet-icons';
+import CommentsIcon from './CommentsIcon';
 
 import type {Post_post} from './__generated__/Post_post.graphql';
 
@@ -286,6 +286,7 @@ export const ReactionBar = ({
   const [sourceTooltip, targetTooltip] = useSingleton();
   const [sourceAdd, targetAdd] = useSingleton();
   const {loginStatus, login} = React.useContext(UserContext);
+
   const isLoggedIn = loginStatus === 'logged-in';
 
   const usedReactions = (reactionGroups || []).filter(
@@ -431,6 +432,7 @@ export const ReactionBar = ({
         <Box direction="row" wrap={true}>
           <Link as={commentsInfo.as} href={commentsInfo.href}>
             <button
+              title={commentsInfo.count ? 'View comments' : 'Leave a comment'}
               style={{
                 cursor: 'pointer',
                 outline: 'none',
@@ -445,12 +447,7 @@ export const ReactionBar = ({
                   display: 'flex',
                   alignItems: 'center',
                 }}>
-                <Text
-                  title={
-                    commentsInfo.count ? 'View comments' : 'Leave a comment'
-                  }>
-                  <Contact strokeWidth="1" width="12" />{' '}
-                </Text>
+                <CommentsIcon width="12" />
               </span>
             </button>
           </Link>
@@ -527,6 +524,25 @@ export const Post = ({relay, post, context}: Props) => {
   const environment = useRelayEnvironment();
   const postDate = React.useMemo(() => computePostDate(post), [post]);
   const number = post.number;
+
+  const {loginStatus} = React.useContext(UserContext);
+  const lastLoginStatus = React.useRef(loginStatus);
+
+  React.useEffect(() => {
+    if (
+      lastLoginStatus.current === 'logged-out' &&
+      loginStatus === 'logged-in'
+    ) {
+      // Refetch post if we log in to reset `viewerHasReacted` and friends
+      loadQuery.loadQuery(
+        environment,
+        postRootQuery,
+        {issueNumber: number},
+        {fetchPolicy: 'network-only'},
+      );
+    }
+    lastLoginStatus.current = loginStatus;
+  }, [loginStatus]);
 
   // Primitive preloading.
   // Ideally, we would be able to replace nextjs' preloading logic with our own
