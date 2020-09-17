@@ -27,6 +27,15 @@ function removeTrailingSlash(s: ?string): string {
   return s;
 }
 
+if (
+  !process.env.NEXT_PUBLIC_SITE_HOSTNAME &&
+  process.env.NODE_ENV === 'production'
+) {
+  console.warn(
+    'Missing NEXT_PUBLIC_SITE_HOSTNAME environment variable. OpenGraph preview images will be disabled.',
+  );
+}
+
 const config: Config = {
   // Owner of the repo that OneBlog should pull issues from
   repoOwner: ensureEnv(

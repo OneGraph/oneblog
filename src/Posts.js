@@ -7,6 +7,8 @@ import Post from './Post';
 import type {Posts_repository} from './__generated__/Posts_repository.graphql';
 import LoadingSpinner from './loadingSpinner';
 import {Box} from 'grommet/components/Box';
+import {useInView} from 'react-intersection-observer';
+import 'intersection-observer';
 
 type Props = {|
   relay: RelayPaginationProp,
@@ -16,42 +18,33 @@ type Props = {|
 // TODO: pagination. Can do pages or infinite scroll
 const Posts = ({relay, repository}: Props) => {
   const [isLoading, setIsLoading] = React.useState(false);
-  const scheduledRef = React.useRef(false);
-  const handleScroll = React.useCallback(() => {
-    if (!scheduledRef.current) {
-      scheduledRef.current = true;
-      window.requestAnimationFrame(() => {
-        scheduledRef.current = false;
-        if (
-          window.innerHeight + (document.documentElement?.scrollTop ?? 0) >=
-          (document.documentElement?.offsetHeight || 0) - 500
-        ) {
-          if (!isLoading && !relay.isLoading() && relay.hasMore()) {
-            setIsLoading(true);
-            relay.loadMore(10, x => {
-              setIsLoading(false);
-            });
-          }
-        }
+  const [inViewRef, inView] = useInView({threshold: 0});
+
+  React.useEffect(() => {
+    if (inView && !isLoading && !relay.isLoading() && relay.hasMore()) {
+      setIsLoading(true);
+      relay.loadMore(10, x => {
+        setIsLoading(false);
       });
     }
-  }, [relay, isLoading, setIsLoading]);
-  React.useEffect(() => {
-    window.addEventListener('scroll', handleScroll);
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-    };
-  }, [handleScroll]);
+  }, [relay, isLoading, setIsLoading, inView]);
 
-  const issues = repository.issues.edges || [];
+  const issues = [];
+  for (const edge of repository.issues.edges || []) {
+    if (edge && edge.node) {
+      issues.push(edge.node);
+    }
+  }
 
   return (
     <Box>
-      {issues.map((e, i) =>
-        e && e.node ? (
-          <Post key={e.node.id} context="list" post={e.node} />
-        ) : null,
-      )}
+      {issues.map((node, i) => (
+        <div
+          ref={!isLoading && i === issues.length - 1 ? inViewRef : null}
+          key={node.id}>
+          <Post context="list" post={node} />
+        </div>
+      ))}
       {isLoading ? (
         <Box
           align="center"

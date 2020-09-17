@@ -4,16 +4,26 @@ import React from 'react';
 import NextHead from 'next/head';
 import config from './config';
 
-function Head({title, imageUrl}: {title?: ?string, imageUrl?: ?string}) {
-  const titleProp = title ? `${title} - ${config.title}` : config.title;
+function Head() {
   return (
     <NextHead>
-      <title>{titleProp}</title>
+      <title>{config.title}</title>
       {config.description ? (
-        <meta name="description" content={config.description} />
+        <meta
+          key="description"
+          name="description"
+          content={config.description}
+        />
+      ) : null}
+      {config.description ? (
+        <meta
+          key="og:description"
+          name="og:description"
+          content={config.description}
+        />
       ) : null}
       <meta charSet="utf-8" />
-      <meta property="og:title" content={titleProp} />
+      <meta key="og:title" property="og:title" content={config.title} />
       <link rel="shortcut icon" href="/favicon.ico" />
       <link
         rel="alternate"
@@ -30,7 +40,6 @@ function Head({title, imageUrl}: {title?: ?string, imageUrl?: ?string}) {
 
       <meta name="viewport" content="width=device-width, initial-scale=1" />
       <meta name="theme-color" content="#000000" />
-      {imageUrl ? <meta property="og:image" content={imageUrl} /> : null}
     </NextHead>
   );
 }

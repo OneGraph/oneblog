@@ -23,12 +23,11 @@ import {Text} from 'grommet/components/Text';
 import UserContext from './UserContext';
 import {lowerCase} from 'lower-case';
 import {sentenceCase} from 'sentence-case';
-import unified from 'unified';
-import parse from 'remark-parse';
 import imageUrl from './imageUrl';
 import {query as postRootQuery} from './PostRoot';
 import {query as postsRootQuery} from './PostsRoot';
 import CommentsIcon from './CommentsIcon';
+import parseMarkdown from './lib/parseMarkdown';
 
 import type {Post_post} from './__generated__/Post_post.graphql';
 
@@ -483,8 +482,6 @@ export function postPath({
   }`;
 }
 
-const markdownParser = unified().use(parse);
-
 function visitBackmatter(node, fn) {
   if (node.type === 'code' && node.lang === 'backmatter') {
     fn(node);
@@ -498,7 +495,7 @@ function visitBackmatter(node, fn) {
 
 function postBackmatter(post) {
   const backmatter = {};
-  const ast = markdownParser.parse(post.body);
+  const ast = parseMarkdown(post.body);
   visitBackmatter(ast, node => {
     try {
       Object.assign(backmatter, JSON.parse(node.value));

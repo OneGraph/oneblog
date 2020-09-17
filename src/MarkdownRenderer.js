@@ -16,11 +16,10 @@ import emoji from './emoji';
 
 type SyntaxHighlighter = any;
 
-type Props = {
+type Props = {|
   source: string,
-  escapeHtml: boolean,
   SyntaxHighlighter?: ?SyntaxHighlighter,
-};
+|};
 
 class CodeBlock extends React.PureComponent<
   {
@@ -129,9 +128,7 @@ function P(props) {
 
 function ParagraphWrapper(props) {
   const size = React.useContext(ResponsiveContext);
-  if (typeof window === 'undefined') {
-    return <P {...props} />;
-  }
+
   const isLink =
     props.children &&
     props.children.length === 1 &&
@@ -154,7 +151,7 @@ function ParagraphWrapper(props) {
           renderWrap={x => (
             // Don't try to center on mobile -- bug with twitter embed will cause it to shift to the right
             <Box
-              margin={{vertical: 'large'}}
+              margin={{vertical: 'medium'}}
               align={size === 'small' ? null : 'center'}>
               {x}
             </Box>
@@ -166,10 +163,6 @@ function ParagraphWrapper(props) {
 
   return <P {...props} />;
 }
-
-const parseHtml = htmlParser({
-  isValidNode: node => node.type !== 'script',
-});
 
 export function emojify(s: string): string {
   let startIndex = s.indexOf(':');
@@ -241,13 +234,12 @@ const defaultRenderers = ({SyntaxHighlighter}) => ({
 
 export default class MarkdownRenderer extends React.PureComponent<Props> {
   render() {
-    const {escapeHtml = true, SyntaxHighlighter} = this.props;
+    const {SyntaxHighlighter} = this.props;
     return (
       <ReactMarkdown
-        escapeHtml={escapeHtml}
+        escapeHtml={true}
         source={this.props.source}
         renderers={defaultRenderers({SyntaxHighlighter})}
-        astPlugins={this.props.escapeHtml ? [parseHtml] : []}
       />
     );
   }

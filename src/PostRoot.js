@@ -9,9 +9,10 @@ import {Github} from 'grommet-icons/icons/Github';
 import Comments from './Comments';
 import Post from './Post';
 import ErrorBox from './ErrorBox';
-import Head from './Head';
+import Head from 'next/head';
 import config from './config';
 import Attribution from './Attribution';
+import parseMarkdown from './lib/parseMarkdown';
 
 import type {
   PostRoot_PostQuery,
@@ -49,6 +50,7 @@ export const query = graphql`
           title
           id
           number
+          body
           ...Post_post
           ...Comments_post
         }
@@ -56,6 +58,32 @@ export const query = graphql`
     }
   }
 `;
+
+function textOfAst(node) {
+  if (node.type === 'text') {
+    return node.value.trim();
+  } else if (node.children && node.children.length) {
+    const texts = [];
+    for (const text of node.children.map(textOfAst)) {
+      if (text) {
+        texts.push(text);
+      }
+    }
+    return texts.join(' ');
+  } else {
+    return '';
+  }
+}
+
+function buildDescription(body) {
+  const ast = parseMarkdown(body);
+  const text = textOfAst(ast);
+  if (text.length <= 200) {
+    return text;
+  } else {
+    return `${text.slice(0, 197)}...`;
+  }
+}
 
 export const PostRoot = ({issueNumber}: {issueNumber: number}) => {
   const data: ?PostRoot_PostQueryResponse = useLazyLoadQuery<PostRoot_PostQuery>(
@@ -79,12 +107,21 @@ export const PostRoot = ({issueNumber}: {issueNumber: number}) => {
   ) {
     return <ErrorBox error={new Error('Missing post.')} />;
   } else {
+    const title = `${post.title} - ${config.title}`;
+    const description = buildDescription(post.body);
     return (
       <>
-        <Head
-          title={post.title}
-          imageUrl={`${config.siteHostname}/api/og-image/${post.number}`}
-        />
+        <Head>
+          <title>{title}</title>
+          <meta key="og:title" property="og:title" content={title} />
+        </Head>
+        {config.siteHostname ? (
+          <meta
+            key="og:image"
+            property="og:image"
+            content={`${config.siteHostname}/api/og-image/${post.number}`}
+          />
+        ) : null}
         <Header
           gitHub={gitHub}
           adminLinks={[
@@ -94,6 +131,12 @@ export const PostRoot = ({issueNumber}: {issueNumber: number}) => {
               icon: <Github size="16px" />,
             },
           ]}
+        />
+        <meta key="description" property="description" content={description} />
+        <meta
+          key="og:description"
+          property="og:description"
+          content={description}
         />
         <Post context="details" post={post} />
         <Comments post={post} postId={post.id} viewer={gitHub.viewer} />

@@ -7202,6 +7202,11 @@ internal-slot@^1.0.2:
     has "^1.0.3"
     side-channel "^1.0.2"
 
+intersection-observer@^0.11.0:
+  version "0.11.0"
+  resolved "https://registry.yarnpkg.com/intersection-observer/-/intersection-observer-0.11.0.tgz#f4ea067070326f68393ee161cc0a2ca4c0040c6f"
+  integrity sha512-KZArj2QVnmdud9zTpKf279m2bbGfG+4/kn16UU0NL3pTVl52ZHiJ9IRNSsnn6jaHrL9EGLFM5eWjTx2fz/+zoQ==
+
 invariant@^2.2.2, invariant@^2.2.4:
   version "2.2.4"
   resolved "https://registry.yarnpkg.com/invariant/-/invariant-2.2.4.tgz#610f3c92c9359ce1db616e538008d23ff35158e6"
@@ -11296,6 +11301,11 @@ react-instagram-embed@^1.5.0:
   integrity sha512-8HGBHjK4k6xJjActGLll22TCE8G9GI6aIlb7r8UJB9MYMnJpk15SuAQOoAeujb4pkOQGlWgfU3TW7R+97dp8mg==
   dependencies:
     query-string "^5.1.1"
+
+react-intersection-observer@^8.28.5:
+  version "8.28.5"
+  resolved "https://registry.yarnpkg.com/react-intersection-observer/-/react-intersection-observer-8.28.5.tgz#4c44c42740f7a28cb1b3a7182c74b4f05bbe9b67"
+  integrity sha512-Y5oi1+6b8QBvTTczmOYHEAcQ21AU/at5joZUf8L3cNWwnB5fScV0on5I/PiHczHeq9YGG/abXpkjFvaSJIB0Pg==
 
 react-is@16.13.1:
   version "16.13.1"
