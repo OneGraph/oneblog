@@ -1,3 +1,4 @@
+/* eslint-disable jsx-a11y/anchor-is-valid */
 // @flow
 
 import * as React from 'react';
@@ -273,7 +274,7 @@ export const ReactionBar = ({
   reactionGroups: *,
   subjectId: string,
   pad?: string,
-  commentsInfo?: {
+  commentsInfo?: ?{
     href: string,
     as: string,
     count: number,
@@ -288,25 +289,23 @@ export const ReactionBar = ({
 
   const isLoggedIn = loginStatus === 'logged-in';
 
-  const usedReactions = (reactionGroups || []).filter(
-    g => g.users.totalCount > 0,
-  );
+  const usedReactions = (reactionGroups || [])
+    .filter(g => g.users.totalCount > 0)
+    .sort((a, b) => b.users.totalCount - a.users.totalCount);
 
   return (
     <Box
       pad={pad || 'xsmall'}
       direction="row"
-      wrap={true}
       justify="between"
       border={{size: 'xsmall', side: 'top', color: 'rgba(0,0,0,0.1)'}}>
-      <Box direction="row" wrap={true}>
+      <Box direction="row" wrap={false} style={{overflowY: 'scroll'}}>
         <Tippy
           singleton={sourceTooltip}
           arrow={false}
           theme="light-border"
           trigger="mouseenter focus click"
           placement="bottom"
-          theme="light-border"
           inertia={true}
           interactive={true}
           interactiveBorder={10}
@@ -482,7 +481,7 @@ export function postPath({
   }`;
 }
 
-function visitBackmatter(node, fn) {
+function visitBackmatter(node: any, fn) {
   if (node.type === 'code' && node.lang === 'backmatter') {
     fn(node);
   }
@@ -539,7 +538,7 @@ export const Post = ({relay, post, context}: Props) => {
       );
     }
     lastLoginStatus.current = loginStatus;
-  }, [loginStatus]);
+  }, [environment, loginStatus, number]);
 
   // Primitive preloading.
   // Ideally, we would be able to replace nextjs' preloading logic with our own
@@ -616,7 +615,7 @@ export const Post = ({relay, post, context}: Props) => {
           </Box>
         ) : null}
         <Box direction="row" justify="between"></Box>
-        <MarkdownRenderer escapeHtml={true} source={post.body} />
+        <MarkdownRenderer source={post.body} />
       </Box>
       <ReactionBar
         relay={relay}

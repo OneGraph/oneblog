@@ -90,7 +90,9 @@ function CommentInput({
         }
         const count = post.getLinkedRecord('comments')?.getValue('totalCount');
         if (Number.isInteger(count)) {
-          post.getLinkedRecord('comments').setValue(count + 1, 'totalCount');
+          // $FlowFixMe: count has been checked by isInteger
+          const newCount = count + 1;
+          post.getLinkedRecord('comments')?.setValue(newCount, 'totalCount');
         }
       }
     };
@@ -161,7 +163,6 @@ function CommentInput({
               <Tab title={<Text size="small">Preview</Text>}>
                 <Box pad="small" height={{min: 'small'}}>
                   <MarkdownRenderer
-                    escapeHtml={true}
                     source={comment.trim() ? comment : 'Nothing to preview.'}
                   />
                 </Box>

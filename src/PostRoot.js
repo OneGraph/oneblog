@@ -59,7 +59,7 @@ export const query = graphql`
   }
 `;
 
-function textOfAst(node) {
+function textOfAst(node: any): string {
   if (node.type === 'text') {
     return node.value.trim();
   } else if (node.children && node.children.length) {

@@ -11,7 +11,6 @@ import {RssMarkdownRenderer} from './MarkdownRenderer';
 import {ServerStyleSheet} from 'styled-components';
 import inlineCss from 'inline-css/lib/inline-css';
 import {Grommet} from 'grommet/components/Grommet';
-import {Box} from 'grommet/components/Box';
 import appCss from './App.css';
 import githubStyle from 'react-syntax-highlighter/dist/cjs/styles/hljs/github';
 import ReactSyntaxHighlighter from 'react-syntax-highlighter/dist/cjs/default-highlight';
@@ -58,7 +57,6 @@ function renderPostHtml(post) {
           <RssMarkdownRenderer
             source={post.body}
             SyntaxHighlighter={SyntaxHighlighter}
-            escapeHtml={true}
           />
         </div>
       </Grommet>,
@@ -120,7 +118,7 @@ export async function buildFeed({
   for (const post of posts) {
     if (post) {
       const content = renderPostHtml(post);
-      const body = feed.addItem({
+      feed.addItem({
         title: post.title,
         id: post.id,
         link: `${baseUrl}${postPath({post})}`,

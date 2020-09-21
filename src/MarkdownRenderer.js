@@ -3,7 +3,6 @@
 import React from 'react';
 import ReactMarkdown from 'react-markdown/with-html';
 import Embed from 'react-embed';
-import htmlParser from 'react-markdown/plugins/html-parser';
 import GifPlayer from './GifPlayer';
 import imageUrl from './imageUrl';
 import {Anchor} from 'grommet/components/Anchor';
@@ -262,7 +261,6 @@ export class RssMarkdownRenderer extends React.PureComponent<Props> {
             return <Heading level={level + 2} {...restProps} />;
           },
         }}
-        astPlugins={this.props.escapeHtml ? [parseHtml] : []}
       />
     );
   }

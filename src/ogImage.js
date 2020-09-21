@@ -43,7 +43,7 @@ const postQuery = graphql`
 const markdownParser = unified().use(parse);
 
 function imageFromAst(
-  node,
+  node: any,
 ): ?({type: 'url', url: string} | {type: 'code', lang: ?string, code: string}) {
   if (node.type === 'image' && node.url) {
     return {type: 'url', url: node.url};

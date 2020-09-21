@@ -27,7 +27,7 @@ function AppComponent({
     if (isIndexPage && indexPageScrollPos.current) {
       window.scrollTo(0, indexPageScrollPos.current);
     }
-  }, [isIndexPage]);
+  }, [isIndexPage, indexPageScrollPos]);
 
   let page;
   if (!isIndexPage || !indexPageMemo.current) {
@@ -72,19 +72,22 @@ function App({Component, pageProps}: any) {
 
   const isIndexPage = router.pathname === '/';
 
-  const handleRouteChangeStart = url => {
-    window.history.scrollRestoration = url === '/' ? 'manual' : 'auto';
-    if (isIndexPage) {
-      indexPageScrollPos.current = window.scrollY;
-    }
-  };
+  const handleRouteChangeStart = React.useCallback(
+    url => {
+      window.history.scrollRestoration = url === '/' ? 'manual' : 'auto';
+      if (isIndexPage) {
+        indexPageScrollPos.current = window.scrollY;
+      }
+    },
+    [isIndexPage, indexPageScrollPos],
+  );
 
   React.useEffect(() => {
     router.events.on('routeChangeStart', handleRouteChangeStart);
     return () => {
       router.events.off('routeChangeStart', handleRouteChangeStart);
     };
-  }, [isIndexPage]);
+  }, [isIndexPage, router, handleRouteChangeStart]);
 
   const notificationContext = React.useContext(NotificationContext);
 
@@ -106,7 +109,7 @@ function App({Component, pageProps}: any) {
         console.error('Error checking login status', e);
         setLoginStatus('error');
       });
-  }, []);
+  }, [environment]);
 
   const login = () => {
     onegraphAuth.login('github').then(() =>
@@ -115,7 +118,6 @@ function App({Component, pageProps}: any) {
         fetchQuery(environment, loginQuery, {})
           .toPromise()
           .catch(e => null),
-        ,
       ]).then(([isLoggedIn, x]) => {
         setLoginStatus(isLoggedIn ? 'logged-in' : 'logged-out');
       }),
