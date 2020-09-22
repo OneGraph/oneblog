@@ -34,6 +34,14 @@ module.exports = () => {
           source: '/feed.:ext',
           destination: '/api/feed/:ext',
         },
+        {
+          source: '/sitemap.xml',
+          destination: '/api/sitemap',
+        },
+        {
+          source: '/robots.txt',
+          destination: '/api/robots',
+        },
       ];
     },
   };

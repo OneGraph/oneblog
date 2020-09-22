@@ -28,6 +28,7 @@
     "react-syntax-highlighter": "^11.0.2",
     "relay-runtime": "^10.0.1",
     "sentence-case": "^3.0.3",
+    "sitemap": "^6.3.2",
     "styled-components": "^5.0.0"
   },
   "resolutions": {
