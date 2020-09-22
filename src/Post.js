@@ -580,17 +580,24 @@ export const Post = ({relay, post, context}: Props) => {
 
         {authors.length > 0 ? (
           <Box direction="row" gap="medium">
-            {authors.map((node, i) =>
-              node ? (
+            {authors.map((node, i) => {
+              if (!node) {
+                return null;
+              }
+              const url = node.twitterUsername
+                ? `https://twitter.com/${twitterUsername}`
+                : node.websiteUrl || node.url;
+              const name = node.name || node.twitterUsername || node.login;
+              return (
                 <Box
                   key={node.id}
                   align="center"
                   direction="row"
                   margin={{vertical: 'medium'}}>
-                  <a href={node.url}>
+                  <a href={url}>
                     <Box>
                       <img
-                        alt={node.name}
+                        alt={name}
                         src={imageUrl({src: node.avatarUrl})}
                         style={{
                           width: 48,
@@ -602,8 +609,8 @@ export const Post = ({relay, post, context}: Props) => {
                     </Box>
                   </a>
                   <Box>
-                    <a href={node.url}>
-                      <Text size="small">{node.name || node.login}</Text>
+                    <a href={url}>
+                      <Text size="small">{name}</Text>
                     </a>
                     <Text
                       size="xsmall"
@@ -612,8 +619,8 @@ export const Post = ({relay, post, context}: Props) => {
                     </Text>
                   </Box>
                 </Box>
-              ) : null,
-            )}
+              );
+            })}
           </Box>
         ) : null}
         <Box direction="row" justify="between"></Box>
@@ -653,6 +660,8 @@ export default createFragmentContainer(Post, {
           login
           avatarUrl(size: 96)
           url
+          twitterUsername
+          websiteUrl
         }
       }
       reactionGroups {

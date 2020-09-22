@@ -114,14 +114,26 @@ export const PostRoot = ({issueNumber}: {issueNumber: number}) => {
         <Head>
           <title>{title}</title>
           <meta key="og:title" property="og:title" content={title} />
-        </Head>
-        {config.siteHostname ? (
+
+          {config.siteHostname ? (
+            <meta
+              key="og:image"
+              property="og:image"
+              content={`${config.siteHostname}/api/og-image/${post.number}`}
+            />
+          ) : null}
+          <meta key="type" property="og:type" content="article" />
           <meta
-            key="og:image"
-            property="og:image"
-            content={`${config.siteHostname}/api/og-image/${post.number}`}
+            key="description"
+            property="description"
+            content={description}
           />
-        ) : null}
+          <meta
+            key="og:description"
+            property="og:description"
+            content={description}
+          />
+        </Head>
         <Header
           gitHub={gitHub}
           adminLinks={[
@@ -131,12 +143,6 @@ export const PostRoot = ({issueNumber}: {issueNumber: number}) => {
               icon: <Github size="16px" />,
             },
           ]}
-        />
-        <meta key="description" property="description" content={description} />
-        <meta
-          key="og:description"
-          property="og:description"
-          content={description}
         />
         <Post context="details" post={post} />
         <Comments post={post} postId={post.id} viewer={gitHub.viewer} />
