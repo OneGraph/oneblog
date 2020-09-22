@@ -9,6 +9,7 @@ export type Config = {
   defaultLogin: ?string,
   siteHostname: string,
   gaTrackingId: ?string,
+  vercelUrl: ?string,
 };
 
 function ensureEnv(s, variable: string): string {
@@ -59,6 +60,9 @@ const config: Config = {
   siteHostname: removeTrailingSlash(process.env.NEXT_PUBLIC_SITE_HOSTNAME),
   hideAttribution: process.env.NEXT_PUBLIC_HIDE_ATTRIBUTION,
   gaTrackingId: process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_TRACKING_ID,
+  vercelUrl: process.env.NEXT_PUBLIC_VERCEL_URL
+    ? removeTrailingSlash(`https://${process.env.NEXT_PUBLIC_VERCEL_URL}`)
+    : null,
 };
 
 export default config;

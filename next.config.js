@@ -5,9 +5,8 @@ module.exports = () => {
       NEXT_PUBLIC_SITE_HOSTNAME:
         process.env.NEXT_PUBLIC_SITE_HOSTNAME ||
         process.env.RAZZLE_SITE_HOSTNAME ||
-        process.env.VERCEL_URL
-          ? 'https://' + process.env.VERCEL_URL
-          : null || process.env.URL,
+        process.env.URL,
+      NEXT_PUBLIC_VERCEL_URL: process.env.VERCEL_URL,
       NEXT_PUBLIC_ONEGRAPH_APP_ID:
         process.env.NEXT_PUBLIC_ONEGRAPH_APP_ID ||
         process.env.RAZZLE_ONEGRAPH_APP_ID,

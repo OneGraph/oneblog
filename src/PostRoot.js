@@ -115,11 +115,14 @@ export const PostRoot = ({issueNumber}: {issueNumber: number}) => {
           <title>{title}</title>
           <meta key="og:title" property="og:title" content={title} />
 
-          {config.siteHostname ? (
+          {config.siteHostname || config.vercelUrl ? (
             <meta
               key="og:image"
               property="og:image"
-              content={`${config.siteHostname}/api/og-image/${post.number}`}
+              // n.b. Ok to use vercel url for og-image as a fallback, but
+              // careful not to use it as a canonical url
+              content={`${config.siteHostname ||
+                config.vercelUrl}/api/og-image/${post.number}`}
             />
           ) : null}
           <meta key="type" property="og:type" content="article" />
