@@ -8,6 +8,7 @@ export type Config = {
   description: ?string,
   defaultLogin: ?string,
   siteHostname: string,
+  gaTrackingId: ?string,
 };
 
 function ensureEnv(s, variable: string): string {
@@ -57,6 +58,7 @@ const config: Config = {
   defaultLogin: process.env.NEXT_PUBLIC_DEFAULT_GITHUB_LOGIN,
   siteHostname: removeTrailingSlash(process.env.NEXT_PUBLIC_SITE_HOSTNAME),
   hideAttribution: process.env.NEXT_PUBLIC_HIDE_ATTRIBUTION,
+  gaTrackingId: process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_TRACKING_ID,
 };
 
 export default config;

@@ -21,6 +21,9 @@ module.exports = () => {
         process.env.NEXT_PUBLIC_TITLE || process.env.RAZZLE_TITLE,
       NEXT_PUBLIC_DESCRIPTION:
         process.env.NEXT_PUBLIC_DESCRIPTION || process.env.RAZZLE_DESCRIPTION,
+      NEXT_PUBLIC_GOOGLE_ANALYTICS_TRACKING_ID:
+        process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_TRACKING_ID ||
+        process.env.RAZZLE_GOOGLE_ANALYTICS_TRACKING_ID,
     },
     experimental: {
       reactMode: 'concurrent',

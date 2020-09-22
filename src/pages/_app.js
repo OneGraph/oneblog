@@ -15,6 +15,7 @@ import Head from '../Head';
 import ErrorBoundary from '../ErrorBoundary';
 import {useRouter} from 'next/router';
 import {query as loginQuery} from '../LoginQuery';
+import * as trk from '../lib/trk';
 
 function AppComponent({
   Component,
@@ -78,6 +79,7 @@ function App({Component, pageProps}: any) {
       if (isIndexPage) {
         indexPageScrollPos.current = window.scrollY;
       }
+      trk.pageview(url);
     },
     [isIndexPage, indexPageScrollPos],
   );
@@ -155,6 +157,18 @@ function App({Component, pageProps}: any) {
       </UserContext.Provider>
     </RelayEnvironmentProvider>
   );
+}
+
+// n.b. this won't be triggered b/c we're using concurrent mode
+// Open issue here: https://github.com/vercel/next.js/issues/17288
+export function reportWebVitals({id, name, label, value}) {
+  trk.event({
+    action: name,
+    category: label === 'web-vital' ? 'Web Vitals' : 'Next.js custom metric',
+    value: Math.round(name === 'CLS' ? value * 1000 : value), // values must be integers,
+    label: id, // id unique to current page load
+    nonInteraction: true, // avoids affecting bounce rate.
+  });
 }
 
 function AppWrapper({Component, pageProps}: any) {
