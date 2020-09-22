@@ -10,7 +10,7 @@ export default function Attribution() {
     <Box pad={{bottom: 'small'}} align="center">
       <Text size="xsmall">
         Powered by{' '}
-        <a href="https://github.com/OneGraph/oneblog" target="_blank">
+        <a href="https://www.onegraph.com/oneblog" target="_blank">
           OneBlog
         </a>{' '}
         with{' '}

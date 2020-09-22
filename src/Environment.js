@@ -7,6 +7,7 @@ import config from './config';
 import OneGraphAuth from 'onegraph-auth';
 
 import type {RecordMap} from 'relay-runtime/store/RelayStoreTypes';
+import type {NotificationContextType} from './Notifications';
 
 class AuthDummy {
   isLoggedIn(x: any) {
@@ -56,7 +57,8 @@ async function checkifCorsRequired(): Promise<boolean> {
         config.appId,
     );
     const json = await response.json();
-    return !json.allowed;
+    // Default to false on any error
+    return json.allowed === false;
   } catch (e) {
     console.error('Error checking if CORS required');
     return false;
@@ -74,7 +76,7 @@ function maybeNullOutQuery(json) {
   return json;
 }
 
-type FetchQueryOpts = {onCorsError?: ?() => void};
+type FetchQueryOpts = {notificationContext: NotificationContextType};
 
 function createFetchQuery(opts: ?FetchQueryOpts) {
   return async function fetchQuery(operation, rawVariables, cacheConfig) {
@@ -99,6 +101,8 @@ function createFetchQuery(opts: ?FetchQueryOpts) {
         requestBody,
       });
 
+      opts?.notificationContext?.clearCorsViolation();
+
       if (json.errors && Object.keys(onegraphAuth.authHeaders()).length) {
         // Clear auth on any error and try again
         onegraphAuth.destroy();
@@ -117,9 +121,9 @@ function createFetchQuery(opts: ?FetchQueryOpts) {
         if (isCorsRequired) {
           const error = new Error('Missing CORS origin.');
           (error: any).type = 'missing-cors';
-          if (opts?.onCorsError) {
-            opts.onCorsError();
-          }
+
+          opts?.notificationContext?.setCorsViolation();
+
           throw error;
         }
       }

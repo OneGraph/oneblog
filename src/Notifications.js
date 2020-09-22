@@ -11,7 +11,14 @@ import {StatusGood} from 'grommet-icons/icons/StatusGood';
 import {FormClose} from 'grommet-icons/icons/FormClose';
 import config from './config';
 
-export const NotificationContext = React.createContext<*>({
+export type NotificationContextType = {
+  error: string => void,
+  success: string => void,
+  setCorsViolation: () => void,
+  clearCorsViolation: () => void,
+};
+
+export const NotificationContext = React.createContext<NotificationContextType>({
   error: (msg: string) => undefined,
   success: (msg: string) => undefined,
   setCorsViolation: () => undefined,

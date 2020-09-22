@@ -92,7 +92,7 @@ function App({Component, pageProps}: any) {
   const notificationContext = React.useContext(NotificationContext);
 
   const environment = useEnvironment(pageProps.initialRecords, {
-    onCorsError: () => notificationContext.setCorsViolation(),
+    notificationContext,
   });
 
   React.useEffect(() => {
