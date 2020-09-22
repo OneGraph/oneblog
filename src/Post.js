@@ -299,7 +299,7 @@ export const ReactionBar = ({
       direction="row"
       justify="between"
       border={{size: 'xsmall', side: 'top', color: 'rgba(0,0,0,0.1)'}}>
-      <Box direction="row" wrap={false} style={{overflowY: 'scroll'}}>
+      <Box direction="row">
         <Tippy
           singleton={sourceTooltip}
           arrow={false}
@@ -373,58 +373,60 @@ export const ReactionBar = ({
             />
           </span>
         </Tippy>
-        {usedReactions.map(g => {
-          const total = g.users.totalCount;
-          const reactors = [];
-          if (isLoggedIn && g.viewerHasReacted) {
-            reactors.push('You');
-          }
-          for (const user of g.users.nodes || []) {
-            if (
-              user &&
-              (!isLoggedIn || !user.isViewer) &&
-              (user.name || user.login)
-            ) {
-              reactors.push(user.name || user.login);
+        <Box direction="row" style={{overflowY: 'scroll'}}>
+          {usedReactions.map(g => {
+            const total = g.users.totalCount;
+            const reactors = [];
+            if (isLoggedIn && g.viewerHasReacted) {
+              reactors.push('You');
             }
-          }
-          if (total > 11) {
-            reactors.push(`${total - 11} more`);
-          }
+            for (const user of g.users.nodes || []) {
+              if (
+                user &&
+                (!isLoggedIn || !user.isViewer) &&
+                (user.name || user.login)
+              ) {
+                reactors.push(user.name || user.login);
+              }
+            }
+            if (total > 11) {
+              reactors.push(`${total - 11} more`);
+            }
 
-          const reactorsSentence = [
-            ...reactors.slice(0, reactors.length - 2),
-            reactors.slice(-2).join(reactors.length > 2 ? ', and ' : ' and '),
-          ].join(', ');
+            const reactorsSentence = [
+              ...reactors.slice(0, reactors.length - 2),
+              reactors.slice(-2).join(reactors.length > 2 ? ', and ' : ' and '),
+            ].join(', ');
 
-          return (
-            <Tippy
-              singleton={targetTooltip}
-              key={g.content}
-              content={
-                <Box pad="xsmall">
-                  <Text size="xsmall">
-                    {reactorsSentence} reacted with{' '}
-                    {lowerCase(sentenceCase(g.content))} emoji
-                  </Text>
-                </Box>
-              }>
-              <span
+            return (
+              <Tippy
+                singleton={targetTooltip}
                 key={g.content}
-                style={{
-                  padding: '0 16px',
-                  borderLeft: '1px solid rgba(0,0,0,0.12)',
-                  display: 'flex',
-                  alignItems: 'center',
-                }}>
-                <Text>{emojiForContent(g.content)} </Text>
-                <Text size="small" style={{marginLeft: 8}}>
-                  {g.users.totalCount}
-                </Text>
-              </span>
-            </Tippy>
-          );
-        })}
+                content={
+                  <Box pad="xsmall">
+                    <Text size="xsmall">
+                      {reactorsSentence} reacted with{' '}
+                      {lowerCase(sentenceCase(g.content))} emoji
+                    </Text>
+                  </Box>
+                }>
+                <span
+                  key={g.content}
+                  style={{
+                    padding: '0 16px',
+                    borderLeft: '1px solid rgba(0,0,0,0.12)',
+                    display: 'flex',
+                    alignItems: 'center',
+                  }}>
+                  <Text>{emojiForContent(g.content)} </Text>
+                  <Text size="small" style={{marginLeft: 8}}>
+                    {g.users.totalCount}
+                  </Text>
+                </span>
+              </Tippy>
+            );
+          })}
+        </Box>
       </Box>
       {commentsInfo ? (
         <Box direction="row" wrap={true}>
