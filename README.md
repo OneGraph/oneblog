@@ -1,8 +1,8 @@
 # Build a blog powered by GitHub issues
 
-This repo powers the OneGraph Product Updates blog at [onegraph.com/changelog](https://www.onegraph.com/changelog).
+This repo allows you to generate a blog from GitHub issues on a repo. It powers the [OneGraph Product Updates blog](https://www.onegraph.com/changelog), [Stepan Parunashvili's blog](https://stopa.io/), [bdougie.live](https://www.bdougie.live/), and more.
 
-All of the posts on the changelog are stored as [issues on the OneGraph changelog repo](https://github.com/OneGraph/onegraph-changelog/issues?utf8=%E2%9C%93&q=is%3Aissue+label%3Apublish+).
+All of the posts are stored as issues on the repo (e.g. [OneGraph/onegraph-changelog](https://github.com/OneGraph/onegraph-changelog/issues?utf8=%E2%9C%93&q=is%3Aissue+label%3Apublish+)).
 
 When you visit the page at [onegraph.com/changelog](https://www.onegraph.com/changelog), a GraphQL query fetches the issues from GitHub via OneGraph's persisted queries and renders them as blog posts.
 
@@ -20,7 +20,7 @@ To create the token that's stored with the persisted query, you'll need to get a
 
 You'll also need to get an API token for OneGraph itself to store persisted queries. Go to the "Persisted queries" tab on the OneGraph dashboard, scroll down, and click "Create token". This will create a scoped token for your app that can create persisted queries on your behalf. Set the token as `OG_DASHBOARD_ACCESS_TOKEN` in `.env`.
 
-Remove the generated files (they're tied to the OneGraph app they were generated with)
+Remove the generated files (they're tied to the OneGraph app they were generated with):
 
 ```
 yarn relay:clean
@@ -63,110 +63,27 @@ The project comes with setups for deploying to Google's Firebase, Zeit's Now, Ne
 
 For each of these, you'll have to add the site that you're deploying to on the CORS origins on the OneGraph dashboard.
 
+### Deploy with Vercel
+
+The project can be deployed with Vercel.
+
+```
+vercel
+```
+
+If you see an error when you visit the site, make sure the site's origin is listed in the CORS origins for your app on the OneGraph dashboard.
+
 ### Deploying with Firebase
 
-The project can use Firebase Hosting for static files and a Firebase Function to do server-side rendering.
-
-There are sample firebase configs at `/firebase.json.example` and `/.firebaserc.example`. Copy those to `/firebase.json` and `/.firebaserc`. You'll want to edit `/.firebaserc` to use your firebase project.
-
-```
-cp firebase.json.example firebase.json
-cp .firebaserc.example .firebaserc
-```
-
-
-Then add `firebase-tools` as a dev dependency.
-
-```
-yarn add --dev firebase-tools
-```
-
-Finally, set engines.node to "10" in the package.json
-
-```diff
--  }
-+  },
-+  "engines": {"node": "10"}
- }
-```
-
-Now you can deploy to firebase.
-
-```
-yarn build
-yarn deploy:firebase
-```
-
-If you see an error when you visit the site, make sure the site's origin is listed in the CORS origins for your app on the OneGraph dashboard.
-
-To see it in action, visit [https://onechangelog.web.app](https://onechangelog.web.app).
-
-### Deploying with Zeit
-
-The project can be deployed with Now v2. There is a sample config at `/now.json.example`. First, copy it to `/now.json`.
-
-```
-cp now.json.example now.json
-```
-
-Then add `now` as a dev dependency
-
-```
-yarn add --dev now
-```
-
-To deploy
-
-```
-yarn build
-yarn deploy:now
-```
-
-If you see an error when you visit the site, make sure the site's origin is listed in the CORS origins for your app on the OneGraph dashboard.
-
-To see it in action, visit [https://onechangelog.now.sh](https://onechangelog.now.sh).
+Please open an issue if you'd like help deploying with Firebase.
 
 ### Deploying with Netlify
 
-The project can be deployed with Netlify and Netlify functions. The config lives in `/netlify.toml` and the functions live in `/netlify-functions`.
-
-To deploy
-
-```
-yarn deploy:netlify
-```
-
-If everything looks good at the preview site, deploy to production
-
-```
-yarn deploy:netlify --prod
-```
-
-If you see an error when you visit the site, make sure the site's origin is listed in the CORS origins for your app on the OneGraph dashboard.
-
-To see it in action, visit [https://onechangelog.netlify.com](https://onechangelog.netlify.com).
+Please open an issue if you'd like help deploying with Netlify.
 
 ### Deploying with Fly.io
 
-The project can be deployed with [Fly.io](https://fly.io). Create a new app at [Fly.io](https://fly.io), then update the `/fly.toml` file to use your app.
-
-You'll need to have the flyctl installed on your machine. Install the cli with
-
-```
-curl https://get.fly.io/flyctl.sh | sh
-```
-
-Then run
-
-```
-yarn deploy:fly
-```
-
-That will build a Docker image and upload it to Fly.io. You do not have to have Docker running on your machine. If it is not running, Fly.io will build the Docker file for you with their hosted builders.
-
-If you see an error when you visit the site, make sure the site's origin is listed in the CORS origins for your app on the OneGraph dashboard.
-
-To see it in action, visit [https://onechangelog.fly.dev](https://onechangelog.fly.dev).
+Please open an issue if you'd like help deploying with Fly.io
 
 ## Project setup
 
@@ -190,12 +107,10 @@ The `@persistedQueryConfiguration` directive is stripped from the query and it i
 
 ### Server
 
-The server uses [Razzle](https://github.com/jaredpalmer/razzle) to allow us to render the content on the server. This helps with SEO and allows people to view the blog with Javascript turned off.
-
-Most of the work for the server-side rendering happens in `/src/server.js`.
+The server uses [Next.js](https://nextjs.org) to allow us to render the content on the server. This helps with SEO and allows people to view the blog with Javascript turned off.
 
 When a request comes in to the server, the server creates a mock Relay environment and prefetches the query for the route using `fetchQuery` from `relay-runtime`. This populates the record source that Relay uses to render.
 
 React renders the app to a string, which is sent to the client.
 
-On the client, React rehydates the app. To prevent Relay from showing a loading state, we inject the serialized record source in a global `window.__RELAY_BOOTSTRAP_DATA__` variable. That data is stored in the environment before Relay makes its first query. The `dataFrom` prop (which will move to `fetchConfig` in the next Relay release) on the QueryRenderer is set to "STORE_THEN_NETWORK" so that it uses the data from the store instead of showing a loading state.
+On the client, React rehydates the app. To prevent Relay from showing a loading state, we inject the serialized record source with `getStaticProps`. That data is stored in the environment before Relay makes its first query. The `fetchPolicy` opt is set to "store-and-network" so that it uses the data from the store instead of showing a loading state.

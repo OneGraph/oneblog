@@ -44,18 +44,14 @@
     "relay:clean": "rm -r src/__generated__",
     "flow": "flow",
     "fetch-schema": "node scripts/fetchSchema.js --path schema.graphql",
-    "deploy": "now",
+    "deploy": "vercel",
     "prettier": "prettier --write \"src/**/*.js\" README.md"
   },
   "eslintConfig": {
     "extends": "react-app"
   },
   "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
+    "production": [">0.2%", "not dead", "not op_mini all"],
     "development": [
       "last 1 chrome version",
       "last 1 firefox version",
@@ -78,7 +74,6 @@
     "flow-bin": "^0.133.0",
     "flow-typed": "^3.2.1",
     "graphql": "^14.4.2",
-    "next-on-netlify": "^2.4.0",
     "prettier": "^1.18.2",
     "razzle": "^3.0.0",
     "relay-compiler": "^8.0.0",
