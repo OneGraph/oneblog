@@ -89,7 +89,8 @@ export const PostRoot = ({issueNumber}: {issueNumber: number}) => {
   const data: ?PostRoot_PostQueryResponse = useLazyLoadQuery<PostRoot_PostQuery>(
     query,
     {issueNumber},
-    {fetchPolicy: 'store-and-network'},
+    // TODO: fill store with dataID for root record from list view so that partial rendering works
+    {fetchPolicy: 'store-and-network', UNSTABLE_renderPolicy: 'partial'},
   );
 
   if (!data) {

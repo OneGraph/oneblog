@@ -1,0 +1,7 @@
+extend type GitHubIssueConnection {
+  isClientFetched: Boolean
+}
+
+extend type GitHubIssue {
+  isClientFetched: Boolean
+}

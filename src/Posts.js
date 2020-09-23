@@ -78,6 +78,7 @@ export default createPaginationContainer(
           orderBy: $orderBy
           labels: ["publish", "Publish"]
         ) @connection(key: "Posts_posts_issues") {
+          isClientFetched @__clientField(handle: "isClientFetched")
           edges {
             node {
               id

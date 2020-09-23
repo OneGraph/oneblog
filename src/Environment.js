@@ -1,12 +1,18 @@
 // @flow
 
 import React from 'react';
-import {Environment, Network, RecordSource, Store} from 'relay-runtime';
+import {
+  Environment,
+  Network,
+  RecordSource,
+  Store,
+  DefaultHandlerProvider,
+} from 'relay-runtime';
 import config from './config';
 
 import OneGraphAuth from 'onegraph-auth';
 
-import type {RecordMap} from 'relay-runtime/store/RelayStoreTypes';
+import type {RecordMap, Handler} from 'relay-runtime/store/RelayStoreTypes';
 import type {NotificationContextType} from './Notifications';
 
 class AuthDummy {
@@ -132,11 +138,31 @@ function createFetchQuery(opts: ?FetchQueryOpts) {
   };
 }
 
+const isClientFetchedHandler = {
+  update(store, payload) {
+    const record = store.get(payload.dataID);
+    if (!record) {
+      return;
+    }
+    record.setValue(typeof window !== 'undefined', payload.handleKey);
+  },
+};
+
+function handlerProvider(handle: string): Handler {
+  switch (handle) {
+    case 'isClientFetched':
+      return isClientFetchedHandler;
+    default:
+      return DefaultHandlerProvider(handle);
+  }
+}
+
 export function createEnvironment(opts?: ?FetchQueryOpts) {
   const recordSource = new RecordSource();
   const store = new Store(recordSource);
   store.holdGC();
   return new Environment({
+    handlerProvider,
     network: Network.create(createFetchQuery(opts)),
     store,
   });
@@ -170,6 +196,7 @@ export function useEnvironment(
   initialRecords: ?RecordMap,
   opts?: ?FetchQueryOpts,
 ) {
+  // TODO: mutate opts
   const store = React.useRef(initEnvironment(initialRecords, opts));
   return store.current;
 }
