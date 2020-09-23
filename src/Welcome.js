@@ -52,7 +52,8 @@ export default function Welcome() {
           If you've written a post, but you don't see it, you request was
           probably served from the cache. OneGraph's persisted queries are
           configured to cache the requests to GitHub for 5 minutes to prevent
-          exceeding the rate limit. You can log in above to bypass the cache.
+          exceeding the rate limit. You can log in above and refresh the page to
+          bypass the cache.
         </p>
       </Box>
     </PostBox>
