@@ -196,7 +196,6 @@ export function useEnvironment(
   initialRecords: ?RecordMap,
   opts?: ?FetchQueryOpts,
 ) {
-  // TODO: mutate opts
   const store = React.useRef(initEnvironment(initialRecords, opts));
   return store.current;
 }

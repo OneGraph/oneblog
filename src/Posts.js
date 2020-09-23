@@ -8,6 +8,8 @@ import type {Posts_repository} from './__generated__/Posts_repository.graphql';
 import LoadingSpinner from './loadingSpinner';
 import {Box} from 'grommet/components/Box';
 import {useInView} from 'react-intersection-observer';
+import Welcome from './Welcome';
+import config from './config';
 import 'intersection-observer';
 
 type Props = {|
@@ -36,8 +38,18 @@ const Posts = ({relay, repository}: Props) => {
     }
   }
 
+  const isClientFetched = repository.issues.isClientFetched;
+
+  if (
+    issues.length === 0 &&
+    // Take extra care to only show this if there really are no posts
+    isClientFetched
+  ) {
+    return <Welcome key="welcome" />;
+  }
+
   return (
-    <Box>
+    <Box key="content">
       {issues.map((node, i) => (
         <div
           ref={!isLoading && i === issues.length - 1 ? inViewRef : null}
