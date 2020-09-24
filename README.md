@@ -1,5 +1,7 @@
 # Build a blog powered by GitHub issues
 
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/git/external?repository-url=https%3A%2F%2Fgithub.com%2FOneGraph%2Foneblog%2Ftree%2Fnext&env=NEXT_PUBLIC_ONEGRAPH_APP_ID,NEXT_PUBLIC_TITLE,NEXT_PUBLIC_DESCRIPTION,VERCEL_GITHUB_ORG,VERCEL_GITHUB_REPO,VERCEL_URL,OG_GITHUB_TOKEN,OG_DASHBOARD_ACCESS_TOKEN&project-name=oneblog&repository-name=oneblog)
+
 This repo allows you to generate a blog from GitHub issues on a repo. It powers the [OneGraph Product Updates blog](https://www.onegraph.com/changelog), [Stepan Parunashvili's blog](https://stopa.io/), [bdougie.live](https://www.bdougie.live/), and more.
 
 All of the posts are stored as issues on the repo (e.g. [OneGraph/onegraph-changelog](https://github.com/OneGraph/onegraph-changelog/issues?utf8=%E2%9C%93&q=is%3Aissue+label%3Apublish+)).
@@ -65,9 +67,16 @@ For each of these, you'll have to add the site that you're deploying to on the C
 
 ### Deploy with Vercel
 
-The project can be deployed with Vercel.
+Use the deploy button to set up a new repo:
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/git/external?repository-url=https%3A%2F%2Fgithub.com%2FOneGraph%2Foneblog%2Ftree%2Fnext&env=NEXT_PUBLIC_ONEGRAPH_APP_ID,NEXT_PUBLIC_TITLE,NEXT_PUBLIC_DESCRIPTION,VERCEL_GITHUB_ORG,VERCEL_GITHUB_REPO,VERCEL_URL,OG_GITHUB_TOKEN,OG_DASHBOARD_ACCESS_TOKEN&project-name=oneblog&repository-name=oneblog)
+
+If you've already set up the repo, just run the vercel command.
 
 ```
+# If not installed
+# npm i -g vercel
+
 vercel
 ```
 

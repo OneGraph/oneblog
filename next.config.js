@@ -12,10 +12,12 @@ module.exports = () => {
         process.env.RAZZLE_ONEGRAPH_APP_ID,
       NEXT_PUBLIC_GITHUB_REPO_OWNER:
         process.env.NEXT_PUBLIC_GITHUB_REPO_OWNER ||
-        process.env.RAZZLE_GITHUB_REPO_OWNER,
+        process.env.RAZZLE_GITHUB_REPO_OWNER ||
+        process.env.VERCEL_GITHUB_ORG,
       NEXT_PUBLIC_GITHUB_REPO_NAME:
         process.env.NEXT_PUBLIC_GITHUB_REPO_NAME ||
-        process.env.RAZZLE_GITHUB_REPO_NAME,
+        process.env.RAZZLE_GITHUB_REPO_NAME ||
+        process.env.VERCEL_GITHUB_REPO,
       NEXT_PUBLIC_TITLE:
         process.env.NEXT_PUBLIC_TITLE || process.env.RAZZLE_TITLE,
       NEXT_PUBLIC_DESCRIPTION:
