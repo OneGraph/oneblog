@@ -7,8 +7,9 @@ export function newIssueUrl(): string {
     `https://github.com/${config.repoOwner}/${config.repoName}/issues/new`,
   );
   url.searchParams.set('labels', 'Publish');
-  if (config.defaultLogin) {
-    url.searchParams.set('assignees', config.defaultLogin);
+  const defaultAuthor = config.defaultLogin || config.repoOwner;
+  if (defaultAuthor) {
+    url.searchParams.set('assignees', defaultAuthor);
   }
   return url.toString();
 }

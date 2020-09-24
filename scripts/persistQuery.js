@@ -5,18 +5,25 @@ const {parse, print} = require('graphql');
 require('dotenv').config();
 
 if (
-  (!process.env['REPOSITORY_FIXED_VARIABLES'] &&
+  (!process.env.REPOSITORY_FIXED_VARIABLES &&
     // Backwards compat with older apps that started with razzle
-    (process.env['RAZZLE_GITHUB_REPO_OWNER'] &&
-      process.env['RAZZLE_GITHUB_REPO_NAME'])) ||
-  (process.env['NEXT_PUBLIC_GITHUB_REPO_OWNER'] &&
-    process.env['NEXT_PUBLIC_GITHUB_REPO_NAME'])
+    (process.env.RAZZLE_GITHUB_REPO_OWNER &&
+      process.env.RAZZLE_GITHUB_REPO_NAME)) ||
+  (process.env.NEXT_PUBLIC_GITHUB_REPO_OWNER &&
+    process.env.NEXT_PUBLIC_GITHUB_REPO_NAME) ||
+  (process.env.VERCEL_GITHUB_ORG && process.env.VERCEL_GITHUB_REPO)
 ) {
-  process.env['REPOSITORY_FIXED_VARIABLES'] = `{"repoName": "${process.env[
-    'RAZZLE_GITHUB_REPO_NAME'
-  ] || process.env['NEXT_PUBLIC_GITHUB_REPO_NAME']}", "repoOwner": "${process
-    .env['RAZZLE_GITHUB_REPO_OWNER'] ||
-    process.env['NEXT_PUBLIC_GITHUB_REPO_OWNER']}"}`;
+  const repoName =
+    process.env['RAZZLE_GITHUB_REPO_NAME'] ||
+    process.env['NEXT_PUBLIC_GITHUB_REPO_NAME'] ||
+    process.env['VERCEL_GITHUB_REPO'];
+  const repoOwner =
+    process.env['RAZZLE_GITHUB_REPO_OWNER'] ||
+    process.env['NEXT_PUBLIC_GITHUB_REPO_OWNER'] ||
+    process.env['VERCEL_GITHUB_ORG'];
+  process.env[
+    'REPOSITORY_FIXED_VARIABLES'
+  ] = `{"repoName": "${repoName}", "repoOwner": "${repoOwner}"}`;
 }
 
 const PERSIST_QUERY_MUTATION = `
