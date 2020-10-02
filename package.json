@@ -38,12 +38,13 @@
   "scripts": {
     "dev": "next",
     "start": "next",
-    "build": "yarn relay && next build",
+    "build": "yarn ensure-publish-label && yarn relay && next build",
     "start:prod": "NODE_ENV=production node build/server.js",
     "relay": "relay-compiler --src ./src --schema ./schema.graphql --persistFunction scripts/persistQuery.js",
     "relay:clean": "rm -r src/__generated__",
     "flow": "flow",
     "fetch-schema": "node scripts/fetchSchema.js --path schema.graphql",
+    "ensure-publish-label": "node scripts/ensurePublishLabel.js",
     "deploy": "vercel",
     "prettier": "prettier --write \"src/**/*.js\" README.md"
   },
@@ -74,7 +75,7 @@
     "flow-bin": "^0.133.0",
     "flow-typed": "^3.2.1",
     "graphql": "^14.4.2",
-    "prettier": "^1.18.2",
+    "prettier": "^2.1.2",
     "razzle": "^3.0.0",
     "relay-compiler": "^8.0.0",
     "relay-test-utils": "^8.0.0",
