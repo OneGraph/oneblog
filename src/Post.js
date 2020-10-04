@@ -650,7 +650,7 @@ export default createFragmentContainer(Post, {
       id
       number
       title
-      body
+      body @__clientField(handle: "registerMarkdown")
       createdAt
       updatedAt
       assignees(first: 10) {

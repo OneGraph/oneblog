@@ -82,9 +82,12 @@ function maybeNullOutQuery(json) {
   return json;
 }
 
-type FetchQueryOpts = {notificationContext: NotificationContextType};
+type Opts = {
+  notificationContext?: ?NotificationContextType,
+  registerMarkdown?: (markdown: string) => void,
+};
 
-function createFetchQuery(opts: ?FetchQueryOpts) {
+function createFetchQuery(opts: ?Opts) {
   return async function fetchQuery(operation, rawVariables, cacheConfig) {
     const variables = {};
     // Bit of a hack to prevent Relay from sending null values for variables
@@ -148,21 +151,42 @@ const isClientFetchedHandler = {
   },
 };
 
-function handlerProvider(handle: string): Handler {
-  switch (handle) {
-    case 'isClientFetched':
-      return isClientFetchedHandler;
-    default:
-      return DefaultHandlerProvider(handle);
-  }
+function getRegisterMarkdownHandler(opts?: ?Opts) {
+  return {
+    update(store, payload) {
+      const record = store.get(payload.dataID);
+      if (!record) {
+        return;
+      }
+      const value = record.getValue(payload.fieldKey, payload.args);
+      if (opts?.registerMarkdown) {
+        opts.registerMarkdown(value);
+      }
+      record.setValue(value, payload.handleKey);
+    },
+  };
 }
 
-export function createEnvironment(opts?: ?FetchQueryOpts) {
+function createHandlerProvider(opts?: ?Opts) {
+  const registerMarkdownHandler = getRegisterMarkdownHandler(opts);
+  return function handlerProvider(handle: string): Handler {
+    switch (handle) {
+      case 'isClientFetched':
+        return isClientFetchedHandler;
+      case 'registerMarkdown':
+        return registerMarkdownHandler;
+      default:
+        return DefaultHandlerProvider(handle);
+    }
+  };
+}
+
+export function createEnvironment(opts?: ?Opts) {
   const recordSource = new RecordSource();
   const store = new Store(recordSource);
   store.holdGC();
   return new Environment({
-    handlerProvider,
+    handlerProvider: createHandlerProvider(opts),
     network: Network.create(createFetchQuery(opts)),
     store,
   });
@@ -177,15 +201,13 @@ export function initEnvironment(
   const environment = globalEnvironment ?? createEnvironment(opts);
   if (
     initialRecords &&
-    environment
-      .getStore()
-      .getSource()
-      .getRecordIDs().length <= 1
+    environment.getStore().getSource().getRecordIDs().length <= 1
   ) {
     environment.getStore().publish(new RecordSource(initialRecords));
   }
 
   if (typeof window !== 'undefined') {
+    window._env = environment;
     globalEnvironment = environment;
   }
 

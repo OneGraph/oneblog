@@ -22,7 +22,7 @@ export default function Comment({comment}: Props) {
     graphql`
       fragment Comment_comment on GitHubIssueComment {
         id
-        body
+        body @__clientField(handle: "registerMarkdown")
         createdViaEmail
         author {
           ... on GitHubUser {

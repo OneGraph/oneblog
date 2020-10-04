@@ -16,6 +16,7 @@ import ErrorBoundary from '../ErrorBoundary';
 import {useRouter} from 'next/router';
 import {query as loginQuery} from '../LoginQuery';
 import * as trk from '../lib/trk';
+import {registerTokenInfo} from '../lib/codeHighlight';
 
 function AppComponent({
   Component,
@@ -74,7 +75,7 @@ function App({Component, pageProps}: any) {
   const isIndexPage = router.pathname === '/';
 
   const handleRouteChangeStart = React.useCallback(
-    url => {
+    (url) => {
       window.history.scrollRestoration = url === '/' ? 'manual' : 'auto';
       if (isIndexPage) {
         indexPageScrollPos.current = window.scrollY;
@@ -97,17 +98,23 @@ function App({Component, pageProps}: any) {
     notificationContext,
   });
 
+  if (pageProps.tokenInfos) {
+    for (const code of Object.keys(pageProps.tokenInfos)) {
+      registerTokenInfo({code, tokenInfo: pageProps.tokenInfos[code]});
+    }
+  }
+
   React.useEffect(() => {
     Promise.all([
       onegraphAuth.isLoggedIn('github'),
       fetchQuery(environment, loginQuery, {})
         .toPromise()
-        .catch(e => null),
+        .catch((e) => null),
     ])
       .then(([isLoggedIn]) => {
         setLoginStatus(isLoggedIn ? 'logged-in' : 'logged-out');
       })
-      .catch(e => {
+      .catch((e) => {
         console.error('Error checking login status', e);
         setLoginStatus('error');
       });
@@ -119,7 +126,7 @@ function App({Component, pageProps}: any) {
         onegraphAuth.isLoggedIn('github'),
         fetchQuery(environment, loginQuery, {})
           .toPromise()
-          .catch(e => null),
+          .catch((e) => null),
       ]).then(([isLoggedIn, x]) => {
         setLoginStatus(isLoggedIn ? 'logged-in' : 'logged-out');
       }),
@@ -127,7 +134,7 @@ function App({Component, pageProps}: any) {
   };
   const logout = () => {
     onegraphAuth.logout('github').then(() =>
-      onegraphAuth.isLoggedIn('github').then(isLoggedIn => {
+      onegraphAuth.isLoggedIn('github').then((isLoggedIn) => {
         onegraphAuth.destroy();
         setLoginStatus(isLoggedIn ? 'logged-in' : 'logged-out');
       }),

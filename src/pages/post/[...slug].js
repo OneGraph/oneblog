@@ -7,6 +7,7 @@ import {query, PostRoot} from '../../PostRoot';
 import {getStaticPaths as generateStaticPaths} from '../../staticPaths';
 import {createEnvironment} from '../../Environment';
 import DefaultErrorPage from 'next/error';
+import {tokenInfosFromMarkdowns} from '../../lib/codeHighlight';
 
 export async function getStaticProps(context: any) {
   let issueNumber;
@@ -14,22 +15,32 @@ export async function getStaticProps(context: any) {
   if (issueNumberString) {
     issueNumber = parseInt(issueNumberString, 10);
   }
-
   if (!issueNumber) {
     return {props: {}};
   }
-  const environment = createEnvironment();
+  const markdowns = [];
+  const environment = createEnvironment({
+    registerMarkdown: (m) => markdowns.push(m),
+  });
   await fetchQuery(environment, query, {issueNumber}).toPromise();
+
+  let tokenInfos = {};
+
+  try {
+    tokenInfos = await tokenInfosFromMarkdowns({markdowns});
+  } catch (e) {
+    console.error('Error fetching tokenInfos for highlighting code', e);
+  }
+
   return {
     revalidate: 600,
     props: {
       issueNumber,
-      initialRecords: environment
-        .getStore()
-        .getSource()
-        .toJSON(),
+      initialRecords: environment.getStore().getSource().toJSON(),
+      tokenInfos,
     },
   };
+  b;
 }
 
 export async function getStaticPaths() {

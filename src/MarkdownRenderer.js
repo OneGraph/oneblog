@@ -12,6 +12,8 @@ import {Box} from 'grommet/components/Box';
 import {Text} from 'grommet/components/Text';
 import {ResponsiveContext} from 'grommet/contexts/ResponsiveContext';
 import emoji from './emoji';
+import {fetchTokenInfo, TOKEN_INFO_CACHE} from './lib/codeHighlight';
+import {isPromise} from 'relay-runtime';
 
 type SyntaxHighlighter = any;
 
@@ -32,40 +34,86 @@ class CodeBlock extends React.PureComponent<
 > {
   state = {
     SyntaxHighlighter: this.props.SyntaxHighlighter,
+    tokenInfo: fetchTokenInfo({
+      code: this.props.value,
+      language: this.props.language,
+    }),
   };
+
+  _backupHighlight = () => {
+    Promise.all([
+      import('react-syntax-highlighter/dist/esm/light'),
+      import(
+        'react-syntax-highlighter/dist/esm/styles/hljs/tomorrow-night-blue'
+      ),
+      importLanguage(this.props.language),
+    ])
+      .then(
+        ([{default: SyntaxHighlighter}, {default: style}, languageImport]) => {
+          if (languageImport && languageImport.default) {
+            SyntaxHighlighter.registerLanguage(
+              this.props.language,
+              languageImport.default,
+            );
+          }
+          this.setState({
+            SyntaxHighlighter: (props) => (
+              <SyntaxHighlighter style={style} {...props} />
+            ),
+          });
+        },
+      )
+      .catch((e) => console.error('Error loading syntax highlighter', e));
+  };
+
   componentDidMount() {
-    if (this.props.language !== 'backmatter' && !this.state.SyntaxHighlighter) {
-      Promise.all([
-        import('react-syntax-highlighter/dist/esm/light'),
-        import('react-syntax-highlighter/dist/esm/styles/hljs/github'),
-        importLanguage(this.props.language),
-      ])
-        .then(
-          ([
-            {default: SyntaxHighlighter},
-            {default: style},
-            languageImport,
-          ]) => {
-            if (languageImport && languageImport.default) {
-              SyntaxHighlighter.registerLanguage(
-                this.props.language,
-                languageImport.default,
-              );
-            }
-            this.setState({
-              SyntaxHighlighter: props => (
-                <SyntaxHighlighter style={style} {...props} />
-              ),
-            });
-          },
-        )
-        .catch(e => console.error('Error loading syntax highlighter', e));
+    const {SyntaxHighlighter, tokenInfo} = this.state;
+    if (isPromise(tokenInfo) && !SyntaxHighlighter) {
+      this._backupHighlight();
+    }
+    if (isPromise(tokenInfo)) {
+      tokenInfo
+        .then((res) => this.setState({tokenInfo: res}))
+        .catch((e) => {
+          console.error('Error fetching token info', e);
+        });
     }
   }
   render() {
     const {language, value} = this.props;
-    if (language === 'backmatter') {
-      return null;
+    const {tokenInfo} = this.state;
+
+    if (!isPromise(tokenInfo)) {
+      return (
+        <pre
+          style={{
+            display: 'block',
+            overflowX: 'auto',
+            padding: '0.5em',
+            color: tokenInfo.foregroundColor,
+            background: tokenInfo.backgroundColor,
+          }}>
+          <code style={{padding: 0}}>
+            {tokenInfo.tokens.map((lineTokens, idx) => {
+              return (
+                <React.Fragment key={idx}>
+                  {lineTokens.map((token, tokenIdx) => (
+                    <span
+                      key={tokenIdx}
+                      style={{
+                        color: token.foregroundColor,
+                        backgroundColor: token.backgroundColor,
+                      }}>
+                      {token.text}
+                    </span>
+                  ))}
+                  {idx === tokenInfo.tokens.length - 1 ? null : '\n'}
+                </React.Fragment>
+              );
+            })}
+          </code>
+        </pre>
+      );
     }
 
     const {SyntaxHighlighter} = this.state;
@@ -78,8 +126,8 @@ class CodeBlock extends React.PureComponent<
           display: 'block',
           overflowX: 'auto',
           padding: '0.5em',
-          color: 'rgb(51, 51, 51)',
-          background: 'rgb(248, 248, 248)',
+          color: '#fff',
+          background: '#002451',
         }}>
         <code className={`language-${language}`}>{value}</code>
       </pre>
@@ -147,7 +195,7 @@ function ParagraphWrapper(props) {
           url={link.props.href}
           fallback={<P {...props} />}
           renderVoid={() => <P {...props} />}
-          renderWrap={x => (
+          renderWrap={(x) => (
             // Don't try to center on mobile -- bug with twitter embed will cause it to shift to the right
             <Box
               margin={{vertical: 'medium'}}
@@ -218,6 +266,9 @@ const defaultRenderers = ({SyntaxHighlighter}) => ({
     return emojify(text);
   },
   code(props) {
+    if (props.language === 'backmatter') {
+      return null;
+    }
     return <CodeBlock SyntaxHighlighter={SyntaxHighlighter} {...props} />;
   },
   image: Image,
@@ -438,7 +489,7 @@ function importLanguage(
     case 'gradle':
       return import('react-syntax-highlighter/dist/esm/languages/hljs/gradle');
     case 'graphql':
-      return import('highlightjs-graphql').then(graphql => ({
+      return import('highlightjs-graphql').then((graphql) => ({
         default: graphql.definer,
       }));
     case 'groovy':
