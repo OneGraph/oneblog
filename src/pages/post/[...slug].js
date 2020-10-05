@@ -53,6 +53,7 @@ export async function getStaticPaths() {
 
 const Page = ({issueNumber: staticIssueNumber}: {issueNumber: ?number}) => {
   const {
+    isFallback,
     query: {slug},
   } = useRouter();
 
@@ -60,7 +61,11 @@ const Page = ({issueNumber: staticIssueNumber}: {issueNumber: ?number}) => {
     staticIssueNumber || (slug?.[0] ? parseInt(slug[0], 10) : null);
 
   if (!issueNumber) {
-    return <DefaultErrorPage statusCode={404} />;
+    if (isFallback) {
+      return null;
+    } else {
+      return <DefaultErrorPage statusCode={404} />;
+    }
   }
 
   return <PostRoot issueNumber={issueNumber} />;

@@ -585,7 +585,7 @@ export const Post = ({relay, post, context}: Props) => {
                 return null;
               }
               const url = node.twitterUsername
-                ? `https://twitter.com/${twitterUsername}`
+                ? `https://twitter.com/${node.twitterUsername}`
                 : node.websiteUrl || node.url;
               const name = node.name || node.twitterUsername || node.login;
               return (
