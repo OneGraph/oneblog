@@ -1,6 +1,7 @@
 // @flow
 
 import parseMarkdown from './parseMarkdown';
+import Config from '../config';
 
 type Tokens = Array<{
   text: string,
@@ -47,7 +48,7 @@ export function fetchTokenInfo({
   }
   const getUrl = `https://sourcecodeshots.com/api/token-info?code=${encodeURIComponent(
     code,
-  )}&theme=tomorrow-night-blue&language=${language ? language : ''}`;
+  )}&theme=${Config.codeTheme}&language=${language ? language : ''}`;
   const resp =
     getUrl.length < 2083
       ? fetch(getUrl, {
@@ -63,7 +64,7 @@ export function fetchTokenInfo({
           body: JSON.stringify({
             code,
             language: language,
-            theme: 'tomorrow-night-blue',
+            theme: Config.codeTheme,
           }),
         });
   return resp
@@ -109,3 +110,31 @@ export async function tokenInfosFromMarkdowns({
   );
   return Object.fromEntries(entries);
 }
+
+export const defaultThemeColors = {
+  abyss: {backgroundColor: '#000c18', foregroundColor: 'white'},
+  'dark-plus': {backgroundColor: '#1E1E1E', foregroundColor: '#D4D4D4'},
+  'light-plus': {backgroundColor: '#FFFFFF', foregroundColor: '#000000'},
+  'github-dark': {backgroundColor: '#24292e', foregroundColor: '#e1e4e8'},
+  'github-light': {backgroundColor: '#fff', foregroundColor: '#24292e'},
+  'visual-studio-dark': {
+    backgroundColor: '#1E1E1E',
+    foregroundColor: '#D4D4D4',
+  },
+  'visual-studio-light': {
+    backgroundColor: '#FFFFFF',
+    foregroundColor: '#000000',
+  },
+  'high-contrast': {backgroundColor: '#000000', foregroundColor: '#FFFFFF'},
+  'kimbie-dark': {backgroundColor: '#221a0f', foregroundColor: '#d3af86'},
+  'dimmed-monokai': {backgroundColor: '#1e1e1e', foregroundColor: '#c5c8c6'},
+  monokai: {backgroundColor: '#272822', foregroundColor: '#f8f8f2'},
+  quietlight: {backgroundColor: '#F5F5F5', foregroundColor: 'white'},
+  red: {backgroundColor: '#390000', foregroundColor: '#F8F8F8'},
+  'solarized-dark': {backgroundColor: '#002B36', foregroundColor: 'white'},
+  'solarized-light': {backgroundColor: '#FDF6E3', foregroundColor: 'white'},
+  'tomorrow-night-blue': {
+    backgroundColor: '#002451',
+    foregroundColor: '#ffffff',
+  },
+};

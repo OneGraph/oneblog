@@ -10,6 +10,7 @@ export type Config = {
   siteHostname: string,
   gaTrackingId: ?string,
   vercelUrl: ?string,
+  codeTheme: string,
 };
 
 function ensureEnv(s, variable: string): string {
@@ -63,6 +64,7 @@ const config: Config = {
   vercelUrl: process.env.NEXT_PUBLIC_VERCEL_URL
     ? removeTrailingSlash(`https://${process.env.NEXT_PUBLIC_VERCEL_URL}`)
     : null,
+  codeTheme: process.env.NEXT_PUBLIC_CODE_THEME || 'quietlight',
 };
 
 export default config;
