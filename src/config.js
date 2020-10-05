@@ -64,7 +64,7 @@ const config: Config = {
   vercelUrl: process.env.NEXT_PUBLIC_VERCEL_URL
     ? removeTrailingSlash(`https://${process.env.NEXT_PUBLIC_VERCEL_URL}`)
     : null,
-  codeTheme: process.env.NEXT_PUBLIC_CODE_THEME || 'quietlight',
+  codeTheme: process.env.NEXT_PUBLIC_CODE_THEME || 'dark-plus',
 };
 
 export default config;

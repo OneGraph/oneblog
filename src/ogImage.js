@@ -7,6 +7,7 @@ import {createEnvironment} from './Environment';
 import unified from 'unified';
 import parse from 'remark-parse';
 import {proxyImage} from './imageProxy';
+import Config from './config';
 
 const postQuery = graphql`
   query ogImage_PostQuery(
@@ -67,7 +68,7 @@ function respondWithCodeImage(
 ) {
   const postData = JSON.stringify({
     code,
-    settings: {theme: 'Dark+ (default dark)', language: lang},
+    settings: {theme: Config.codeTheme, language: lang},
   });
   return new Promise((resolve, reject) => {
     const req = https.request(
