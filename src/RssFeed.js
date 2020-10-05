@@ -86,12 +86,6 @@ export async function buildFeed({
     {},
   ).toPromise();
 
-  try {
-    await tokenInfosFromMarkdowns({markdowns});
-  } catch (e) {
-    console.error('Error fetching tokenInfos for highlighting code', e);
-  }
-
   const posts = data.gitHub?.repository?.issues.nodes || [];
   const latestPost = posts[0];
 
