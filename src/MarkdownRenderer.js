@@ -236,6 +236,18 @@ const defaultRenderers = {
     const text = props.children;
     return emojify(text);
   },
+  inlineCode(props) {
+    return (
+      <code
+        style={{
+          padding: '.2em .4em',
+          borderRadius: 6,
+          background: 'rgba(27,31,35,.05)',
+        }}
+        {...props}
+      />
+    );
+  },
   code(props) {
     if (props.language === 'backmatter') {
       return null;
