@@ -60,17 +60,23 @@ export const query = graphql`
   }
 `;
 
+const textTypes = ['text', 'inlineCode'];
+const breakTypes = ['heading', 'paragraph', 'break', 'blockquote'];
+
 function textOfAst(node: any): string {
-  if (node.type === 'text') {
-    return node.value.trim();
+  if (textTypes.includes(node.type)) {
+    return node.value;
   } else if (node.children && node.children.length) {
     const texts = [];
+    if (breakTypes.includes(node.type)) {
+      texts.push('\n\n');
+    }
     for (const text of node.children.map(textOfAst)) {
       if (text) {
         texts.push(text);
       }
     }
-    return texts.join(' ');
+    return texts.join('');
   } else {
     return '';
   }
@@ -113,6 +119,7 @@ export const PostRoot = ({issueNumber}: {issueNumber: number}) => {
   } else {
     const title = `${post.title} - ${config.title}`;
     const description = buildDescription(post.body);
+
     return (
       <>
         <Head>
