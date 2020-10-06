@@ -84,7 +84,7 @@ function textOfAst(node: any): string {
 
 function buildDescription(body) {
   const ast = parseMarkdown(body);
-  const text = textOfAst(ast);
+  const text = textOfAst(ast).trim();
   if (text.length <= 200) {
     return text;
   } else {
