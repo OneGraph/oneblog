@@ -15,7 +15,6 @@ import appCss from './App.css';
 import config from './config';
 import type {RssFeed_QueryResponse} from './__generated__/RssFeed_Query.graphql';
 import theme from './lib/theme';
-import {tokenInfosFromMarkdowns} from './lib/codeHighlight';
 
 const feedQuery = graphql`
   query RssFeed_Query($repoOwner: String!, $repoName: String!)
@@ -78,15 +77,17 @@ export async function buildFeed({
 }) {
   const markdowns = [];
   const environment = createEnvironment({
-    registerMarkdown: (m) => markdowns.push(m),
+    registerMarkdown: function (m) {
+      markdowns.push(m);
+    },
   });
-  const data: RssFeed_QueryResponse = await fetchQuery(
+  const data: ?RssFeed_QueryResponse = await fetchQuery(
     environment,
     feedQuery,
     {},
   ).toPromise();
 
-  const posts = data.gitHub?.repository?.issues.nodes || [];
+  const posts = data?.gitHub?.repository?.issues.nodes || [];
   const latestPost = posts[0];
 
   const baseUrl = removeTrailingSlash(

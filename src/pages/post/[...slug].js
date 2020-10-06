@@ -20,7 +20,9 @@ export async function getStaticProps(context: any) {
   }
   const markdowns = [];
   const environment = createEnvironment({
-    registerMarkdown: (m) => markdowns.push(m),
+    registerMarkdown: function (m) {
+      markdowns.push(m);
+    },
   });
   await fetchQuery(environment, query, {issueNumber}).toPromise();
 

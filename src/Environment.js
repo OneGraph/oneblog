@@ -110,6 +110,7 @@ function createFetchQuery(opts: ?Opts) {
         requestBody,
       });
 
+      // eslint-disable-next-line no-unused-expressions
       opts?.notificationContext?.clearCorsViolation();
 
       if (json.errors && Object.keys(onegraphAuth.authHeaders()).length) {
@@ -131,6 +132,7 @@ function createFetchQuery(opts: ?Opts) {
           const error = new Error('Missing CORS origin.');
           (error: any).type = 'missing-cors';
 
+          // eslint-disable-next-line no-unused-expressions
           opts?.notificationContext?.setCorsViolation();
 
           throw error;
@@ -159,7 +161,7 @@ function getRegisterMarkdownHandler(opts?: ?Opts) {
         return;
       }
       const value = record.getValue(payload.fieldKey, payload.args);
-      if (opts?.registerMarkdown) {
+      if (value && typeof value === 'string' && opts?.registerMarkdown) {
         opts.registerMarkdown(value);
       }
       record.setValue(value, payload.handleKey);
@@ -196,7 +198,7 @@ let globalEnvironment;
 
 export function initEnvironment(
   initialRecords: ?RecordMap,
-  opts?: ?FetchQueryOpts,
+  opts?: ?Opts,
 ) {
   const environment = globalEnvironment ?? createEnvironment(opts);
   if (
@@ -216,7 +218,7 @@ export function initEnvironment(
 
 export function useEnvironment(
   initialRecords: ?RecordMap,
-  opts?: ?FetchQueryOpts,
+  opts?: ?Opts,
 ) {
   const store = React.useRef(initEnvironment(initialRecords, opts));
   return store.current;

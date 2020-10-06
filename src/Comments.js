@@ -98,7 +98,8 @@ function CommentInput({
         const count = post.getLinkedRecord('comments')?.getValue('totalCount');
         if (Number.isInteger(count)) {
           // $FlowFixMe: count has been checked by isInteger
-          const newCount = count + 1;
+          const newCount = count + 1;          
+          // eslint-disable-next-line no-unused-expressions
           post.getLinkedRecord('comments')?.setValue(newCount, 'totalCount');
         }
       }
@@ -171,6 +172,7 @@ function CommentInput({
               <Tab title={<Text size="small">Preview</Text>}>
                 <Box pad="small" height={{min: 'small'}}>
                   <MarkdownRenderer
+                    trustedInput={false}
                     source={comment.trim() ? comment : 'Nothing to preview.'}
                   />
                 </Box>

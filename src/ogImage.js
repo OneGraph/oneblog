@@ -115,7 +115,7 @@ export const ogImage = async (req: any, res: any) => {
     issueNumber: postNumber,
   }).toPromise();
 
-  const issue = data.gitHub?.repository?.issue;
+  const issue = data?.gitHub?.repository?.issue;
   if (
     !issue ||
     !issue.labels?.nodes?.length ||

@@ -5,6 +5,7 @@ import {postPath} from './Post';
 import {createEnvironment} from './Environment';
 import {fetchQuery} from 'react-relay/hooks';
 import graphql from 'babel-plugin-relay/macro';
+import useBasePath from './lib/useBasePath';
 
 import type {Sitemap_QueryResponse} from './__generated__/Sitemap_Query.graphql';
 
@@ -39,9 +40,10 @@ const sitemapQuery = graphql`
   }
 `;
 
-export async function buildSitemap({siteHostname}) {
-  const smStream = new SitemapStream({hostname: siteHostname});
-  smStream.write({url: '/'});
+export async function buildSitemap({siteHostname}: {siteHostname: string}) {
+  const basePath = useBasePath();
+  const smStream = new SitemapStream({hostname: `${siteHostname}`});
+  smStream.write({url: `${basePath}/`});
 
   const environment = createEnvironment();
 
@@ -51,20 +53,25 @@ export async function buildSitemap({siteHostname}) {
   let reqCount = 0;
 
   while (hasNextPage && reqCount <= 10) {
-    const data: Sitemap_QueryResponse = await fetchQuery(
+    const data: ?Sitemap_QueryResponse = await fetchQuery(
       environment,
       sitemapQuery,
       {cursor},
     ).toPromise();
     reqCount++;
 
-    for (const node of data.gitHub.repository.issues.nodes) {
-      smStream.write({url: postPath({post: node}), lastmod: node.updatedAt});
+    for (const node of data?.gitHub?.repository?.issues?.nodes || []) {
+      if (node) {
+        smStream.write({
+          url: `${basePath}${postPath({post: node})}`,
+          lastmod: node.updatedAt,
+        });
+      }
     }
-    const pageInfo = data.gitHub.repository.issues.pageInfo;
-    hasNextPage = pageInfo.hasNextPage;
-    cursor = pageInfo.endCursor;
-    hasNextPage = cursor ? pageInfo.hasNextPage : false;
+    const pageInfo = data?.gitHub?.repository?.issues?.pageInfo;
+    hasNextPage = pageInfo?.hasNextPage;
+    cursor = pageInfo?.endCursor;
+    hasNextPage = cursor ? pageInfo?.hasNextPage : false;
   }
   smStream.end();
   return await streamToPromise(smStream);

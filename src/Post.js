@@ -91,16 +91,20 @@ function reactionUpdater({store, viewerHasReacted, subjectId, content}) {
     ?.getLinkedRecords('reactionGroups')
     ?.find((r) => r?.getValue('content') === content);
 
-  reactionGroup?.setValue(viewerHasReacted, 'viewerHasReacted');
-  const users = reactionGroup?.getLinkedRecord('users', {first: 11});
-  users?.setValue(
-    Math.max(
-      0,
-      // $FlowFixMe
-      (users?.getValue('totalCount') ?? 0) + (viewerHasReacted ? 1 : -1),
-    ),
-    'totalCount',
-  );
+  if (reactionGroup) {
+    reactionGroup.setValue(viewerHasReacted, 'viewerHasReacted');
+    const users = reactionGroup.getLinkedRecord('users', {first: 11});
+    if (users) {
+      users.setValue(
+        Math.max(
+          0,
+          // $FlowFixMe
+          (users?.getValue('totalCount') ?? 0) + (viewerHasReacted ? 1 : -1),
+        ),
+        'totalCount',
+      );
+    }
+  }
 }
 
 async function addReaction({environment, content, subjectId}) {
@@ -336,6 +340,7 @@ export const ReactionBar = ({
                   .filter((x) => x.viewerHasReacted)
                   .map((x) => x.content)}
                 onDeselect={async (content) => {
+                  // eslint-disable-next-line no-unused-expressions
                   sourceAdd?.data?.instance?.hide();
                   try {
                     await removeReaction({
@@ -348,6 +353,7 @@ export const ReactionBar = ({
                   }
                 }}
                 onSelect={async (content) => {
+                  // eslint-disable-next-line no-unused-expressions
                   sourceAdd?.data?.instance?.hide();
                   try {
                     await addReaction({
@@ -473,7 +479,7 @@ export function postPath({
 }: {
   post: {
     +number: number,
-    +repository: {+owner: {+login: string}, +name: string},
+    //+repository: {+owner: {+login: string}, +name: string},
     +title: string,
   },
   viewComments?: boolean,

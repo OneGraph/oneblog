@@ -32,6 +32,7 @@ export const query = graphql`
 export const PostsRoot = () => {
   const data: ?PostsRoot_QueryResponse = useLazyLoadQuery<PostsRoot_Query>(
     query,
+    // $FlowFixMe: expects variables that were persisted
     {},
     {fetchPolicy: 'store-and-network'},
   );

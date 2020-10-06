@@ -9,7 +9,9 @@ import {tokenInfosFromMarkdowns} from '../lib/codeHighlight';
 export async function getStaticProps() {
   const markdowns = [];
   const environment = createEnvironment({
-    registerMarkdown: (m) => markdowns.push(m),
+    registerMarkdown: function (m) {
+      markdowns.push(m);
+    },
   });
   await fetchQuery(environment, query, {}).toPromise();
   let tokenInfos = {};

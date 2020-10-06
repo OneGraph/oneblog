@@ -168,7 +168,17 @@ function App({Component, pageProps}: any) {
 
 // n.b. this won't be triggered b/c we're using concurrent mode
 // Open issue here: https://github.com/vercel/next.js/issues/17288
-export function reportWebVitals({id, name, label, value}) {
+export function reportWebVitals({
+  id,
+  name,
+  label,
+  value,
+}: {
+  id: string,
+  name: string,
+  label: string,
+  value: number,
+}) {
   trk.event({
     action: name,
     category: label === 'web-vital' ? 'Web Vitals' : 'Next.js custom metric',

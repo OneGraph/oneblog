@@ -22,7 +22,7 @@ export const event = ({
   action: string,
   category?: ?string,
   label?: ?string,
-  value?: ?string,
+  value?: ?(string | number),
   nonInteraction?: ?boolean,
 }) => {
   if (config.gaTrackingId && window.gtag) {

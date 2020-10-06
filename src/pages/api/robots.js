@@ -1,6 +1,8 @@
 import appConfig from '../../config';
+import useBasePath from '../../lib/useBasePath';
 
 export default (req, res) => {
+  const basePath = useBasePath();
   let siteHostname = appConfig.siteHostname;
 
   if (!siteHostname) {
@@ -17,7 +19,7 @@ export default (req, res) => {
 User-agent: *
 Disallow: /static/
 
-Sitemap: ${siteHostname}/sitemap.xml
+Sitemap: ${siteHostname}${basePath}/sitemap.xml
 `.trim();
 
   res.status(200).send(body);

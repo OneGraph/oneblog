@@ -10,7 +10,7 @@ type Tokens = Array<{
 }>;
 
 export type TokenInfo = {
-  tokens: Tokens,
+  tokens: Array<Tokens>,
   backgroundColor: string,
   foregroundColor: string,
 };
@@ -31,7 +31,10 @@ export function registerTokenInfo({
   }
   TOKEN_INFO_CACHE.set(code, tokenInfo);
   if (TOKEN_INFO_CACHE.size > 5000) {
-    TOKEN_INFO_CACHE.delete(TOKEN_INFO_CACHE.keys().next().value);
+    const firstKey = TOKEN_INFO_CACHE.keys().next().value;
+    if (firstKey) {
+      TOKEN_INFO_CACHE.delete(firstKey);
+    }
   }
 }
 
@@ -75,9 +78,9 @@ export function fetchTokenInfo({
     });
 }
 
-function findCodeNodes(roots: Array<Unified$Node>) {
+function findCodeNodes(roots: Array<any>) {
   const nodes = [];
-  function visit(node: Unified$Node) {
+  function visit(node: any) {
     if (node.type === 'code' && node.lang !== 'backmatter') {
       nodes.push(node);
     }
@@ -98,7 +101,6 @@ export async function tokenInfosFromMarkdowns({
 }: {
   markdowns: Array<string>,
 }): {[code: string]: TokenInfo} {
-  const res = {};
   const nodes = findCodeNodes(markdowns.map(parseMarkdown));
   const entries = await Promise.all(
     nodes.map(async (node) => {

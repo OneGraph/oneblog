@@ -90,6 +90,7 @@ export const PostRoot = ({issueNumber}: {issueNumber: number}) => {
   const {basePath} = useRouter();
   const data: ?PostRoot_PostQueryResponse = useLazyLoadQuery<PostRoot_PostQuery>(
     query,
+    // $FlowFixMe: expects persisted variables
     {issueNumber},
     // TODO: fill store with dataID for root record from list view so that partial rendering works
     {fetchPolicy: 'store-and-network', UNSTABLE_renderPolicy: 'partial'},
@@ -125,6 +126,7 @@ export const PostRoot = ({issueNumber}: {issueNumber: number}) => {
               // n.b. Ok to use vercel url for og-image as a fallback, but
               // careful not to use it as a canonical url
               content={`${
+                // $FlowFixMe: checked above
                 config.siteHostname || config.vercelUrl
               }${basePath}/api/og-image/${post.number}`}
             />
