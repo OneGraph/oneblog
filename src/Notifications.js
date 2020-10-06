@@ -12,18 +12,20 @@ import {FormClose} from 'grommet-icons/icons/FormClose';
 import config from './config';
 
 export type NotificationContextType = {
-  error: string => void,
-  success: string => void,
+  error: (string) => void,
+  success: (string) => void,
   setCorsViolation: () => void,
   clearCorsViolation: () => void,
 };
 
-export const NotificationContext = React.createContext<NotificationContextType>({
-  error: (msg: string) => undefined,
-  success: (msg: string) => undefined,
-  setCorsViolation: () => undefined,
-  clearCorsViolation: () => undefined,
-});
+export const NotificationContext = React.createContext<NotificationContextType>(
+  {
+    error: (msg: string) => undefined,
+    success: (msg: string) => undefined,
+    setCorsViolation: () => undefined,
+    clearCorsViolation: () => undefined,
+  },
+);
 
 type Notification = {|
   level: 'error' | 'success',
@@ -121,7 +123,7 @@ export class NotificationContainer extends React.PureComponent<Props, State> {
             responsive={false}
             plain
             margin={{vertical: 'medium', horizontal: 'small'}}>
-            {Object.keys(notifications).map(k => (
+            {Object.keys(notifications).map((k) => (
               <Box
                 key={k}
                 style={{alignSelf: 'flex-end'}}

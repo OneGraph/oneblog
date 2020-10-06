@@ -15,11 +15,11 @@ import type {
 export const query = graphql`
   # repoName and repoOwner provided by fixedVariables
   query PostsRoot_Query($repoName: String!, $repoOwner: String!)
-    @persistedQueryConfiguration(
-      accessToken: {environmentVariable: "OG_GITHUB_TOKEN"}
-      fixedVariables: {environmentVariable: "REPOSITORY_FIXED_VARIABLES"}
-      cacheSeconds: 300
-    ) {
+  @persistedQueryConfiguration(
+    accessToken: {environmentVariable: "OG_GITHUB_TOKEN"}
+    fixedVariables: {environmentVariable: "REPOSITORY_FIXED_VARIABLES"}
+    cacheSeconds: 300
+  ) {
     gitHub {
       ...Avatar_gitHub @arguments(repoName: $repoName, repoOwner: $repoOwner)
       repository(name: $repoName, owner: $repoOwner) {

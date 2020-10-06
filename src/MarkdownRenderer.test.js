@@ -39,6 +39,5 @@ describe('emojify', () => {
     expect(emojify(': : ')).toBe(': : ');
     expect(emojify(': : : ')).toBe(': : : ');
     expect(emojify(': : : : ')).toBe(': : : : ');
-
   });
 });

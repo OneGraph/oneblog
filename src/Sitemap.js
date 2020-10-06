@@ -10,12 +10,12 @@ import type {Sitemap_QueryResponse} from './__generated__/Sitemap_Query.graphql'
 
 const sitemapQuery = graphql`
   query Sitemap_Query($repoOwner: String!, $repoName: String!, $cursor: String)
-    @persistedQueryConfiguration(
-      accessToken: {environmentVariable: "OG_GITHUB_TOKEN"}
-      fixedVariables: {environmentVariable: "REPOSITORY_FIXED_VARIABLES"}
-      freeVariables: ["cursor"]
-      cacheSeconds: 300
-    ) {
+  @persistedQueryConfiguration(
+    accessToken: {environmentVariable: "OG_GITHUB_TOKEN"}
+    fixedVariables: {environmentVariable: "REPOSITORY_FIXED_VARIABLES"}
+    freeVariables: ["cursor"]
+    cacheSeconds: 300
+  ) {
     gitHub {
       repository(name: $repoName, owner: $repoOwner) {
         issues(

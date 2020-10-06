@@ -11,12 +11,12 @@ export const query = graphql`
     $count: Int!
     $cursor: String
   )
-    @persistedQueryConfiguration(
-      accessToken: {environmentVariable: "OG_GITHUB_TOKEN"}
-      fixedVariables: {environmentVariable: "REPOSITORY_FIXED_VARIABLES"}
-      freeVariables: ["count", "cursor"]
-      cacheSeconds: 60
-    ) {
+  @persistedQueryConfiguration(
+    accessToken: {environmentVariable: "OG_GITHUB_TOKEN"}
+    fixedVariables: {environmentVariable: "REPOSITORY_FIXED_VARIABLES"}
+    freeVariables: ["count", "cursor"]
+    cacheSeconds: 60
+  ) {
     gitHub {
       repository(name: $repoName, owner: $repoOwner) {
         issues(
@@ -59,7 +59,7 @@ export async function getStaticPaths() {
       issues.push(issue);
     }
   }
-  return issues.map(issue => ({
+  return issues.map((issue) => ({
     params: {
       slug: [String(issue.number), slugify(issue.title)],
     },

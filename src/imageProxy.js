@@ -20,7 +20,7 @@ function ConcatFrames(callback) {
 
 inherits(ConcatFrames, PixelStream);
 
-ConcatFrames.prototype._startFrame = function(frame, done) {
+ConcatFrames.prototype._startFrame = function (frame, done) {
   frame.width = frame.width || this.format.width;
   frame.height = frame.height || this.format.height;
   frame.colorSpace = this.format.colorSpace;
@@ -33,25 +33,25 @@ ConcatFrames.prototype._startFrame = function(frame, done) {
   done();
 };
 
-ConcatFrames.prototype._writePixels = function(data, done) {
+ConcatFrames.prototype._writePixels = function (data, done) {
   this.buffers.push(data);
   done();
 };
 
-ConcatFrames.prototype._endFrame = function(done) {
+ConcatFrames.prototype._endFrame = function (done) {
   this.frame.pixels = Buffer.concat(this.buffers);
   this.callback(this.frame);
   done();
 };
 
-ConcatFrames.prototype._end = function(done) {
+ConcatFrames.prototype._end = function (done) {
   done();
 };
 
 const MAX_REDIRECT_DEPTH = 5;
 
 export function getWithRedirect(url, cb, depth = 1) {
-  return https.get(url, resp => {
+  return https.get(url, (resp) => {
     if (
       resp.statusCode > 300 &&
       resp.statusCode < 400 &&
@@ -81,9 +81,7 @@ function padBase64String(input: string): string {
 
 function decodeUrl(base64Url) {
   return Buffer.from(
-    padBase64String(base64Url)
-      .replace(/-/g, '+')
-      .replace(/_/g, '/'),
+    padBase64String(base64Url).replace(/-/g, '+').replace(/_/g, '/'),
     'base64',
   ).toString('utf-8');
 }
@@ -123,10 +121,10 @@ export const firstFrame = (req, res) => {
     return;
   }
 
-  getWithRedirect(url, resp => {
+  getWithRedirect(url, (resp) => {
     const decodePipe = resp.pipe(new GifDecoder());
     decodePipe.pipe(
-      ConcatFrames(function(frame) {
+      ConcatFrames(function (frame) {
         resp.req.abort();
         decodePipe.destroy();
         const q = neuquant.quantize(frame.pixels);
@@ -151,7 +149,7 @@ export const proxyImage = (res, url) => {
   }
 
   return new Promise((resolve, reject) => {
-    getWithRedirect(url, resp => {
+    getWithRedirect(url, (resp) => {
       let contentLength;
       for (const k of Object.keys(resp.headers)) {
         if (k.toLowerCase() === 'content-length') {
@@ -170,7 +168,7 @@ export const proxyImage = (res, url) => {
           }
         }
         res.set('Cache-Control', 'public, max-age=2592000, s-maxage=2592000');
-        resp.on('data', chunk => {
+        resp.on('data', (chunk) => {
           res.write(chunk);
         });
 
@@ -179,7 +177,7 @@ export const proxyImage = (res, url) => {
           resolve();
         });
       }
-    }).on('error', err => {
+    }).on('error', (err) => {
       res.send('Error');
       res.status(500);
       reject(err);

@@ -25,7 +25,7 @@ const Posts = ({relay, repository}: Props) => {
   React.useEffect(() => {
     if (inView && !isLoading && !relay.isLoading() && relay.hasMore()) {
       setIsLoading(true);
-      relay.loadMore(10, x => {
+      relay.loadMore(10, (x) => {
         setIsLoading(false);
       });
     }
@@ -76,14 +76,14 @@ export default createPaginationContainer(
   {
     repository: graphql`
       fragment Posts_repository on GitHubRepository
-        @argumentDefinitions(
-          count: {type: "Int", defaultValue: 10}
-          cursor: {type: "String"}
-          orderBy: {
-            type: "GitHubIssueOrder"
-            defaultValue: {direction: DESC, field: CREATED_AT}
-          }
-        ) {
+      @argumentDefinitions(
+        count: {type: "Int", defaultValue: 10}
+        cursor: {type: "String"}
+        orderBy: {
+          type: "GitHubIssueOrder"
+          defaultValue: {direction: DESC, field: CREATED_AT}
+        }
+      ) {
         issues(
           first: $count
           after: $cursor
@@ -123,12 +123,12 @@ export default createPaginationContainer(
         $repoOwner: String!
         $repoName: String!
       )
-        @persistedQueryConfiguration(
-          accessToken: {environmentVariable: "OG_GITHUB_TOKEN"}
-          freeVariables: ["count", "cursor", "orderBy"]
-          fixedVariables: {environmentVariable: "REPOSITORY_FIXED_VARIABLES"}
-          cacheSeconds: 300
-        ) {
+      @persistedQueryConfiguration(
+        accessToken: {environmentVariable: "OG_GITHUB_TOKEN"}
+        freeVariables: ["count", "cursor", "orderBy"]
+        fixedVariables: {environmentVariable: "REPOSITORY_FIXED_VARIABLES"}
+        cacheSeconds: 300
+      ) {
         gitHub {
           repository(name: $repoName, owner: $repoOwner) {
             __typename

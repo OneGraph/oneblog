@@ -1,7 +1,7 @@
 import React from 'react';
 import {Blank} from 'grommet-icons';
 
-const CommentsIcon = props => (
+const CommentsIcon = (props) => (
   <Blank viewBox="0 0 24 24" a11yTitle="Contact" {...props}>
     <path
       fill="none"

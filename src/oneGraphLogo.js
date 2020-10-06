@@ -1,6 +1,6 @@
 import React from 'react';
 
-const svg = props => (
+const svg = (props) => (
   <svg
     width="163"
     height="163"
