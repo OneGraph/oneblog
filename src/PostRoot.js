@@ -13,6 +13,7 @@ import Head from 'next/head';
 import config from './config';
 import Attribution from './Attribution';
 import parseMarkdown from './lib/parseMarkdown';
+import {useRouter} from 'next/router';
 
 import type {
   PostRoot_PostQuery,
@@ -26,12 +27,12 @@ export const query = graphql`
     $repoName: String!
     $repoOwner: String!
   )
-    @persistedQueryConfiguration(
-      accessToken: {environmentVariable: "OG_GITHUB_TOKEN"}
-      fixedVariables: {environmentVariable: "REPOSITORY_FIXED_VARIABLES"}
-      freeVariables: ["issueNumber"]
-      cacheSeconds: 300
-    ) {
+  @persistedQueryConfiguration(
+    accessToken: {environmentVariable: "OG_GITHUB_TOKEN"}
+    fixedVariables: {environmentVariable: "REPOSITORY_FIXED_VARIABLES"}
+    freeVariables: ["issueNumber"]
+    cacheSeconds: 300
+  ) {
     gitHub {
       viewer {
         login
@@ -86,6 +87,7 @@ function buildDescription(body) {
 }
 
 export const PostRoot = ({issueNumber}: {issueNumber: number}) => {
+  const {basePath} = useRouter();
   const data: ?PostRoot_PostQueryResponse = useLazyLoadQuery<PostRoot_PostQuery>(
     query,
     {issueNumber},
@@ -104,7 +106,7 @@ export const PostRoot = ({issueNumber}: {issueNumber: number}) => {
     !gitHub ||
     !post ||
     !labels ||
-    !labels.find(l => l && l.name.toLowerCase() === 'publish')
+    !labels.find((l) => l && l.name.toLowerCase() === 'publish')
   ) {
     return <ErrorBox error={new Error('Missing post.')} />;
   } else {
@@ -122,8 +124,9 @@ export const PostRoot = ({issueNumber}: {issueNumber: number}) => {
               property="og:image"
               // n.b. Ok to use vercel url for og-image as a fallback, but
               // careful not to use it as a canonical url
-              content={`${config.siteHostname ||
-                config.vercelUrl}/api/og-image/${post.number}`}
+              content={`${
+                config.siteHostname || config.vercelUrl
+              }${basePath}/api/og-image/${post.number}`}
             />
           ) : null}
           <meta key="type" property="og:type" content="article" />

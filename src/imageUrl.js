@@ -1,6 +1,7 @@
 // @flow
 
 import base64Encode from './base64Encode';
+import useBasePath from './lib/useBasePath';
 
 const imageUrl = ({
   src,
@@ -9,8 +10,11 @@ const imageUrl = ({
   src: ?string,
   firstFrame?: ?boolean,
 }): ?string => {
+  const basePath = useBasePath();
   if (src) {
-    return `/api/image/${firstFrame ? 'firstFrame/' : ''}${base64Encode(src)}`;
+    return `${basePath}/api/image/${
+      firstFrame ? 'firstFrame/' : ''
+    }${base64Encode(src)}`;
   }
   return src;
 };

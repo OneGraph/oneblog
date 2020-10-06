@@ -40,7 +40,6 @@ export async function getStaticProps(context: any) {
       tokenInfos,
     },
   };
-  b;
 }
 
 export async function getStaticPaths() {

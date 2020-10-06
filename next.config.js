@@ -1,5 +1,6 @@
 module.exports = () => {
   const opts = {
+    basePath: process.env.BASE_PATH,
     env: {
       // Backwards compatibility for people migrating from RAZZLE
       NEXT_PUBLIC_SITE_HOSTNAME:
