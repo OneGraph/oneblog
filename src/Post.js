@@ -37,7 +37,7 @@ import type {Post_post} from './__generated__/Post_post.graphql';
 // persisted auth
 const addReactionMutation = graphql`
   mutation Post_AddReactionMutation($input: GitHubAddReactionInput!)
-    @persistedQueryConfiguration(freeVariables: ["input"]) {
+  @persistedQueryConfiguration(freeVariables: ["input"]) {
     gitHub {
       addReaction(input: $input) {
         reaction {
@@ -62,7 +62,7 @@ const addReactionMutation = graphql`
 
 const removeReactionMutation = graphql`
   mutation Post_RemoveReactionMutation($input: GitHubRemoveReactionInput!)
-    @persistedQueryConfiguration(freeVariables: ["input"]) {
+  @persistedQueryConfiguration(freeVariables: ["input"]) {
     gitHub {
       removeReaction(input: $input) {
         reaction {
@@ -89,7 +89,7 @@ function reactionUpdater({store, viewerHasReacted, subjectId, content}) {
   const reactionGroup = store
     .get(subjectId)
     ?.getLinkedRecords('reactionGroups')
-    ?.find(r => r?.getValue('content') === content);
+    ?.find((r) => r?.getValue('content') === content);
 
   reactionGroup?.setValue(viewerHasReacted, 'viewerHasReacted');
   const users = reactionGroup?.getLinkedRecord('users', {first: 11});
@@ -115,8 +115,8 @@ async function addReaction({environment, content, subjectId}) {
       mutation: addReactionMutation,
       variables,
       onCompleted: (response, errors) => resolve({response, errors}),
-      onError: err => reject(err),
-      optimisticUpdater: store =>
+      onError: (err) => reject(err),
+      optimisticUpdater: (store) =>
         reactionUpdater({store, viewerHasReacted: true, content, subjectId}),
     });
   });
@@ -134,8 +134,8 @@ async function removeReaction({environment, content, subjectId}) {
       mutation: removeReactionMutation,
       variables,
       onCompleted: (response, errors) => resolve({response, errors}),
-      onError: err => reject(err),
-      optimisticUpdater: store =>
+      onError: (err) => reject(err),
+      optimisticUpdater: (store) =>
         reactionUpdater({store, viewerHasReacted: false, content, subjectId}),
     });
   });
@@ -290,7 +290,7 @@ export const ReactionBar = ({
   const isLoggedIn = loginStatus === 'logged-in';
 
   const usedReactions = (reactionGroups || [])
-    .filter(g => g.users.totalCount > 0)
+    .filter((g) => g.users.totalCount > 0)
     .sort((a, b) => b.users.totalCount - a.users.totalCount);
 
   return (
@@ -333,9 +333,9 @@ export const ReactionBar = ({
                 isLoggedIn={isLoggedIn}
                 login={login}
                 viewerReactions={usedReactions
-                  .filter(x => x.viewerHasReacted)
-                  .map(x => x.content)}
-                onDeselect={async content => {
+                  .filter((x) => x.viewerHasReacted)
+                  .map((x) => x.content)}
+                onDeselect={async (content) => {
                   sourceAdd?.data?.instance?.hide();
                   try {
                     await removeReaction({
@@ -347,7 +347,7 @@ export const ReactionBar = ({
                     notifyError('Error removing reaction.');
                   }
                 }}
-                onSelect={async content => {
+                onSelect={async (content) => {
                   sourceAdd?.data?.instance?.hide();
                   try {
                     await addReaction({
@@ -374,7 +374,7 @@ export const ReactionBar = ({
           </span>
         </Tippy>
         <Box direction="row" style={{overflowY: 'scroll'}}>
-          {usedReactions.map(g => {
+          {usedReactions.map((g) => {
             const total = g.users.totalCount;
             const reactors = [];
             if (isLoggedIn && g.viewerHasReacted) {
@@ -497,7 +497,7 @@ function visitBackmatter(node: any, fn) {
 function postBackmatter(post) {
   const backmatter = {};
   const ast = parseMarkdown(post.body);
-  visitBackmatter(ast, node => {
+  visitBackmatter(ast, (node) => {
     try {
       Object.assign(backmatter, JSON.parse(node.value));
     } catch (e) {
@@ -624,7 +624,7 @@ export const Post = ({relay, post, context}: Props) => {
           </Box>
         ) : null}
         <Box direction="row" justify="between"></Box>
-        <MarkdownRenderer source={post.body} />
+        <MarkdownRenderer trustedInput={true} source={post.body} />
       </Box>
       <ReactionBar
         relay={relay}

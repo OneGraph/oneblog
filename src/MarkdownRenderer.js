@@ -1,7 +1,9 @@
 // @flow
 
 import React from 'react';
-import ReactMarkdown from 'react-markdown/with-html';
+import ReactMarkdown from 'react-markdown';
+import htmlParser from 'react-markdown/plugins/html-parser';
+import HtmlToReact from 'html-to-react';
 import Embed from 'react-embed';
 import GifPlayer from './GifPlayer';
 import imageUrl from './imageUrl';
@@ -16,19 +18,20 @@ import {fetchTokenInfo, defaultThemeColors} from './lib/codeHighlight';
 import {isPromise} from 'relay-runtime';
 import Config from './config';
 
+import type {TokenInfo} from './lib/codeHighlight';
+
 type Props = {|
   source: string,
-  SyntaxHighlighter?: ?SyntaxHighlighter,
+  trustedInput: boolean,
 |};
 
 class CodeBlock extends React.PureComponent<
   {
     value: string,
     language: string,
-    SyntaxHighlighter?: ?SyntaxHighlighter,
   },
   {
-    SyntaxHighlighter: ?SyntaxHighlighter,
+    tokenInfo: TokenInfo | Promise<TokenInfo>,
   },
 > {
   state = {
@@ -106,7 +109,7 @@ class CodeBlock extends React.PureComponent<
 function PlainImage(imageProps) {
   const {isRss, src, ...props} = imageProps;
   return (
-    <Box as="span" style={{display: 'block'}}>
+    <Box as="span" align="center" justify="center" style={{display: 'flex'}}>
       {/*eslint-disable-next-line jsx-a11y/alt-text*/}
       <img style={{maxWidth: '100%'}} src={imageUrl({src})} {...props} />
       {props.isRss ? <br /> : null}
@@ -221,7 +224,7 @@ function Link(props) {
   return <Anchor {...props} />;
 }
 
-const defaultRenderers = ({SyntaxHighlighter}) => ({
+const defaultRenderers = {
   blockquote(props) {
     return (
       <Text color="dark-3">
@@ -237,7 +240,7 @@ const defaultRenderers = ({SyntaxHighlighter}) => ({
     if (props.language === 'backmatter') {
       return null;
     }
-    return <CodeBlock SyntaxHighlighter={SyntaxHighlighter} {...props} />;
+    return <CodeBlock {...props} />;
   },
   image: Image,
   paragraph: ParagraphWrapper,
@@ -248,16 +251,38 @@ const defaultRenderers = ({SyntaxHighlighter}) => ({
   linkReference(props) {
     return <Anchor {...props} />;
   },
+};
+
+const processNodeDefinitions = new HtmlToReact.ProcessNodeDefinitions(React);
+
+const parseHtml = htmlParser({
+  isValidNode: (node) => node.type !== 'script',
+  processingInstructions: [
+    {
+      shouldProcessNode: function (node) {
+        return node.name === 'img';
+      },
+      processNode: function (node, children) {
+        return <Image {...node.attribs} />;
+      },
+    },
+    {
+      shouldProcessNode: function (node) {
+        return true;
+      },
+      processNode: processNodeDefinitions.processDefaultNode,
+    },
+  ],
 });
 
 export default class MarkdownRenderer extends React.PureComponent<Props> {
   render() {
-    const {SyntaxHighlighter} = this.props;
     return (
       <ReactMarkdown
-        escapeHtml={true}
+        escapeHtml={this.props.trustedInput ? false : true}
         source={this.props.source}
-        renderers={defaultRenderers({SyntaxHighlighter})}
+        renderers={defaultRenderers}
+        astPlugins={this.props.trustedInput ? [parseHtml] : []}
       />
     );
   }
@@ -265,13 +290,14 @@ export default class MarkdownRenderer extends React.PureComponent<Props> {
 
 export class RssMarkdownRenderer extends React.PureComponent<Props> {
   render() {
-    const {escapeHtml = true, SyntaxHighlighter} = this.props;
+    const {trustedInput} = this.props;
     return (
       <ReactMarkdown
-        escapeHtml={escapeHtml}
+        trustedInput={trustedInput}
+        astPlugins={trustedInput ? [parseHtml] : []}
         source={this.props.source}
         renderers={{
-          ...defaultRenderers({SyntaxHighlighter}),
+          ...defaultRenderers,
           image(props) {
             return <PlainImage isRss={true} {...props} />;
           },

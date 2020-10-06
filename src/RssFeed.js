@@ -49,7 +49,7 @@ function renderPostHtml(post) {
           style={{
             maxWidth: 704,
           }}>
-          <RssMarkdownRenderer source={post.body} />
+          <RssMarkdownRenderer trustedInput={true} source={post.body} />
         </div>
       </Grommet>,
     ),

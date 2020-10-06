@@ -23,7 +23,7 @@
     "react-embed": "^3.3.2",
     "react-intersection-observer": "^8.28.5",
     "react-markdown": "^4.3.1",
-    "react-relay": "0.0.0-experimental-8058ef82",
+    "react-relay": "0.0.0-experimental-183bdd28",
     "relay-runtime": "^10.0.1",
     "sentence-case": "^3.0.3",
     "sitemap": "^6.3.2",

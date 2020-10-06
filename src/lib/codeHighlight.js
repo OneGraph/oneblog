@@ -9,7 +9,7 @@ type Tokens = Array<{
   backgroundColor: string,
 }>;
 
-type TokenInfo = {
+export type TokenInfo = {
   tokens: Tokens,
   backgroundColor: string,
   foregroundColor: string,

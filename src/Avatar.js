@@ -54,13 +54,17 @@ type Props = {
 };
 
 export default function Avatar({gitHub, adminLinks: extraAdminLinks}: Props) {
+  const ref = React.useRef();
+  const {loginStatus, logout, login} = React.useContext(UserContext);
+  const [showOptions, setShowOptions] = React.useState(false);
+
   const data: Avatar_gitHub$data = useFragment(
     graphql`
       fragment Avatar_gitHub on GitHubQuery
-        @argumentDefinitions(
-          repoName: {type: "String!"}
-          repoOwner: {type: "String!"}
-        ) {
+      @argumentDefinitions(
+        repoName: {type: "String!"}
+        repoOwner: {type: "String!"}
+      ) {
         viewer {
           login
           avatarUrl(size: 96)
@@ -73,9 +77,6 @@ export default function Avatar({gitHub, adminLinks: extraAdminLinks}: Props) {
     `,
     gitHub,
   );
-  const ref = React.useRef();
-  const {loginStatus, logout, login} = React.useContext(UserContext);
-  const [showOptions, setShowOptions] = React.useState(false);
 
   if (loginStatus === 'checking' || loginStatus === 'error') {
     return null;
