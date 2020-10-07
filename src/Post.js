@@ -630,7 +630,9 @@ export const Post = ({relay, post, context}: Props) => {
           </Box>
         ) : null}
         <Box direction="row" justify="between"></Box>
-        <MarkdownRenderer trustedInput={true} source={post.body} />
+        <Text>
+          <MarkdownRenderer trustedInput={true} source={post.body} />
+        </Text>
       </Box>
       <ReactionBar
         relay={relay}

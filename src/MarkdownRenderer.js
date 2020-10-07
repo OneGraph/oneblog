@@ -243,9 +243,9 @@ const defaultRenderers = {
           padding: '.2em .4em',
           borderRadius: 6,
           background: 'rgba(27,31,35,.05)',
-        }}
-        {...props}
-      />
+        }}>
+        {props.children}
+      </code>
     );
   },
   code(props) {
