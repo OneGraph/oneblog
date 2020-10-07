@@ -1,6 +1,7 @@
 // @flow
 
 import React from 'react';
+// $FlowFixMe: Silence warning about no Html export
 import Document, {Html, Head, Main, NextScript} from 'next/document';
 import {ServerStyleSheet} from 'styled-components';
 import config from '../config';
