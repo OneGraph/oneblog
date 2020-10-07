@@ -1,10 +1,4 @@
-FROM node:10-alpine as builder
-
-RUN npm install -g yarn
-
-ENV HOST 0.0.0.0
-ENV RAZZLE_PUBLIC_DIR build/public
-ENV PORT 8080
+FROM node:14 as builder
 
 COPY package.json .
 COPY yarn.lock .
@@ -14,31 +8,30 @@ RUN yarn install
 
 COPY . .
 
-RUN yarn razzle build
+ENV NODE_ENV=production
+
+RUN yarn build && rm -rf .next/cache
 
 # Make smaller prod image
-FROM node:10-alpine as node_installer
+FROM node:14 as node_installer
 
-RUN npm install -g yarn
-
-ENV NODE_ENV production
+ENV NODE_ENV=production
 
 COPY package.json .
 COPY yarn.lock .
 
 RUN yarn install --production
 
-FROM node:10-alpine
+FROM node:14
 
-ENV NODE_ENV production
-ENV HOST 0.0.0.0
-ENV RAZZLE_PUBLIC_DIR build/public
-ENV PORT 8080
+ENV NODE_ENV=production
 
 COPY package.json .
 COPY yarn.lock .
 COPY .env .
+COPY server.js.example server.js
+COPY next.config.js .
 
-COPY --from=builder build build
+COPY --from=builder .next .next
 COPY --from=node_installer node_modules node_modules
-CMD [ "node", "/build/server.js" ]
+CMD [ "node", "server.js" ]
