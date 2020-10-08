@@ -228,8 +228,13 @@ export function emojify(s: string): string {
   return emojified;
 }
 
+const HashLinkContext = React.createContext<?StatelessFunctionalComponent<{
+  hash: string,
+  children?: Node,
+}>>(null);
+
 function Link(props) {
-  const {HashLink} = props;
+  const HashLink = React.useContext(HashLinkContext);
   if (props.href && props.href.startsWith('#') && HashLink) {
     return <HashLink hash={props.href}>{props.children}</HashLink>;
   }
@@ -251,7 +256,6 @@ function headingSlug(props) {
 const defaultRenderers = ({
   isRss,
   addHeadingIds,
-  HashLink,
 }: {
   isRss?: ?boolean,
   addHeadingIds?: ?boolean,
@@ -302,9 +306,7 @@ const defaultRenderers = ({
         />
       );
     },
-    link(props) {
-      return <Link {...props} HashLink={HashLink} />;
-    },
+    link: Link,
     linkReference(props) {
       return <div {...props} />;
     },
@@ -390,17 +392,18 @@ const parseHtml = htmlParser({
 export default class MarkdownRenderer extends React.PureComponent<Props> {
   render() {
     return (
-      <ReactMarkdown
-        escapeHtml={this.props.trustedInput ? false : true}
-        source={this.props.source}
-        renderers={defaultRenderers({
-          isRss: false,
-          addHeadingIds: this.props.addHeadingIds,
-          HashLink: this.props.HashLink,
-        })}
-        astPlugins={this.props.trustedInput ? [parseHtml] : []}
-        parserOptions={{footnotes: true}}
-      />
+      <HashLinkContext.Provider value={this.props.HashLink}>
+        <ReactMarkdown
+          escapeHtml={this.props.trustedInput ? false : true}
+          source={this.props.source}
+          renderers={defaultRenderers({
+            isRss: false,
+            addHeadingIds: this.props.addHeadingIds,
+          })}
+          astPlugins={this.props.trustedInput ? [parseHtml] : []}
+          parserOptions={{footnotes: true}}
+        />
+      </HashLinkContext.Provider>
     );
   }
 }
