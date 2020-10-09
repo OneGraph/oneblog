@@ -117,7 +117,12 @@ class CodeBlock extends React.PureComponent<
 function PlainImage(imageProps) {
   const {isRss, src, ...props} = imageProps;
   return (
-    <Box as="span" align="center" justify="center" style={{display: 'flex'}}>
+    <Box
+      margin={{vertical: 'medium'}}
+      as="span"
+      align="center"
+      justify="center"
+      style={{display: 'flex'}}>
       {/*eslint-disable-next-line jsx-a11y/alt-text*/}
       <img style={{maxWidth: '100%'}} src={imageUrl({src})} {...props} />
       {props.isRss ? <br /> : null}
@@ -143,7 +148,11 @@ function isGif(src: string) {
 
 function Image(props) {
   if (props.src && isGif(props.src)) {
-    return <GifPlayer style={{maxWidth: '100%'}} src={props.src} />;
+    return (
+      <Box margin={{vertical: 'medium'}}>
+        <GifPlayer style={{maxWidth: '100%'}} src={props.src} />
+      </Box>
+    );
   }
   return <PlainImage {...props} />;
 }
@@ -293,7 +302,11 @@ const defaultRenderers = ({
       if (props.language === 'backmatter') {
         return null;
       }
-      return <CodeBlock {...props} />;
+      return (
+        <Box margin={{vertical: 'small'}}>
+          <CodeBlock {...props} />
+        </Box>
+      );
     },
     image: Image,
     paragraph: ParagraphWrapper,
