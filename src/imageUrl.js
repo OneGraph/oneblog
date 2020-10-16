@@ -12,7 +12,7 @@ const imageUrl = ({
 }): ?string => {
   const basePath = useBasePath();
   if (src) {
-    return `${basePath}/api/image/${
+    return `${basePath || ''}/api/image/${
       firstFrame ? 'firstFrame/' : ''
     }${base64Encode(src)}`;
   }
