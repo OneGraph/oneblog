@@ -233,7 +233,7 @@ function CommentInput({
 function Comments({post, relay, postId, viewer}: Props) {
   const comments = [];
   for (const edge of post.comments.edges || []) {
-    if (edge && edge.node) {
+    if (edge && edge.node && edge.node.author?.login !== 'oneblog-bot') {
       comments.push(edge.node);
     }
   }
@@ -263,6 +263,9 @@ export default createPaginationContainer(
           edges {
             node {
               id
+              author {
+                login
+              }
               ...Comment_comment
             }
           }

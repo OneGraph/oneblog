@@ -465,12 +465,12 @@ export const ReactionBar = ({
 
 export function slugify(s: string): string {
   return lowerCase(s)
+    .trim()
     .replace(/\s+/g, '-') // Replace spaces with -
     .replace(/&/g, '-and-') // Replace & with 'and'
     .replace(/[^\w-]+/g, '') // Remove all non-word characters
     .replace(/--+/g, '-') // Replace multiple - with single -
-    .trimStart() // Trim from start of text
-    .trimEnd(); // Trim from end of text
+    .trim();
 }
 
 export function postPath({

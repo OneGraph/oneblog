@@ -7,6 +7,7 @@ export function newIssueUrl(): string {
     `https://github.com/${config.repoOwner}/${config.repoName}/issues/new`,
   );
   url.searchParams.set('labels', 'Publish');
+  url.searchParams.set('template', 'create-new-post.md');
   const defaultAuthor = config.defaultLogin || config.repoOwner;
   if (defaultAuthor) {
     url.searchParams.set('assignees', defaultAuthor);

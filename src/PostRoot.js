@@ -43,6 +43,13 @@ export const query = graphql`
       ...Avatar_gitHub @arguments(repoName: $repoName, repoOwner: $repoOwner)
       repository(name: $repoName, owner: $repoOwner) {
         issue(number: $issueNumber) {
+          author {
+            ... on GitHubUser {
+              name
+            }
+
+            login
+          }
           labels(first: 100) {
             nodes {
               name
@@ -92,7 +99,13 @@ function buildDescription(body) {
   }
 }
 
-export const PostRoot = ({issueNumber}: {issueNumber: number}) => {
+export const PostRoot = ({
+  issueNumber,
+  subdomain,
+}: {
+  issueNumber: number,
+  subdomain: string,
+}) => {
   const {config} = React.useContext(ConfigContext);
   const {basePath} = useRouter();
   const data: ?PostRoot_PostQueryResponse = useLazyLoadQuery<PostRoot_PostQuery>(
@@ -108,17 +121,22 @@ export const PostRoot = ({issueNumber}: {issueNumber: number}) => {
   }
 
   const post = data?.gitHub?.repository?.issue;
+  const issueAuthor = post?.author?.login;
   const labels = post?.labels?.nodes;
   const gitHub = data?.gitHub;
   if (
     !gitHub ||
     !post ||
     !labels ||
-    !labels.find((l) => l && l.name.toLowerCase() === 'publish')
+    !labels.find((l) => l && l.name.toLowerCase() === 'publish') ||
+    (subdomain &&
+      issueAuthor &&
+      subdomain.toLowerCase() !== issueAuthor.toLowerCase())
   ) {
     return <ErrorBox error={new Error('Missing post.')} />;
   } else {
-    const title = `${post.title} - ${config.title}`;
+    const blogTitle = post.author?.name || post.author?.login || subdomain;
+    const title = `${post.title} - ${blogTitle}`;
     const description = buildDescription(post.body);
 
     return (
@@ -127,18 +145,14 @@ export const PostRoot = ({issueNumber}: {issueNumber: number}) => {
           <title>{title}</title>
           <meta key="og:title" property="og:title" content={title} />
 
-          {config.siteHostname || config.vercelUrl ? (
-            <meta
-              key="og:image"
-              property="og:image"
-              // n.b. Ok to use vercel url for og-image as a fallback, but
-              // careful not to use it as a canonical url
-              content={`${
-                // $FlowFixMe: checked above
-                config.siteHostname || config.vercelUrl
-              }${basePath}/api/og-image/${post.number}`}
-            />
-          ) : null}
+          <meta
+            key="og:image"
+            property="og:image"
+            // n.b. Ok to use vercel url for og-image as a fallback, but
+            // careful not to use it as a canonical url
+            content={`https://${subdomain}.essay.dev/api/og-image/${post.number}`}
+          />
+
           <meta key="type" property="og:type" content="article" />
           <meta
             key="description"
@@ -152,6 +166,7 @@ export const PostRoot = ({issueNumber}: {issueNumber: number}) => {
           />
         </Head>
         <Header
+          title={blogTitle}
           gitHub={gitHub}
           adminLinks={[
             {
