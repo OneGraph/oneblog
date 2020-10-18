@@ -8,6 +8,7 @@ import unified from 'unified';
 import parse from 'remark-parse';
 import {proxyImage} from './imageProxy';
 import Config from './config';
+import {subdomainFromReq} from './lib/subdomain';
 
 const postQuery = graphql`
   query ogImage_PostQuery(
@@ -34,6 +35,10 @@ const postQuery = graphql`
             nodes {
               avatarUrl(size: 1200)
             }
+          }
+          author {
+            login
+            avatarUrl
           }
         }
       }
@@ -109,6 +114,11 @@ function respondWithCodeImage(
 }
 
 export const ogImage = async (req: any, res: any) => {
+  const subdomain = subdomainFromReq(req);
+  if (!subdomain) {
+    res.status(404);
+    res.send('Could not determine subdomain');
+  }
   const postNumber = parseInt(req.params.postNumber, 10);
 
   const data = await fetchQuery(createEnvironment(), postQuery, {
@@ -116,11 +126,7 @@ export const ogImage = async (req: any, res: any) => {
   }).toPromise();
 
   const issue = data?.gitHub?.repository?.issue;
-  if (
-    !issue ||
-    !issue.labels?.nodes?.length ||
-    !issue.labels.nodes.find((l) => l && l.name.toLowerCase() === 'publish')
-  ) {
+  if (!issue || !issue.author?.login || (issue.author?.login !== subdomain)) {
     res.status(404);
     res.send('Could not find issue');
     return;
@@ -135,7 +141,7 @@ export const ogImage = async (req: any, res: any) => {
       return await proxyImage(res, bodyImage.url);
     }
   } else {
-    const avatarUrl = issue?.assignees?.nodes?.[0]?.avatarUrl;
+    const avatarUrl = issue?.author?.avatarUrl;
 
     if (avatarUrl) {
       return await proxyImage(res, avatarUrl);

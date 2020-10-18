@@ -17,9 +17,10 @@ import type {RssFeed_QueryResponse} from './__generated__/RssFeed_Query.graphql'
 import theme from './lib/theme';
 
 const feedQuery = graphql`
-  query RssFeed_Query($repoOwner: String!, $repoName: String!)
+  query RssFeed_Query($repoOwner: String!, $repoName: String!, $author: String!)
   @persistedQueryConfiguration(
     accessToken: {environmentVariable: "OG_GITHUB_TOKEN"}
+    freeVariables: ["author"]
     fixedVariables: {environmentVariable: "REPOSITORY_FIXED_VARIABLES"}
     cacheSeconds: 300
   ) {
@@ -28,7 +29,7 @@ const feedQuery = graphql`
         issues(
           first: 20
           orderBy: {direction: DESC, field: CREATED_AT}
-          labels: ["publish", "Publish"]
+          filterBy: {createdBy: $author}
         ) {
           nodes {
             ...Post_post @relay(mask: false)
@@ -71,9 +72,11 @@ function removeTrailingSlash(s: ?string): string {
 export async function buildFeed({
   basePath,
   siteHostname,
+  subdomain,
 }: {
   basePath?: ?string,
   siteHostname?: ?string,
+  subdomain: string,
 }) {
   const markdowns = [];
   const environment = createEnvironment({
@@ -84,7 +87,7 @@ export async function buildFeed({
   const data: ?RssFeed_QueryResponse = await fetchQuery(
     environment,
     feedQuery,
-    {},
+    {author: subdomain},
   ).toPromise();
 
   const posts = data?.gitHub?.repository?.issues.nodes || [];

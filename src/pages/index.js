@@ -5,15 +5,18 @@ import {fetchQuery} from 'react-relay/hooks';
 import {query, PostsRoot} from '../PostsRoot';
 import {createEnvironment} from '../Environment';
 import {tokenInfosFromMarkdowns} from '../lib/codeHighlight';
+import {subdomainFromReq} from '../lib/subdomain';
+import type {IncomingMessage} from 'http';
+import Landing from '../Landing';
 
-export async function getStaticProps() {
+export async function getServerSideProps({req}: {req: IncomingMessage}) {
   const markdowns = [];
   const environment = createEnvironment({
     registerMarkdown: function (m) {
       markdowns.push(m);
     },
   });
-  await fetchQuery(environment, query, {}).toPromise();
+  await fetchQuery(environment, query, {author: 'danieltest123'}).toPromise();
   let tokenInfos = {};
 
   try {
@@ -23,16 +26,20 @@ export async function getStaticProps() {
   }
 
   return {
-    revalidate: 600,
     props: {
       initialRecords: environment.getStore().getSource().toJSON(),
       tokenInfos,
+      subdomain: subdomainFromReq(req),
     },
   };
 }
 
-const Index = () => {
-  return <PostsRoot />;
+const Index = ({subdomain}: {subdomain: ?string}) => {
+  if (!subdomain) {
+    return <Landing />;
+  }
+
+  return <PostsRoot subdomain={subdomain} />;
 };
 
 export default Index;

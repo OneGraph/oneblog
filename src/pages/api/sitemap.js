@@ -1,5 +1,6 @@
 import {buildSitemap} from '../../Sitemap';
 import appConfig from '../../config';
+import {subdomainFromReq} from '../../lib/subdomain';
 
 export const config = {
   api: {
@@ -17,8 +18,11 @@ export default async (req, res) => {
     siteHostname = `https://${req.headers.host}`;
   }
 
+  const subdomain = subdomainFromReq(req);
+
   const sitemap = await buildSitemap({
     siteHostname,
+    subdomain,
   });
 
   res.setHeader('Cache-Control', 'public, max-age=300, s-maxage=300');

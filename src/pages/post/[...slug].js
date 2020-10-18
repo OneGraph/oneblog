@@ -8,8 +8,9 @@ import {getStaticPaths as generateStaticPaths} from '../../staticPaths';
 import {createEnvironment} from '../../Environment';
 import DefaultErrorPage from 'next/error';
 import {tokenInfosFromMarkdowns} from '../../lib/codeHighlight';
+import {subdomainFromReq} from '../../lib/subdomain';
 
-export async function getStaticProps(context: any) {
+export async function getServerSideProps(context: any) {
   let issueNumber;
   const issueNumberString = context.params.slug[0];
   if (issueNumberString) {
@@ -35,24 +36,30 @@ export async function getStaticProps(context: any) {
   }
 
   return {
-    revalidate: 600,
     props: {
       issueNumber,
       initialRecords: environment.getStore().getSource().toJSON(),
       tokenInfos,
+      subdomain: subdomainFromReq(context.req),
     },
   };
 }
 
-export async function getStaticPaths() {
-  const paths = await generateStaticPaths();
-  return {
-    paths,
-    fallback: true,
-  };
-}
+// export async function getStaticPaths() {
+//   const paths = await generateStaticPaths();
+//   return {
+//     paths,
+//     fallback: true,
+//   };
+// }
 
-const Page = ({issueNumber: staticIssueNumber}: {issueNumber: ?number}) => {
+const Page = ({
+  issueNumber: staticIssueNumber,
+  subdomain,
+}: {
+  issueNumber: ?number,
+  subdomain: ?string,
+}) => {
   const {
     isFallback,
     query: {slug},
@@ -61,7 +68,7 @@ const Page = ({issueNumber: staticIssueNumber}: {issueNumber: ?number}) => {
   const issueNumber =
     staticIssueNumber || (slug?.[0] ? parseInt(slug[0], 10) : null);
 
-  if (!issueNumber) {
+  if (!issueNumber || !subdomain) {
     if (isFallback) {
       return null;
     } else {
@@ -69,7 +76,7 @@ const Page = ({issueNumber: staticIssueNumber}: {issueNumber: ?number}) => {
     }
   }
 
-  return <PostRoot issueNumber={issueNumber} />;
+  return <PostRoot subdomain={subdomain} issueNumber={issueNumber} />;
 };
 
 export default Page;

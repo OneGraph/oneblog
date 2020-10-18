@@ -83,12 +83,13 @@ export default createPaginationContainer(
           type: "GitHubIssueOrder"
           defaultValue: {direction: DESC, field: CREATED_AT}
         }
+        author: {type: "String!"}
       ) {
         issues(
           first: $count
           after: $cursor
           orderBy: $orderBy
-          labels: ["publish", "Publish"]
+          filterBy: {createdBy: $author}
         ) @connection(key: "Posts_posts_issues") {
           isClientFetched @__clientField(handle: "isClientFetched")
           edges {
@@ -122,10 +123,11 @@ export default createPaginationContainer(
         $orderBy: GitHubIssueOrder
         $repoOwner: String!
         $repoName: String!
+        $author: String!
       )
       @persistedQueryConfiguration(
         accessToken: {environmentVariable: "OG_GITHUB_TOKEN"}
-        freeVariables: ["count", "cursor", "orderBy"]
+        freeVariables: ["count", "cursor", "orderBy", "author"]
         fixedVariables: {environmentVariable: "REPOSITORY_FIXED_VARIABLES"}
         cacheSeconds: 300
       ) {
@@ -133,7 +135,7 @@ export default createPaginationContainer(
           repository(name: $repoName, owner: $repoOwner) {
             __typename
             ...Posts_repository
-              @arguments(count: $count, cursor: $cursor, orderBy: $orderBy)
+              @arguments(count: $count, cursor: $cursor, orderBy: $orderBy, author: $author)
           }
         }
       }

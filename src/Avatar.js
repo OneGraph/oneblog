@@ -46,7 +46,7 @@ function checkIsAdmin(
   return viewerIsAdmin || MANAGE_LABEL_ROLES.includes(viewerPermission);
 }
 
-type AdminLink = {href: string, label: string, icon: any};
+export type AdminLink = {href: string, label: string, icon: any};
 
 type Props = {
   gitHub: Avatar_gitHub$key,
