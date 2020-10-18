@@ -13,7 +13,7 @@ export default (req, res) => {
   }
 
   res.setHeader('Content-Type', 'text/plain; charset=utf-8');
-  res.setHeader('Cache-Control', 'public, max-age=3000, s-maxage=3000');
+  res.setHeader('Cache-Control', 's-maxage=600, stale-while-revalidate');
 
   const body = `# https://www.robotstxt.org/robotstxt.html
 User-agent: *

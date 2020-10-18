@@ -1,6 +1,14 @@
 // @flow
 
-import config from '../config';
+import {withOverrides} from '../config';
+import {subdomainFromWindow} from './subdomain';
+
+const config =
+  typeof window !== 'undefined'
+    ? withOverrides({
+        subdomain: subdomainFromWindow(),
+      })
+    : withOverrides({});
 
 // https://developers.google.com/analytics/devguides/collection/gtagjs/pages
 export const pageview = (url: string) => {

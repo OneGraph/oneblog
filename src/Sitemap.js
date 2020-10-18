@@ -10,11 +10,16 @@ import useBasePath from './lib/useBasePath';
 import type {Sitemap_QueryResponse} from './__generated__/Sitemap_Query.graphql';
 
 const sitemapQuery = graphql`
-  query Sitemap_Query($repoOwner: String!, $repoName: String!, $cursor: String)
+  query Sitemap_Query(
+    $repoOwner: String!
+    $repoName: String!
+    $cursor: String
+    $subdomain: String!
+  )
   @persistedQueryConfiguration(
     accessToken: {environmentVariable: "OG_GITHUB_TOKEN"}
     fixedVariables: {environmentVariable: "REPOSITORY_FIXED_VARIABLES"}
-    freeVariables: ["cursor"]
+    freeVariables: ["cursor", "subdomain"]
     cacheSeconds: 300
   ) {
     gitHub {
@@ -23,6 +28,7 @@ const sitemapQuery = graphql`
           first: 100
           after: $cursor
           orderBy: {direction: DESC, field: CREATED_AT}
+          filterBy: {createdBy: $subdomain}
           labels: ["publish", "Publish"]
         ) {
           pageInfo {
@@ -40,7 +46,13 @@ const sitemapQuery = graphql`
   }
 `;
 
-export async function buildSitemap({siteHostname}: {siteHostname: string}) {
+export async function buildSitemap({
+  siteHostname,
+  subdomain,
+}: {
+  siteHostname: string,
+  subdomain: sttring,
+}) {
   // eslint-disable-next-line react-hooks/rules-of-hooks
   const basePath = useBasePath();
   const smStream = new SitemapStream({hostname: `${siteHostname}`});
@@ -57,7 +69,7 @@ export async function buildSitemap({siteHostname}: {siteHostname: string}) {
     const data: ?Sitemap_QueryResponse = await fetchQuery(
       environment,
       sitemapQuery,
-      {cursor},
+      {cursor, subdomain},
     ).toPromise();
     reqCount++;
 

@@ -8,9 +8,10 @@ import {getStaticPaths as generateStaticPaths} from '../../staticPaths';
 import {createEnvironment} from '../../Environment';
 import DefaultErrorPage from 'next/error';
 import {tokenInfosFromMarkdowns} from '../../lib/codeHighlight';
-import config from '../../config';
+import {withOverrides} from '../../config';
+import {subdomainFromReq} from '../../lib/subdomain';
 
-export async function getStaticProps(context: any) {
+export async function getServerSideProps(context: any) {
   let issueNumber;
   const issueNumberString = context.params.slug[0];
   if (issueNumberString) {
@@ -25,47 +26,85 @@ export async function getStaticProps(context: any) {
       markdowns.push(m);
     },
   });
-  await fetchQuery(environment, query, {issueNumber}).toPromise();
-
-  let tokenInfos = {};
-
-  try {
-    tokenInfos = await tokenInfosFromMarkdowns({
-      markdowns,
-      theme: config.codeTheme,
-    });
-  } catch (e) {
-    console.error('Error fetching tokenInfos for highlighting code', e);
+  const subdomain = subdomainFromReq(context.req);
+  if (!subdomain) {
+    return {props: {}};
   }
-
-  return {
-    revalidate: 600,
-    props: {
+  try {
+    const result = await fetchQuery(environment, query, {
       issueNumber,
-      initialRecords: environment.getStore().getSource().toJSON(),
-      tokenInfos,
-    },
-  };
+      subdomain,
+    }).toPromise();
+
+    const author = result?.gitHub?.subdomainAuthor;
+    const config = withOverrides({author, subdomain});
+
+    let tokenInfos = {};
+
+    try {
+      tokenInfos = await tokenInfosFromMarkdowns({
+        markdowns,
+        theme: config.codeTheme,
+      });
+    } catch (e) {
+      console.error('Error fetching tokenInfos for highlighting code', e);
+    }
+
+    context.res.setHeader(
+      'Cache-Control',
+      's-maxage=600, stale-while-revalidate',
+    );
+
+    return {
+      props: {
+        issueNumber,
+        initialRecords: environment.getStore().getSource().toJSON(),
+        tokenInfos,
+        subdomain,
+        author,
+      },
+    };
+  } catch (e) {
+    return {
+      props: {
+        is404: !!e.source?.errors?.[0]?.message?.match(/could not resolve/i),
+        issueNumber,
+        subdomain,
+      },
+    };
+  }
 }
 
-export async function getStaticPaths() {
-  const paths = await generateStaticPaths();
-  return {
-    paths,
-    fallback: 'blocking',
-  };
-}
+// export async function getStaticPaths() {
+//   const paths = await generateStaticPaths();
+//   return {
+//     paths,
+//     fallback: 'blocking',
+//   };
+// }
 
-const Page = ({issueNumber: staticIssueNumber}: {issueNumber: ?number}) => {
+const Page = ({
+  issueNumber: staticIssueNumber,
+  subdomain,
+  is404,
+}: {
+  issueNumber: ?number,
+  subdomain: ?string,
+  is404?: ?boolean,
+}) => {
   const {
     isFallback,
     query: {slug},
   } = useRouter();
 
+  if (is404) {
+    return <DefaultErrorPage statusCode={404} />;
+  }
+
   const issueNumber =
     staticIssueNumber || (slug?.[0] ? parseInt(slug[0], 10) : null);
 
-  if (!issueNumber) {
+  if (!issueNumber || !subdomain) {
     if (isFallback) {
       return null;
     } else {
@@ -73,7 +112,7 @@ const Page = ({issueNumber: staticIssueNumber}: {issueNumber: ?number}) => {
     }
   }
 
-  return <PostRoot issueNumber={issueNumber} />;
+  return <PostRoot subdomain={subdomain} issueNumber={issueNumber} />;
 };
 
 export default Page;

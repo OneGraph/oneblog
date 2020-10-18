@@ -30,6 +30,7 @@ import {query as postsRootQuery} from './PostsRoot';
 import CommentsIcon from './CommentsIcon';
 import parseMarkdown from './lib/parseMarkdown';
 import Head from 'next/head';
+import ConfigContext from './ConfigContext';
 
 import type {Post_post} from './__generated__/Post_post.graphql';
 
@@ -528,6 +529,7 @@ export function computePostDate({
 }
 
 export const Post = ({relay, post, context}: Props) => {
+  const {subdomain} = React.useContext(ConfigContext);
   const environment = useRelayEnvironment();
   const backmatter = React.useMemo(() => postBackmatter(post), [post]);
   const postDate = React.useMemo(
@@ -548,7 +550,7 @@ export const Post = ({relay, post, context}: Props) => {
       loadQuery.loadQuery(
         environment,
         postRootQuery,
-        {issueNumber: number},
+        {issueNumber: number, subdomain},
         {fetchPolicy: 'network-only'},
       );
     }
@@ -564,14 +566,14 @@ export const Post = ({relay, post, context}: Props) => {
       loadQuery.loadQuery(
         environment,
         postRootQuery,
-        {issueNumber: number},
+        {issueNumber: number, subdomain},
         {fetchPolicy: 'store-or-network'},
       );
     } else if (context === 'details') {
       loadQuery.loadQuery(
         environment,
         postsRootQuery,
-        {},
+        {subdomain},
         {fetchPolicy: 'store-or-network'},
       );
     }

@@ -1,3 +1,5 @@
+// @flow
+
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import React from 'react';
 import {Box, Heading} from 'grommet';
@@ -7,7 +9,17 @@ import ConfigContext from './ConfigContext';
 import {PostBox} from './Post';
 import {useRouter} from 'next/router';
 
-function Header({gitHub, adminLinks}) {
+import type {AdminLink} from './Avatar';
+
+import type {Avatar_gitHub$key} from './__generated__/Avatar_gitHub.graphql';
+
+type Props = {|
+  title: string,
+  gitHub: Avatar_gitHub$key,
+  adminLinks: Array<AdminLink>,
+|};
+
+function Header({gitHub, adminLinks}: Props) {
   const {config} = React.useContext(ConfigContext);
   const {pathname} = useRouter();
 

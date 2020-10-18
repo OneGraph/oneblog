@@ -17,7 +17,7 @@ import {useRouter} from 'next/router';
 import {query as loginQuery} from '../LoginQuery';
 import * as trk from '../lib/trk';
 import {registerTokenInfo} from '../lib/codeHighlight';
-import Config from '../config';
+import Config, {withOverrides} from '../config';
 import ConfigContext from '../ConfigContext';
 
 function AppComponent({
@@ -147,13 +147,19 @@ function App({Component, pageProps}: any) {
     );
   };
 
-  const [config, setConfig] = React.useState(Config);
+  const [config, setConfig] = React.useState(
+    withOverrides({
+      author: pageProps.author,
+      subdomain: pageProps.subdomain,
+    }),
+  );
 
   return (
     <ConfigContext.Provider
       value={{
         config: config,
         updateConfig: (configShape) => setConfig({...config, ...configShape}),
+        subdomain: pageProps.subdomain,
       }}>
       <RelayEnvironmentProvider environment={environment}>
         <Head />

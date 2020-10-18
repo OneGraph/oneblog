@@ -136,8 +136,8 @@ function createFetchQuery(opts: ?Opts) {
 
       // eslint-disable-next-line no-unused-expressions
       opts?.notificationContext?.clearCorsViolation();
-
       if (json.errors && Object.keys(onegraphAuth.authHeaders()).length) {
+        console.log('errors in query', json.errors);
         // Clear auth on any error and try again
         onegraphAuth.destroy();
         const newJson = await sendRequest({

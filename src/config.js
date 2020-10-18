@@ -92,4 +92,25 @@ const config: Config = {
   }),
 };
 
+export function withOverrides({
+  author,
+  subdomain,
+}: {
+  author: ?{name: ?string, login: ?string},
+  subdomain: string,
+}) {
+  const overrides = process.env.NEXT_PUBLIC_CONFIG_OVERRIDES[subdomain];
+
+  const defaultTitle = author?.name || author?.login || subdomain;
+  const defaultConfig = {...config, title: defaultTitle};
+  if (overrides) {
+    return {
+      ...defaultConfig,
+
+      ...overrides,
+    };
+  }
+  return defaultConfig;
+}
+
 export default config;

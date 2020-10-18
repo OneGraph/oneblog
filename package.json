@@ -38,7 +38,7 @@
   "scripts": {
     "dev": "next",
     "start": "next",
-    "build": "yarn ensure-publish-label && yarn relay && next build",
+    "build": "next build",
     "start:prod": "NODE_ENV=production node build/server.js",
     "relay": "relay-compiler --src ./src --schema ./schema.graphql --persistFunction scripts/persistQuery.js",
     "relay:clean": "rm -r src/__generated__",

@@ -4,7 +4,7 @@ import React from 'react';
 // $FlowFixMe: Silence warning about no Html export
 import Document, {Html, Head, Main, NextScript} from 'next/document';
 import {ServerStyleSheet} from 'styled-components';
-import config from '../config';
+import {withOverrides} from '../config';
 
 export default class MyDocument extends Document {
   static async getInitialProps(ctx: any) {
@@ -34,6 +34,11 @@ export default class MyDocument extends Document {
   }
 
   render() {
+    const pageProps = this.props.__NEXT_DATA__?.props?.pageProps || {};
+    const config = withOverrides({
+      author: pageProps.author,
+      subdomain: pageProps.subdomain,
+    });
     return (
       <Html>
         <Head>

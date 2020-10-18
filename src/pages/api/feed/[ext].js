@@ -1,5 +1,6 @@
 import {buildFeed} from '../../../RssFeed';
 import appConfig from '../../../config';
+import {subdomainFromReq} from '../../../lib/subdomain';
 
 export const config = {
   api: {
@@ -18,9 +19,18 @@ export default async (req, res) => {
     return;
   }
 
+  let siteHostname = appConfig.siteHostname;
+
+  if (!siteHostname) {
+    siteHostname = `https://${req.headers.host}`;
+  }
+
+  const subdomain = subdomainFromReq(req);
+
   const feed = await buildFeed({
     basePath: '/',
-    siteHostname: appConfig.siteHostname,
+    siteHostname,
+    subdomain,
   });
   const body =
     extension === 'rss'
@@ -28,7 +38,9 @@ export default async (req, res) => {
       : extension === 'atom'
       ? feed.atom1()
       : feed.json1();
-  res.setHeader('Cache-Control', 'public, max-age=300, s-maxage=300');
+
+  res.setHeader('Cache-Control', 's-maxage=600, stale-while-revalidate');
+
   res.setHeader(
     'Content-Type',
     extension === 'json' ? 'application/json' : 'application/xml',

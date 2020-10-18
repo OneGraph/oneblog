@@ -148,7 +148,7 @@ export const firstFrame = (req: any, res: any) => {
           palette: q.palette,
         });
         res.status(200);
-        res.set('Cache-Control', 'public, max-age=2592000, s-maxage=2592000');
+        res.set('Cache-Control', 's-maxage=6002592000, stale-while-revalidate');
         res.set('Content-Type', 'image/gif');
         enc.pipe(res);
         enc.end(q.indexed);
@@ -183,7 +183,9 @@ export const proxyImage = (res: any, url: URL): any => {
             res.set(k, resp.headers[k]);
           }
         }
-        res.set('Cache-Control', 'public, max-age=2592000, s-maxage=2592000');
+
+        res.set('Cache-Control', 's-maxage=6002592000, stale-while-revalidate');
+
         resp.on('data', (chunk) => {
           res.write(chunk);
         });

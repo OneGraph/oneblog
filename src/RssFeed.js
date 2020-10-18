@@ -12,14 +12,20 @@ import {ServerStyleSheet} from 'styled-components';
 import inlineCss from 'inline-css/lib/inline-css';
 import {Grommet} from 'grommet/components/Grommet';
 import appCss from './App.css';
-import config from './config';
+import {withOverrides} from './config';
 import type {RssFeed_QueryResponse} from './__generated__/RssFeed_Query.graphql';
 import theme from './lib/theme';
+import ConfigContext from './ConfigContext';
 
 const feedQuery = graphql`
-  query RssFeed_Query($repoOwner: String!, $repoName: String!)
+  query RssFeed_Query(
+    $repoOwner: String!
+    $repoName: String!
+    $subdomain: String!
+  )
   @persistedQueryConfiguration(
     accessToken: {environmentVariable: "OG_GITHUB_TOKEN"}
+    freeVariables: ["subdomain"]
     fixedVariables: {environmentVariable: "REPOSITORY_FIXED_VARIABLES"}
     cacheSeconds: 300
   ) {
@@ -28,29 +34,36 @@ const feedQuery = graphql`
         issues(
           first: 20
           orderBy: {direction: DESC, field: CREATED_AT}
-          labels: ["publish", "Publish"]
+          filterBy: {createdBy: $subdomain, labels: ["publish", "Publish"]}
         ) {
           nodes {
             ...Post_post @relay(mask: false)
           }
         }
       }
+      subdomainAuthor: user(login: $subdomain) {
+        name
+        login
+      }
     }
   }
 `;
 
-function renderPostHtml(post) {
+function renderPostHtml({config, subdomain, post}) {
   const sheet = new ServerStyleSheet();
   const markup = renderToStaticMarkup(
     sheet.collectStyles(
-      <Grommet theme={theme}>
-        <div
-          style={{
-            maxWidth: 704,
-          }}>
-          <RssMarkdownRenderer trustedInput={true} source={post.body} />
-        </div>
-      </Grommet>,
+      <ConfigContext.Provider
+        value={{config, subdomain, updateConfig: () => null}}>
+        <Grommet theme={theme}>
+          <div
+            style={{
+              maxWidth: 704,
+            }}>
+            <RssMarkdownRenderer trustedInput={true} source={post.body} />
+          </div>
+        </Grommet>
+      </ConfigContext.Provider>,
     ),
   );
 
@@ -78,9 +91,11 @@ function postDate(post) {
 export async function buildFeed({
   basePath,
   siteHostname,
+  subdomain,
 }: {
   basePath?: ?string,
   siteHostname?: ?string,
+  subdomain: string,
 }) {
   const markdowns = [];
   const environment = createEnvironment({
@@ -91,15 +106,18 @@ export async function buildFeed({
   const data: ?RssFeed_QueryResponse = await fetchQuery(
     environment,
     feedQuery,
-    {},
+    {subdomain},
   ).toPromise();
 
   const posts = data?.gitHub?.repository?.issues.nodes || [];
   const latestPost = posts[0];
+  const author = data?.gitHub?.subdomainAuthor;
 
   const baseUrl = removeTrailingSlash(
     `${removeTrailingSlash(siteHostname)}${basePath ? basePath : ''}`,
   );
+
+  const config = withOverrides({author, subdomain});
 
   const feed = new Feed({
     title: config.title,
@@ -120,7 +138,7 @@ export async function buildFeed({
 
   for (const post of posts) {
     if (post) {
-      const content = renderPostHtml(post);
+      const content = renderPostHtml({config, subdomain, post});
       feed.addItem({
         title: post.title,
         id: post.id,

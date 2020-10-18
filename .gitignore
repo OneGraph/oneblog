@@ -10,7 +10,6 @@
 
 # production
 /build
-src/__generated__
 
 # misc
 .DS_Store

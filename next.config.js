@@ -26,6 +26,7 @@ module.exports = () => {
       NEXT_PUBLIC_GOOGLE_ANALYTICS_TRACKING_ID:
         process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_TRACKING_ID ||
         process.env.RAZZLE_GOOGLE_ANALYTICS_TRACKING_ID,
+      NEXT_PUBLIC_CONFIG_OVERRIDES: getConfigOverrides(),
     },
     experimental: {
       reactMode: 'concurrent',
@@ -52,3 +53,16 @@ module.exports = () => {
   }
   return opts;
 };
+
+function getConfigOverrides() {
+  const fs = require('fs');
+  const path = require('path');
+  const overrides = {};
+  for (const file of fs.readdirSync('./src/config-overrides')) {
+    const {name, ext} = path.parse(file);
+    if (ext === '.json') {
+      overrides[name] = require(path.resolve('./src/config-overrides', file));
+    }
+  }
+  return overrides;
+}
