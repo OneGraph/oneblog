@@ -15,9 +15,15 @@ function Header({gitHub, adminLinks}) {
       <Box margin="medium" style={{position: 'absolute', top: 0, right: 0}}>
         <Avatar gitHub={gitHub} adminLinks={adminLinks} />
       </Box>
-      <PostBox>
+      <Box
+        pad={{horizontal: 'medium'}}
+        style={{
+          maxWidth: 704,
+          width: '100%',
+        }}>
         <Box
-          pad={{horizontal: 'medium'}}
+          style={{maxWidth: 704, width: '100%'}}
+          pad={{top: 'medium', horizontal: 'medium'}}
           border={{
             size: 'xsmall',
             side: 'bottom',
@@ -40,7 +46,7 @@ function Header({gitHub, adminLinks}) {
             </Link>
           </Heading>
         </Box>
-      </PostBox>
+      </Box>
     </>
   );
 }
