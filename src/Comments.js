@@ -15,8 +15,6 @@ import MarkdownRenderer from './MarkdownRenderer';
 import {Box} from 'grommet/components/Box';
 import {Text} from 'grommet/components/Text';
 import {TextArea} from 'grommet/components/TextArea';
-import {Tabs} from 'grommet/components/Tabs';
-import {Tab} from 'grommet/components/Tab';
 import {Button} from 'grommet/components/Button';
 import {Stack} from 'grommet/components/Stack';
 import Comment from './Comment';
@@ -66,6 +64,9 @@ function CommentInput({
 
   const [comment, setComment] = React.useState('');
   const [saving, setSaving] = React.useState(false);
+  const [activeTab, setActiveTab] = React.useState<'write' | 'preview'>(
+    'write',
+  );
 
   const onInputChange = React.useCallback(
     (e) => {
@@ -98,7 +99,7 @@ function CommentInput({
         const count = post.getLinkedRecord('comments')?.getValue('totalCount');
         if (Number.isInteger(count)) {
           // $FlowFixMe: count has been checked by isInteger
-          const newCount = count + 1;          
+          const newCount = count + 1;
           // eslint-disable-next-line no-unused-expressions
           post.getLinkedRecord('comments')?.setValue(newCount, 'totalCount');
         }
@@ -156,28 +157,59 @@ function CommentInput({
         anchor="center">
         <Box style={{opacity: isLoggedIn ? 1 : 0.3}}>
           <Box height={{min: 'small'}}>
-            <Tabs justify="start">
-              <Tab title={<Text size="small">Write</Text>}>
-                <Box pad="small" height="small">
-                  <TextArea
-                    focusIndicator={false}
-                    disabled={saving}
-                    placeholder="Leave a comment (supports markdown)"
-                    value={comment}
-                    style={{height: '100%', fontWeight: 'normal'}}
-                    onChange={onInputChange}
-                  />
-                </Box>
-              </Tab>
-              <Tab title={<Text size="small">Preview</Text>}>
-                <Box pad="small" height={{min: 'small'}}>
-                  <MarkdownRenderer
-                    trustedInput={false}
-                    source={comment.trim() ? comment : 'Nothing to preview.'}
-                  />
-                </Box>
-              </Tab>
-            </Tabs>
+            <Box pad="small" direction="row" gap="medium">
+              <Button
+                plain
+                focusIndicator={false}
+                label={
+                  <Box
+                    pad={{bottom: 'xsmall'}}
+                    border={{
+                      color: activeTab === 'write' ? 'black' : 'brand',
+                      side: 'bottom',
+                      size: 'small',
+                    }}>
+                    <Text size="small">Write</Text>
+                  </Box>
+                }
+                onClick={() => setActiveTab('write')}
+              />
+              <Button
+                plain
+                focusIndicator={false}
+                label={
+                  <Box
+                    pad={{bottom: 'xsmall'}}
+                    border={{
+                      color: activeTab === 'preview' ? 'black' : 'brand',
+                      side: 'bottom',
+                      size: 'small',
+                    }}>
+                    <Text size="small">Preview</Text>
+                  </Box>
+                }
+                onClick={() => setActiveTab('preview')}
+              />
+            </Box>
+            {activeTab === 'write' ? (
+              <Box pad="small" height="small">
+                <TextArea
+                  focusIndicator={false}
+                  disabled={saving}
+                  placeholder="Leave a comment (supports markdown)"
+                  value={comment}
+                  style={{height: '100%', fontWeight: 'normal'}}
+                  onChange={onInputChange}
+                />
+              </Box>
+            ) : (
+              <Box pad="small" height={{min: 'small'}}>
+                <MarkdownRenderer
+                  trustedInput={false}
+                  source={comment.trim() ? comment : 'Nothing to preview.'}
+                />
+              </Box>
+            )}
           </Box>
           <Box>
             <Box pad="small" align="end">
