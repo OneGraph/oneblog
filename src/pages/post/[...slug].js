@@ -48,7 +48,7 @@ export async function getStaticPaths() {
   const paths = await generateStaticPaths();
   return {
     paths,
-    fallback: true,
+    fallback: 'blocking',
   };
 }
 
