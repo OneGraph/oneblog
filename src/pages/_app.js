@@ -17,6 +17,7 @@ import {useRouter} from 'next/router';
 import {query as loginQuery} from '../LoginQuery';
 import * as trk from '../lib/trk';
 import {registerTokenInfo} from '../lib/codeHighlight';
+import Config from '../config';
 
 function AppComponent({
   Component,
@@ -99,8 +100,14 @@ function App({Component, pageProps}: any) {
   });
 
   if (pageProps.tokenInfos) {
-    for (const code of Object.keys(pageProps.tokenInfos)) {
-      registerTokenInfo({code, tokenInfo: pageProps.tokenInfos[code]});
+    for (const {code, theme, language, tokenInfo} of pageProps.tokenInfos) {
+      console.log('theme', theme, language, 'language');
+      registerTokenInfo({
+        code,
+        theme,
+        language,
+        tokenInfo,
+      });
     }
   }
 

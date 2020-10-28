@@ -37,6 +37,7 @@ class CodeBlock extends React.PureComponent<
   {
     value: string,
     language: string,
+    theme: string,
   },
   {
     tokenInfo: TokenInfo | Promise<TokenInfo>,
@@ -46,6 +47,7 @@ class CodeBlock extends React.PureComponent<
     tokenInfo: fetchTokenInfo({
       code: this.props.value,
       language: this.props.language,
+      theme: this.props.theme,
     }),
   };
 
@@ -309,7 +311,7 @@ const defaultRenderers = ({
       }
       return (
         <Box margin={{vertical: 'small'}}>
-          <CodeBlock {...props} />
+          <CodeBlock theme={Config.codeTheme} {...props} />
         </Box>
       );
     },

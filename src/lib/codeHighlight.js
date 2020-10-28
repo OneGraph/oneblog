@@ -19,17 +19,34 @@ export type TokenInfo = {
 // Assumes identical code blocks should match the same lanugage
 export const TOKEN_INFO_CACHE: Map<string, TokenInfo> = new Map();
 
+function makeCacheKey({
+  code,
+  language,
+  theme,
+}: {
+  code: string,
+  language: ?string,
+  theme: string,
+}) {
+  return `${code}:${language || ''}:${theme}`;
+}
+
 export function registerTokenInfo({
   code,
+  language,
+  theme,
   tokenInfo,
 }: {
   code: string,
+  language: ?string,
+  theme: string,
   tokenInfo: TokenInfo,
 }) {
-  if (TOKEN_INFO_CACHE.get(code)) {
+  const cacheKey = makeCacheKey({code, language, theme});
+  if (TOKEN_INFO_CACHE.has(cacheKey)) {
     return;
   }
-  TOKEN_INFO_CACHE.set(code, tokenInfo);
+  TOKEN_INFO_CACHE.set(cacheKey, tokenInfo);
   if (TOKEN_INFO_CACHE.size > 5000) {
     const firstKey = TOKEN_INFO_CACHE.keys().next().value;
     if (firstKey) {
@@ -41,17 +58,20 @@ export function registerTokenInfo({
 export function fetchTokenInfo({
   code,
   language,
+  theme,
 }: {
   code: string,
-  language?: ?string,
+  language: ?string,
+  theme: string,
 }): TokenInfo | Promise<TokenInfo> {
-  const fromCache = TOKEN_INFO_CACHE.get(code);
+  const cacheKey = makeCacheKey({code, language, theme});
+  const fromCache = TOKEN_INFO_CACHE.get(cacheKey);
   if (fromCache) {
     return fromCache;
   }
   const getUrl = `https://sourcecodeshots.com/api/token-info?code=${encodeURIComponent(
     code,
-  )}&theme=${Config.codeTheme}&language=${language ? language : ''}`;
+  )}&theme=${theme}&language=${language ? language : ''}`;
   const resp =
     getUrl.length < 2083
       ? fetch(getUrl, {
@@ -67,13 +87,13 @@ export function fetchTokenInfo({
           body: JSON.stringify({
             code,
             language: language,
-            theme: Config.codeTheme,
+            theme,
           }),
         });
   return resp
     .then((r) => r.json())
     .then((tokenInfo) => {
-      registerTokenInfo({code, tokenInfo});
+      registerTokenInfo({code, theme, language, tokenInfo});
       return tokenInfo;
     });
 }
@@ -100,17 +120,26 @@ export async function tokenInfosFromMarkdowns({
   markdowns,
 }: {
   markdowns: Array<string>,
-}): {[code: string]: TokenInfo} {
+}): Array<{
+  code: string,
+  language: ?string,
+  theme: string,
+  tokenInfo: TokenInfo,
+}> {
+  const theme = Config.codeTheme;
   const nodes = findCodeNodes(markdowns.map(parseMarkdown));
-  const entries = await Promise.all(
+  return await Promise.all(
     nodes.map(async (node) => {
       const code = node.value;
       const language = node.lang;
-      const tokenInfo = await fetchTokenInfo({code: node.value, language});
-      return [code, tokenInfo];
+      const tokenInfo = await fetchTokenInfo({
+        code: node.value,
+        language,
+        theme,
+      });
+      return {code, language, theme, tokenInfo};
     }),
   );
-  return Object.fromEntries(entries);
 }
 
 export const defaultThemeColors = {
@@ -131,6 +160,16 @@ export const defaultThemeColors = {
   'kimbie-dark': {backgroundColor: '#221a0f', foregroundColor: '#d3af86'},
   'dimmed-monokai': {backgroundColor: '#1e1e1e', foregroundColor: '#c5c8c6'},
   monokai: {backgroundColor: '#272822', foregroundColor: '#f8f8f2'},
+  'night-owl': {backgroundColor: '#011627', foregroundColor: '#d6deeb'},
+  'night-owl-no-italic': {
+    backgroundColor: '#011627',
+    foregroundColor: '#d6deeb',
+  },
+  'night-owl-light': {backgroundColor: '#FBFBFB', foregroundColor: '#403f53'},
+  'night-owl-light-no-italic': {
+    backgroundColor: '#FBFBFB',
+    foregroundColor: '#403f53',
+  },
   quietlight: {backgroundColor: '#F5F5F5', foregroundColor: 'white'},
   red: {backgroundColor: '#390000', foregroundColor: '#F8F8F8'},
   'solarized-dark': {backgroundColor: '#002B36', foregroundColor: 'white'},
