@@ -101,7 +101,6 @@ function App({Component, pageProps}: any) {
 
   if (pageProps.tokenInfos) {
     for (const {code, theme, language, tokenInfo} of pageProps.tokenInfos) {
-      console.log('theme', theme, language, 'language');
       registerTokenInfo({
         code,
         theme,
