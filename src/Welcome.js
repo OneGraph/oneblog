@@ -3,10 +3,11 @@
 import React from 'react';
 import {PostBox} from './Post';
 import {Box, Heading} from 'grommet';
-import config from './config';
+import ConfigContext from './ConfigContext';
 import {newIssueUrl} from './issueUrls';
 
 export default function Welcome() {
+  const {config} = React.useContext(ConfigContext);
   return (
     <PostBox key="intro">
       <Box pad="medium">

@@ -1,7 +1,6 @@
 // @flow
 
 import parseMarkdown from './parseMarkdown';
-import Config from '../config';
 
 type Tokens = Array<{
   text: string,
@@ -118,15 +117,18 @@ function findCodeNodes(roots: Array<any>) {
 
 export async function tokenInfosFromMarkdowns({
   markdowns,
+  theme,
 }: {
   markdowns: Array<string>,
-}): Array<{
-  code: string,
-  language: ?string,
   theme: string,
-  tokenInfo: TokenInfo,
-}> {
-  const theme = Config.codeTheme;
+}): Promise<
+  Array<{
+    code: string,
+    language: ?string,
+    theme: string,
+    tokenInfo: TokenInfo,
+  }>,
+> {
   const nodes = findCodeNodes(markdowns.map(parseMarkdown));
   return await Promise.all(
     nodes.map(async (node) => {

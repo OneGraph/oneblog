@@ -3,9 +3,10 @@
 import React from 'react';
 import {Box, Text} from 'grommet';
 import {StatusCritical} from 'grommet-icons/icons/StatusCritical';
-import config from './config';
+import ConfigContext from './ConfigContext';
 
 const ErrorBox = ({error}: {error: any}) => {
+  const {config} = React.useContext(ConfigContext);
   console.error('error', error);
   const relayError = error?.source?.errors?.[0]?.message;
   return (

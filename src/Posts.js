@@ -9,7 +9,6 @@ import LoadingSpinner from './loadingSpinner';
 import {Box} from 'grommet/components/Box';
 import {useInView} from 'react-intersection-observer';
 import Welcome from './Welcome';
-import config from './config';
 import 'intersection-observer';
 
 type Props = {|

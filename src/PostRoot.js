@@ -10,7 +10,7 @@ import Comments from './Comments';
 import Post from './Post';
 import ErrorBox from './ErrorBox';
 import Head from 'next/head';
-import config from './config';
+import ConfigContext from './ConfigContext';
 import Attribution from './Attribution';
 import parseMarkdown from './lib/parseMarkdown';
 import {useRouter} from 'next/router';
@@ -93,6 +93,7 @@ function buildDescription(body) {
 }
 
 export const PostRoot = ({issueNumber}: {issueNumber: number}) => {
+  const {config} = React.useContext(ConfigContext);
   const {basePath} = useRouter();
   const data: ?PostRoot_PostQueryResponse = useLazyLoadQuery<PostRoot_PostQuery>(
     query,

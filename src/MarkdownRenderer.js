@@ -16,9 +16,9 @@ import {ResponsiveContext} from 'grommet/contexts/ResponsiveContext';
 import emoji from './emoji';
 import {fetchTokenInfo, defaultThemeColors} from './lib/codeHighlight';
 import {isPromise} from 'relay-runtime';
-import Config from './config';
 import Tippy from '@tippyjs/react';
 import {slugify} from './Post';
+import ConfigContext from './ConfigContext';
 
 import type {TokenInfo} from './lib/codeHighlight';
 import type {StatelessFunctionalComponent, Node} from 'react';
@@ -33,12 +33,10 @@ type Props = {|
   }>,
 |};
 
-class CodeBlock extends React.PureComponent<
-  {
-    value: string,
-    language: string,
-    theme: string,
-  },
+type CodeBlockProps = {|value: string, language: string, theme: string|};
+
+export class CodeBlock extends React.PureComponent<
+  CodeBlockProps,
   {
     tokenInfo: TokenInfo | Promise<TokenInfo>,
   },
@@ -51,18 +49,48 @@ class CodeBlock extends React.PureComponent<
     }),
   };
 
-  componentDidMount() {
-    const {tokenInfo} = this.state;
+  _updateTokenInfo = (tokenInfo: TokenInfo | Promise<TokenInfo>) => {
     if (isPromise(tokenInfo)) {
       tokenInfo
-        .then((res) => this.setState({tokenInfo: res}))
+        .then((res) => {
+          this.setState((prevState) => {
+            if (prevState.tokenInfo === tokenInfo) {
+              return {tokenInfo: res};
+            } else {
+              return prevState;
+            }
+          });
+        })
         .catch((e) => {
           console.error('Error fetching token info', e);
         });
     }
+  };
+
+  componentDidMount() {
+    this._updateTokenInfo(this.state.tokenInfo);
   }
+
+  componentDidUpdate(prevProps: CodeBlockProps) {
+    if (
+      this.props.value !== prevProps.value ||
+      this.props.language !== prevProps.language ||
+      this.props.theme !== prevProps.theme
+    ) {
+      const tokenInfo = fetchTokenInfo({
+        code: this.props.value,
+        language: this.props.language,
+        theme: this.props.theme,
+      });
+      this.setState({
+        tokenInfo,
+      });
+      this._updateTokenInfo(tokenInfo);
+    }
+  }
+
   render() {
-    const {language, value} = this.props;
+    const {language, value, theme} = this.props;
     const {tokenInfo} = this.state;
 
     if (!isPromise(tokenInfo)) {
@@ -105,10 +133,8 @@ class CodeBlock extends React.PureComponent<
           overflowX: 'auto',
           padding: '1em',
           borderRadius: 4,
-          color:
-            defaultThemeColors[Config.codeTheme]?.foregroundColor || '#fff',
-          background:
-            defaultThemeColors[Config.codeTheme]?.backgroundColor || '#000',
+          color: defaultThemeColors[theme]?.foregroundColor || '#fff',
+          background: defaultThemeColors[theme]?.backgroundColor || '#000',
         }}>
         <code className={`language-${language}`}>{value}</code>
       </pre>
@@ -257,6 +283,18 @@ function Link(props) {
   return <Anchor {...props} />;
 }
 
+function Code(props) {
+  const {config} = React.useContext(ConfigContext);
+  if (props.language === 'backmatter') {
+    return null;
+  }
+  return (
+    <Box margin={{vertical: 'small'}}>
+      <CodeBlock theme={config.codeTheme} {...props} />
+    </Box>
+  );
+}
+
 function flatten(text, child) {
   return typeof child === 'string'
     ? text + child
@@ -305,16 +343,7 @@ const defaultRenderers = ({
         </code>
       );
     },
-    code(props) {
-      if (props.language === 'backmatter') {
-        return null;
-      }
-      return (
-        <Box margin={{vertical: 'small'}}>
-          <CodeBlock theme={Config.codeTheme} {...props} />
-        </Box>
-      );
-    },
+    code: Code,
     image: Image,
     paragraph: ParagraphWrapper,
     heading(props) {

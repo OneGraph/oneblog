@@ -3,11 +3,12 @@ import React from 'react';
 import {Box, Heading} from 'grommet';
 import Avatar from './Avatar';
 import Link from 'next/link';
-import config from './config';
+import ConfigContext from './ConfigContext';
 import {PostBox} from './Post';
 import {useRouter} from 'next/router';
 
 function Header({gitHub, adminLinks}) {
+  const {config} = React.useContext(ConfigContext);
   const {pathname} = useRouter();
 
   return (

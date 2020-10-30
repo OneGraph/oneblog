@@ -5,6 +5,7 @@ import {fetchQuery} from 'react-relay/hooks';
 import {query, PostsRoot} from '../PostsRoot';
 import {createEnvironment} from '../Environment';
 import {tokenInfosFromMarkdowns} from '../lib/codeHighlight';
+import config from '../config';
 
 export async function getStaticProps() {
   const markdowns = [];
@@ -17,7 +18,10 @@ export async function getStaticProps() {
   let tokenInfos = {};
 
   try {
-    tokenInfos = await tokenInfosFromMarkdowns({markdowns});
+    tokenInfos = await tokenInfosFromMarkdowns({
+      markdowns,
+      theme: config.codeTheme,
+    });
   } catch (e) {
     console.error('Error fetching tokenInfos for highlighting code', e);
   }

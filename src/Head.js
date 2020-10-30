@@ -2,9 +2,10 @@
 
 import React from 'react';
 import NextHead from 'next/head';
-import config from './config';
+import ConfigContext from './ConfigContext';
 
 function Head() {
+  const {config} = React.useContext(ConfigContext);
   return (
     <NextHead>
       <title>{config.title}</title>

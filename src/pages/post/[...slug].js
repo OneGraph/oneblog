@@ -8,6 +8,7 @@ import {getStaticPaths as generateStaticPaths} from '../../staticPaths';
 import {createEnvironment} from '../../Environment';
 import DefaultErrorPage from 'next/error';
 import {tokenInfosFromMarkdowns} from '../../lib/codeHighlight';
+import config from '../../config';
 
 export async function getStaticProps(context: any) {
   let issueNumber;
@@ -29,7 +30,10 @@ export async function getStaticProps(context: any) {
   let tokenInfos = {};
 
   try {
-    tokenInfos = await tokenInfosFromMarkdowns({markdowns});
+    tokenInfos = await tokenInfosFromMarkdowns({
+      markdowns,
+      theme: config.codeTheme,
+    });
   } catch (e) {
     console.error('Error fetching tokenInfos for highlighting code', e);
   }
