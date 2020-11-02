@@ -20,11 +20,12 @@
     "pixel-stream": "^1.0.3",
     "react": "0.0.0-experimental-94c0244ba",
     "react-dom": "0.0.0-experimental-94c0244ba",
-    "react-embed": "^3.3.2",
     "react-intersection-observer": "^8.28.5",
     "react-markdown": "^4.3.1",
+    "react-player": "^2.6.2",
     "react-relay": "0.0.0-experimental-183bdd28",
     "relay-runtime": "^10.0.1",
+    "scriptjs": "^2.5.9",
     "sentence-case": "^3.0.3",
     "sitemap": "^6.3.2",
     "styled-components": "^5.0.0"

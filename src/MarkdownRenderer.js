@@ -4,7 +4,7 @@ import React from 'react';
 import ReactMarkdown from 'react-markdown';
 import htmlParser from 'react-markdown/plugins/html-parser';
 import HtmlToReact from 'html-to-react';
-import Embed from 'react-embed';
+import Embed from './Embed';
 import GifPlayer from './GifPlayer';
 import imageUrl from './imageUrl';
 import {Anchor} from 'grommet/components/Anchor';
