@@ -29,6 +29,7 @@ import {query as postRootQuery} from './PostRoot';
 import {query as postsRootQuery} from './PostsRoot';
 import CommentsIcon from './CommentsIcon';
 import parseMarkdown from './lib/parseMarkdown';
+import Head from 'next/head';
 
 import type {Post_post} from './__generated__/Post_post.graphql';
 
@@ -513,20 +514,20 @@ function postBackmatter(post) {
   return backmatter;
 }
 
-export function computePostDate(post: {
-  +body: string,
-  +createdAt: string,
-}): Date {
-  const backmatter = postBackmatter(post);
+export function computePostDate({backmatter, createdAt}): Date {
   if (backmatter.publishedDate) {
     return new Date(backmatter.publishedDate);
   }
-  return new Date(post.createdAt);
+  return new Date(createdAt);
 }
 
 export const Post = ({relay, post, context}: Props) => {
   const environment = useRelayEnvironment();
-  const postDate = React.useMemo(() => computePostDate(post), [post]);
+  const backmatter = React.useMemo(() => postBackmatter(post), [post]);
+  const postDate = React.useMemo(
+    () => computePostDate({backmatter, createdAt: post.createdAt}),
+    [post],
+  );
   const number = post.number;
 
   const {loginStatus} = React.useContext(UserContext);
@@ -573,6 +574,11 @@ export const Post = ({relay, post, context}: Props) => {
   const authors = post.assignees.nodes || [];
   return (
     <PostBox>
+      <Head>
+        {backmatter.canonical ? (
+          <link rel="canonical" href={backmatter.canonical} />
+        ) : null}
+      </Head>
       <Box pad="medium">
         <Heading level={1} margin="none">
           {context === 'details' ? (
