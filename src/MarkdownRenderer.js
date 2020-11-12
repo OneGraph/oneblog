@@ -13,6 +13,7 @@ import {Heading} from 'grommet/components/Heading';
 import {Box} from 'grommet/components/Box';
 import {Text} from 'grommet/components/Text';
 import {ResponsiveContext} from 'grommet/contexts/ResponsiveContext';
+import {Table, TableHeader, TableBody, TableRow, TableCell} from 'grommet';
 import emoji from './emoji';
 import {fetchTokenInfo, defaultThemeColors} from './lib/codeHighlight';
 import {isPromise} from 'relay-runtime';
@@ -359,6 +360,11 @@ const defaultRenderers = ({
     linkReference(props) {
       return <div {...props} />;
     },
+    table: Table,
+    tableHead: TableHeader,
+    tableBody: TableBody,
+    tableRow: TableRow,
+    tableCell: TableCell,
     footnoteReference: function FootnoteReference(props) {
       // This should be ok because we will always call these in the same order
       // eslint-disable-next-line react-hooks/rules-of-hooks
