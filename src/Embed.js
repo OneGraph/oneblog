@@ -274,7 +274,7 @@ function GoogleMaps({uri, fallback}) {
         width="100%"
         height="360"
         style={{borderRadius: 8}}
-        frameborder="0"
+        frameBorder="0"
         allowFullScreen
         src={`https://www.google.com/maps/embed?pb=!1m14!1m12!1m3!1d21948.472927059174!2d${encodeURIComponent(
           lng,

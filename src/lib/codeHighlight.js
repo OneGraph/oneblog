@@ -85,8 +85,10 @@ export function fetchTokenInfo({
           },
           body: JSON.stringify({
             code,
-            language: language,
-            theme,
+            settings: {
+              language: language,
+              theme,
+            },
           }),
         });
   return resp

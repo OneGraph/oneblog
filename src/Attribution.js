@@ -3,7 +3,7 @@ import {Box, Text, Grommet} from 'grommet';
 import ConfigContext from './ConfigContext';
 
 export default function Attribution() {
-  const {config: hideAttribution} = React.useContext(ConfigContext);
+  const {config: {hideAttribution}} = React.useContext(ConfigContext);
   if (hideAttribution) {
     return null;
   }
