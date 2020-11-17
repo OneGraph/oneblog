@@ -501,7 +501,7 @@ function visitBackmatter(node: any, fn) {
   }
 }
 
-function postBackmatter(post) {
+export function postBackmatter(post: {+body: string}): Object {
   const backmatter = {};
   const ast = parseMarkdown(post.body);
   visitBackmatter(ast, (node) => {
@@ -514,7 +514,13 @@ function postBackmatter(post) {
   return backmatter;
 }
 
-export function computePostDate({backmatter, createdAt}): Date {
+export function computePostDate({
+  backmatter,
+  createdAt,
+}: {
+  backmatter: Object,
+  createdAt: string,
+}): Date {
   if (backmatter.publishedDate) {
     return new Date(backmatter.publishedDate);
   }

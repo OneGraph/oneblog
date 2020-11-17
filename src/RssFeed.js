@@ -6,7 +6,7 @@ import {Feed} from 'feed';
 import graphql from 'babel-plugin-relay/macro';
 import {createEnvironment} from './Environment';
 import {fetchQuery} from 'react-relay/hooks';
-import {computePostDate, postPath} from './Post';
+import {postBackmatter, computePostDate, postPath} from './Post';
 import {RssMarkdownRenderer} from './MarkdownRenderer';
 import {ServerStyleSheet} from 'styled-components';
 import inlineCss from 'inline-css/lib/inline-css';
@@ -68,6 +68,13 @@ function removeTrailingSlash(s: ?string): string {
   return s;
 }
 
+function postDate(post) {
+  return computePostDate({
+    backmatter: postBackmatter(post),
+    createdAt: post.createdAt,
+  });
+}
+
 export async function buildFeed({
   basePath,
   siteHostname,
@@ -96,13 +103,13 @@ export async function buildFeed({
 
   const feed = new Feed({
     title: config.title,
-    description: config.description,
+    description: config.description || '',
     id: baseUrl,
     link: baseUrl,
     language: 'en',
     image: `${baseUrl}/logo.png`,
     favicon: `${baseUrl}/favicon.ico`,
-    updated: latestPost ? computePostDate(latestPost) : null,
+    updated: latestPost ? postDate(latestPost) : null,
     generator: '',
     feedLinks: {
       json: `${baseUrl}/feed.json`,
@@ -127,7 +134,7 @@ export async function buildFeed({
               }
             : null,
         ),
-        date: computePostDate(post),
+        date: postDate(post),
       });
     }
   }
