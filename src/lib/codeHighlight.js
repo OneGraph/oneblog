@@ -1,6 +1,9 @@
 // @flow
 
 import parseMarkdown from './parseMarkdown';
+import setupFetch from '@vercel/fetch-retry';
+
+let fetch;
 
 type Tokens = Array<{
   text: string,
@@ -63,6 +66,7 @@ export function fetchTokenInfo({
   language: ?string,
   theme: string,
 }): TokenInfo | Promise<TokenInfo> {
+  fetch = fetch || setupFetch();
   const cacheKey = makeCacheKey({code, language, theme});
   const fromCache = TOKEN_INFO_CACHE.get(cacheKey);
   if (fromCache) {

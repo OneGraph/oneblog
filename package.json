@@ -4,6 +4,7 @@
   "private": true,
   "dependencies": {
     "@tippyjs/react": "4.1.0",
+    "@vercel/fetch-retry": "^5.0.3",
     "date-fns": "2.9.0",
     "email-reply-parser": "^1.2.1",
     "feed": "^4.0.0",
