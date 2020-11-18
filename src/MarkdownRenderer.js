@@ -176,8 +176,12 @@ function PlainImage(imageProps) {
 }
 
 function isGif(src: string) {
-  const srcUrl = new URL(src);
-  return srcUrl.pathname.endsWith('gif');
+  try {
+    const srcUrl = new URL(src);
+    return srcUrl.pathname.endsWith('gif');
+  } catch (e) {
+    return false;
+  }
 }
 
 function Image(props) {
