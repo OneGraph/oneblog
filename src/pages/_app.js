@@ -123,7 +123,6 @@ function App({Component, pageProps}: any) {
       })
       .catch((e) => {
         console.error('Error checking login status', e);
-        setLoginStatus('error');
       });
   }, [environment]);
 
