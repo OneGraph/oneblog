@@ -366,7 +366,10 @@ const defaultRenderers = ({
     },
     link: Link,
     linkReference(props) {
-      return <div {...props} />;
+      if (!props.href) {
+        return <span>[{props.children}]</span>;
+      }
+      return <Link {...props} />;
     },
     table: TableWrapper,
     tableHead: TableHeader,
