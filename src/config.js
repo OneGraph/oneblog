@@ -39,6 +39,23 @@ if (
   );
 }
 
+function parseBool({
+  value,
+  defaultValue,
+}: {
+  value: any,
+  defaultValue: boolean,
+}): boolean {
+  if (value == null) {
+    return defaultValue;
+  }
+  try {
+    return JSON.parse(value);
+  } catch (e) {
+    return defaultValue;
+  }
+}
+
 const config: Config = {
   // Owner of the repo that OneBlog should pull issues from
   repoOwner: ensureEnv(
@@ -59,12 +76,19 @@ const config: Config = {
   description: process.env.NEXT_PUBLIC_DESCRIPTION,
   defaultLogin: process.env.NEXT_PUBLIC_DEFAULT_GITHUB_LOGIN,
   siteHostname: removeTrailingSlash(process.env.NEXT_PUBLIC_SITE_HOSTNAME),
-  hideAttribution: process.env.NEXT_PUBLIC_HIDE_ATTRIBUTION,
+  hideAttribution: parseBool({
+    value: process.env.NEXT_PUBLIC_HIDE_ATTRIBUTION,
+    defaultValue: false,
+  }),
   gaTrackingId: process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_TRACKING_ID,
   vercelUrl: process.env.NEXT_PUBLIC_VERCEL_URL
     ? removeTrailingSlash(`https://${process.env.NEXT_PUBLIC_VERCEL_URL}`)
     : null,
   codeTheme: process.env.NEXT_PUBLIC_CODE_THEME || 'dark-plus',
+  displayImageTitleAsCaption: parseBool({
+    value: process.env.NEXT_PUBLIC_DISPLAY_IMAGE_TITLE_AS_CAPTION,
+    defaultValue: true,
+  }),
 };
 
 export default config;

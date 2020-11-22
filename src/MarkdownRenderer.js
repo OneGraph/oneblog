@@ -144,7 +144,13 @@ export class CodeBlock extends React.PureComponent<
 }
 
 function PlainImage(imageProps) {
+  const {
+    config: {displayImageTitleAsCaption},
+  } = React.useContext(ConfigContext);
   const {isRss, src, ...props} = imageProps;
+  const title = displayImageTitleAsCaption
+    ? props.title || props['data-caption']
+    : props['data-caption'];
   return (
     <Box
       margin={{vertical: 'medium'}}
@@ -160,7 +166,7 @@ function PlainImage(imageProps) {
         {...props}
       />
       {isRss ? <br /> : null}
-      {props.title ? (
+      {title ? (
         <Text
           style={{display: 'block'}}
           size="xsmall"
@@ -168,7 +174,7 @@ function PlainImage(imageProps) {
           weight={300}
           color="dark-1"
           textAlign="center">
-          {isRss ? <em>{props.title}</em> : props.title}
+          {isRss ? <em>{title}</em> : title}
         </Text>
       ) : null}
     </Box>
