@@ -1,3 +1,7 @@
+# Switch to the next branch
+
+New development is happening on the [next branch](https://github.com/onegraph/oneblog/tree/next).
+
 # Build a blog powered by GitHub issues
 
 This repo powers the OneGraph Product Updates blog at [onegraph.com/changelog](https://www.onegraph.com/changelog).
