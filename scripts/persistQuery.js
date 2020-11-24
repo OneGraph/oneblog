@@ -147,13 +147,15 @@ async function persistQuery(queryText) {
     },
   });
 
+  const appId =
+    process.env.NEXT_PUBLIC_ONEGRAPH_APP_ID ||
+    // Backwards compat with older apps that started with razzle
+    process.env.RAZZLE_ONEGRAPH_APP_ID;
+
   const variables = {
     query: print(transformedAst),
     // This is your app's app id, edit `/.env` to change it
-    appId:
-      process.env.NEXT_PUBLIC_ONEGRAPH_APP_ID ||
-      // Backwards compat with older apps that started with razzle
-      process.env.RAZZLE_ONEGRAPH_APP_ID,
+    appId,
     accessToken: accessToken || null,
     freeVariables: [...freeVariables],
     fixedVariables: fixedVariables,
@@ -168,43 +170,52 @@ async function persistQuery(queryText) {
     query: PERSIST_QUERY_MUTATION,
     variables,
   });
-  return new Promise((resolve, reject) => {
-    let data = '';
-    const req = https.request(
-      {
-        hostname: 'serve.onegraph.com',
-        port: 443,
-        // This is the app id for the OneGraph dashbaord. If you followed the
-        // instructions in the README to create the `OG_DASHBOARD_ACCESS_TOKEN`,
-        // then this is the app id associated with the token that lets you persist
-        //  queries. Don't change this to your app id.
-        path: '/graphql?app_id=0b066ba6-ed39-4db8-a497-ba0be34d5b2a',
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Content-Length': body.length,
-          Authorization: 'Bearer ' + process.env.OG_DASHBOARD_ACCESS_TOKEN,
+
+  function persist(appId) {
+    return new Promise((resolve, reject) => {
+      let data = '';
+      const req = https.request(
+        {
+          hostname: 'serve.onegraph.com',
+          port: 443,
+          path: `/graphql?app_id=${appId}`,
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Content-Length': body.length,
+            Authorization: 'Bearer ' + process.env.OG_DASHBOARD_ACCESS_TOKEN,
+          },
         },
-      },
-      res => {
-        res.on('data', chunk => {
-          data += chunk;
-        });
-        res.on('end', () => {
-          const resp = JSON.parse(data);
-          if (resp.errors) {
-            throw new Error(
-              'Error persisting query, errors=' + JSON.stringify(resp.errors),
-            );
-          } else {
-            resolve(resp.data.oneGraph.createPersistedQuery.persistedQuery.id);
-          }
-        });
-      },
-    );
-    req.write(body);
-    req.end();
-  });
+        (res) => {
+          res.on('data', (chunk) => {
+            data += chunk;
+          });
+          res.on('end', () => {
+            const resp = JSON.parse(data);
+            if (resp.errors) {
+              reject(
+                new Error(
+                  'Error persisting query, errors=' +
+                    JSON.stringify(resp.errors),
+                ),
+              );
+            } else {
+              resolve(
+                resp.data.oneGraph.createPersistedQuery.persistedQuery.id,
+              );
+            }
+          });
+        },
+      );
+      req.write(body);
+      req.end();
+    });
+  }
+  return persist(appId).catch(() =>
+    // This is the app id for the OneGraph dashboard. Some older persist query tokens will require
+    // you to use this id. If persisting with the oneblog app id fails, then try with the dashboard id.
+    persist('0b066ba6-ed39-4db8-a497-ba0be34d5b2a'),
+  );
 }
 
 exports.default = persistQuery;
