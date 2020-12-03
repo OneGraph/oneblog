@@ -19,7 +19,7 @@
     "node-fetch": "^2.6.0",
     "onegraph-auth": "^3.0.0",
     "pixel-stream": "^1.0.3",
-    "react": "0.0.0-experimental-94c0244ba",
+    "react": "0.14.0",
     "react-dom": "0.0.0-experimental-94c0244ba",
     "react-intersection-observer": "^8.28.5",
     "react-markdown": "^4.3.1",
@@ -32,7 +32,7 @@
     "styled-components": "^5.0.0"
   },
   "resolutions": {
-    "react": "0.0.0-experimental-94c0244ba",
+    "react": "0.14.0",
     "react-dom": "0.0.0-experimental-94c0244ba"
   },
   "scripts": {
