@@ -90,7 +90,9 @@ export default function Comment({comment}: Props) {
         </Text>
       </Box>
       <Box pad={{horizontal: 'small'}}>
-        <MarkdownRenderer trustedInput={false} source={source} />
+        <Text>
+          <MarkdownRenderer trustedInput={false} source={source} />
+        </Text>
       </Box>
       <ReactionBar
         pad="none"
