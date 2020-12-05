@@ -11,6 +11,7 @@ export type Config = {
   gaTrackingId: ?string,
   vercelUrl: ?string,
   codeTheme: string,
+  displayImageTitleAsCaption: boolean,
 };
 
 function ensureEnv(s, variable: string): string {

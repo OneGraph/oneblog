@@ -132,7 +132,7 @@ export const ogImage = async (req: any, res: any) => {
     if (bodyImage.type === 'code') {
       return await respondWithCodeImage(res, bodyImage);
     } else if (bodyImage.type === 'url') {
-      return await proxyImage(res, bodyImage.url);
+      return await proxyImage(res, new URL(bodyImage.url));
     }
   } else {
     const avatarUrl = issue?.assignees?.nodes?.[0]?.avatarUrl;

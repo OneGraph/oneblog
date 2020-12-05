@@ -41,6 +41,7 @@ const sitemapQuery = graphql`
 `;
 
 export async function buildSitemap({siteHostname}: {siteHostname: string}) {
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   const basePath = useBasePath();
   const smStream = new SitemapStream({hostname: `${siteHostname}`});
   smStream.write({url: `${basePath}/`});

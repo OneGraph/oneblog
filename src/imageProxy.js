@@ -1,3 +1,5 @@
+// @flow
+
 const https = require('https');
 const PixelStream = require('pixel-stream');
 const neuquant = require('neuquant');
@@ -6,16 +8,19 @@ const GifEncoder = require('gif-stream/encoder');
 const inherits = require('util').inherits;
 
 function ConcatFrames(callback) {
-  if (!(this instanceof ConcatFrames)) return new ConcatFrames(callback);
+  const concatFrames = this;
+  if (concatFrames instanceof ConcatFrames) {
+    PixelStream.call(concatFrames);
 
-  PixelStream.call(this);
+    concatFrames.frame = null;
+    concatFrames.buffers = [];
+    concatFrames.callback = callback;
 
-  this.frame = null;
-  this.buffers = [];
-  this.callback = callback;
-
-  // put the stream in flowing mode
-  this.resume();
+    // put the stream in flowing mode
+    concatFrames.resume();
+  } else {
+    return new ConcatFrames(callback);
+  }
 }
 
 inherits(ConcatFrames, PixelStream);
@@ -50,8 +55,8 @@ ConcatFrames.prototype._end = function (done) {
 
 const MAX_REDIRECT_DEPTH = 5;
 
-export function getWithRedirect(url, cb, depth = 1) {
-  return https.get(url, (resp) => {
+export function getWithRedirect(url: URL, cb: any, depth: number = 1) {
+  return https.get(url.toString(), (resp) => {
     if (
       resp.statusCode > 300 &&
       resp.statusCode < 400 &&
@@ -79,15 +84,20 @@ function padBase64String(input: string): string {
   return `${input}${pad}`;
 }
 
-function decodeUrl(base64Url) {
-  return Buffer.from(
-    padBase64String(base64Url).replace(/-/g, '+').replace(/_/g, '/'),
-    'base64',
-  ).toString('utf-8');
+function decodeUrl(base64Url: string): URL | Error {
+  try {
+    const url = Buffer.from(
+      padBase64String(base64Url).replace(/-/g, '+').replace(/_/g, '/'),
+      'base64',
+    ).toString('utf-8');
+    return new URL(url);
+  } catch (e) {
+    return e;
+  }
 }
 
-function isGitHubUrl(url: string): boolean {
-  const host = new URL(url).host;
+function isGitHubUrl(url: URL): boolean {
+  const host = url.host;
   const parts = host.split('.');
   return (
     parts.length >= 2 &&
@@ -97,7 +107,7 @@ function isGitHubUrl(url: string): boolean {
 }
 
 // workaround for netlify (res.redirect is broken)
-function redirect(res, statusOrUrl, url) {
+function redirect(res, statusOrUrl: string | number, url?: ?string) {
   if (typeof statusOrUrl === 'string') {
     url = statusOrUrl;
     statusOrUrl = 307;
@@ -112,12 +122,18 @@ function redirect(res, statusOrUrl, url) {
   return res;
 }
 
-export const firstFrame = (req, res) => {
+export const firstFrame = (req: any, res: any) => {
   const url = decodeUrl(req.params.base64Url);
 
+  if (url instanceof Error) {
+    res.status(400);
+    res.send('Invalid URL.');
+    return;
+  }
+
   if (!isGitHubUrl(url)) {
-    console.warn('Non-GitHub url, redirecting', url);
-    redirect(res, url);
+    console.warn('Non-GitHub url, redirecting', url.toString());
+    redirect(res, url.toString());
     return;
   }
 
@@ -141,10 +157,10 @@ export const firstFrame = (req, res) => {
   });
 };
 
-export const proxyImage = (res, url) => {
+export const proxyImage = (res: any, url: URL): any => {
   if (!isGitHubUrl(url)) {
-    console.warn('Non-GitHub url, redirecting', url);
-    redirect(res, url);
+    console.warn('Non-GitHub url, redirecting', url.toString());
+    redirect(res, url.toString());
     return;
   }
 
@@ -158,7 +174,7 @@ export const proxyImage = (res, url) => {
       }
       if (contentLength && contentLength >= 4500000) {
         // Lambda can't handle anything larger than 5mb, so we'll redirect to the original url instead
-        redirect(res, url);
+        redirect(res, url.toString());
       } else {
         res.status(resp.statusCode);
         for (const k of Object.keys(resp.headers)) {
@@ -185,8 +201,13 @@ export const proxyImage = (res, url) => {
   });
 };
 
-export const imageProxy = async (req, res) => {
+export const imageProxy = async (req: any, res: any) => {
   const url = decodeUrl(req.params.base64Url);
+  if (url instanceof Error) {
+    res.status(400);
+    res.send('Invalid URL.');
+    return;
+  }
   await proxyImage(res, url);
   return;
 };
