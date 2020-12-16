@@ -577,7 +577,39 @@ export const Post = ({relay, post, context}: Props) => {
     }
   }, [environment, context, number]);
 
-  const authors = post.assignees.nodes || [];
+  const authors = [];
+  for (const node of post.assignees.nodes || []) {
+    if (node) {
+      const url = node.twitterUsername
+        ? `https://twitter.com/${node.twitterUsername}`
+        : node.websiteUrl || node.url;
+      const name = node.name || node.twitterUsername || node.login;
+
+      authors.push({url, name, avatarUrl: node.avatarUrl});
+    }
+  }
+  if (Array.isArray(backmatter.authors)) {
+    for (const node of backmatter.authors) {
+      if (
+        node.url &&
+        typeof node.url === 'string' &&
+        node.name &&
+        typeof node.name === 'string' &&
+        node.avatarUrl &&
+        typeof node.avatarUrl === 'string'
+      ) {
+        authors.push({
+          url: node.url,
+          name: node.name,
+          avatarUrl: node.avatarUrl,
+        });
+      } else {
+        console.warn(
+          'Invalid author in backmatter, expected JSON like {"name": "Jack", "url": "https://example.com", "avatarUrl": "https://example.com/img.png"}',
+        );
+      }
+    }
+  }
   return (
     <PostBox>
       <Head>
@@ -598,25 +630,18 @@ export const Post = ({relay, post, context}: Props) => {
 
         {authors.length > 0 ? (
           <Box direction="row" gap="medium">
-            {authors.map((node, i) => {
-              if (!node) {
-                return null;
-              }
-              const url = node.twitterUsername
-                ? `https://twitter.com/${node.twitterUsername}`
-                : node.websiteUrl || node.url;
-              const name = node.name || node.twitterUsername || node.login;
+            {authors.map((author, i) => {
               return (
                 <Box
-                  key={node.id}
+                  key={i}
                   align="center"
                   direction="row"
                   margin={{vertical: 'medium'}}>
-                  <a href={url}>
+                  <a href={author.url}>
                     <Box>
                       <img
-                        alt={name}
-                        src={imageUrl({src: node.avatarUrl})}
+                        alt={author.name}
+                        src={imageUrl({src: author.avatarUrl})}
                         style={{
                           width: 48,
                           height: 48,
@@ -627,8 +652,8 @@ export const Post = ({relay, post, context}: Props) => {
                     </Box>
                   </a>
                   <Box>
-                    <a href={url}>
-                      <Text size="small">{name}</Text>
+                    <a href={author.url}>
+                      <Text size="small">{author.name}</Text>
                     </a>
                     <Text
                       size="xsmall"
