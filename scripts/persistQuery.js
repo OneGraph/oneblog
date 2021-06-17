@@ -34,6 +34,7 @@ const PERSIST_QUERY_MUTATION = `
     $query: String!
     $fixedVariables: JSON
     $cacheStrategy: OneGraphPersistedQueryCacheStrategyArg
+    $fallbackOnError: Boolean!
   ) {
     oneGraph {
       createPersistedQuery(
@@ -44,6 +45,7 @@ const PERSIST_QUERY_MUTATION = `
           cacheStrategy: $cacheStrategy
           freeVariables: $freeVariables
           fixedVariables: $fixedVariables
+          fallbackOnError: $fallbackOnError
         }
       ) {
         persistedQuery {
@@ -164,6 +166,7 @@ async function persistQuery(queryText) {
           timeToLiveSeconds: cacheSeconds,
         }
       : null,
+    fallbackOnError: cacheSeconds ? true : false,
   };
 
   const body = JSON.stringify({
