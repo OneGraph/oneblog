@@ -47,12 +47,6 @@ async function sendRequest({onegraphAuth, operation, variables}) {
     url.searchParams.set('app_id', config.appId);
     url.searchParams.set('doc_id', operation.id);
     url.searchParams.set('variables', JSON.stringify(stableCopy(variables)));
-    if (config.persistedQueryCdnCacheBuster) {
-      url.searchParams.set(
-        'cdn_cache_bust',
-        config.persistedQueryCdnCacheBuster,
-      );
-    }
     const response = await fetch(url.toString(), {
       method: 'GET',
       mode: 'cors',
