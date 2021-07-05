@@ -7,6 +7,7 @@ import {
   RecordSource,
   Store,
   DefaultHandlerProvider,
+  stableCopy,
 } from 'relay-runtime';
 import config from './config';
 
@@ -40,20 +41,48 @@ export const onegraphAuth =
       })
     : new AuthDummy();
 
-async function sendRequest({onegraphAuth, requestBody}) {
-  const response = await fetch(
-    'https://serve.onegraph.com/graphql?app_id=' + config.appId,
-    {
-      method: 'POST',
+async function sendRequest({onegraphAuth, operation, variables}) {
+  if (operation.operationKind === 'query' && operation.id) {
+    const url = new URL('https://serve.onegraph.com/graphql');
+    url.searchParams.set('app_id', config.appId);
+    url.searchParams.set('doc_id', operation.id);
+    url.searchParams.set('variables', JSON.stringify(stableCopy(variables)));
+    if (config.persistedQueryCdnCacheBuster) {
+      url.searchParams.set(
+        'cdn_cache_bust',
+        config.persistedQueryCdnCacheBuster,
+      );
+    }
+    const response = await fetch(url.toString(), {
+      method: 'GET',
+      mode: 'cors',
       headers: {
-        'Content-Type': 'application/json',
         Accept: 'application/json',
         ...onegraphAuth.authHeaders(),
       },
-      body: requestBody,
-    },
-  );
-  return await response.json();
+    });
+    return await response.json();
+  } else {
+    const requestBody = JSON.stringify({
+      doc_id: operation.id,
+      query: operation.text,
+      variables,
+    });
+
+    const response = await fetch(
+      'https://serve.onegraph.com/graphql?app_id=' + config.appId,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+          ...onegraphAuth.authHeaders(),
+        },
+        body: requestBody,
+      },
+    );
+    return await response.json();
+  }
 }
 
 async function checkifCorsRequired(): Promise<boolean> {
@@ -98,16 +127,11 @@ function createFetchQuery(opts: ?Opts) {
       }
     }
 
-    const requestBody = JSON.stringify({
-      doc_id: operation.id,
-      query: operation.text,
-      variables,
-    });
-
     try {
       const json = await sendRequest({
+        operation,
+        variables,
         onegraphAuth,
-        requestBody,
       });
 
       // eslint-disable-next-line no-unused-expressions
@@ -119,7 +143,8 @@ function createFetchQuery(opts: ?Opts) {
         const newJson = await sendRequest({
           onegraphAuth,
           headers: {},
-          requestBody,
+          operation,
+          variables,
         });
         return maybeNullOutQuery(newJson);
       } else {
@@ -196,10 +221,7 @@ export function createEnvironment(opts?: ?Opts) {
 
 let globalEnvironment;
 
-export function initEnvironment(
-  initialRecords: ?RecordMap,
-  opts?: ?Opts,
-) {
+export function initEnvironment(initialRecords: ?RecordMap, opts?: ?Opts) {
   const environment = globalEnvironment ?? createEnvironment(opts);
   if (
     initialRecords &&
@@ -216,10 +238,7 @@ export function initEnvironment(
   return environment;
 }
 
-export function useEnvironment(
-  initialRecords: ?RecordMap,
-  opts?: ?Opts,
-) {
+export function useEnvironment(initialRecords: ?RecordMap, opts?: ?Opts) {
   const store = React.useRef(initEnvironment(initialRecords, opts));
   return store.current;
 }
