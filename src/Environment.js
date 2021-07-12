@@ -42,7 +42,13 @@ export const onegraphAuth =
     : new AuthDummy();
 
 async function sendRequest({onegraphAuth, operation, variables}) {
-  if (operation.operationKind === 'query' && operation.id) {
+  if (
+    operation.operationKind === 'query' &&
+    operation.id &&
+    // Bypass the cache if we're logged in. The CDN won't cache content or serve
+    // cached content when there is an Authorization header, but the browser may.
+    Object.keys(onegraphAuth.authHeaders()).length === 0
+  ) {
     const url = new URL('https://serve.onegraph.com/graphql');
     url.searchParams.set('app_id', config.appId);
     url.searchParams.set('doc_id', operation.id);
