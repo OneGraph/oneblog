@@ -15,7 +15,7 @@
     "intersection-observer": "^0.11.0",
     "lower-case": "^2.0.1",
     "neuquant": "^1.0.2",
-    "next": "^10.0.6",
+    "next": "^11.1.3",
     "node-fetch": "^2.6.0",
     "onegraph-auth": "^3.0.0",
     "pixel-stream": "^1.0.3",
