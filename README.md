@@ -22,9 +22,7 @@ Copy `/.env.example` to `/.env` and set the following environment variables.
 
 | Environment Variable            | Description                                                                                                                                                                                                                                                                                                                                                                                       |
 | ------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `OG_GITHUB_TOKEN`               | A server-side access token created on OneGraph, used as the default auth for the persisted queries that will fetch the issues. To create a new one, go the "Server-side Auth" tab in the [OneGraph dashboard](https://www.onegraph.com/dashboard) for your app, click the "Create Token" button, and add GitHub to the services. Keep this token safe, because it has access to your GitHub data. |
-| `OG_DASHBOARD_ACCESS_TOKEN`     | An API token that allows you to create persisted queries on OneGraph. Go to the "Persisted queries" tab on the OneGraph dashboard, scroll down, and click "Create token". This will create a scoped token for your app that can create persisted queries on your behalf.                                                                                                                          |
-| `NEXT_PUBLIC_ONEGRAPH_APP_ID`   | The id of your OneGraph app. You can get this from the [OneGraph dashboard](https://www.onegraph.com/dashboard)                                                                                                                                                                                                                                                                                   |
+| `GITHUB_TOKEN`                  | A GitHub token, which you can get from https://github.com/settings/tokens. The token only needs the "public_repo" scope. |
 | `NEXT_PUBLIC_TITLE`             | The title of your site                                                                                                                                                                                                                                                                                                                                                                            |
 | `NEXT_PUBLIC_DESCRIPTION`       | A short description of your site.                                                                                                                                                                                                                                                                                                                                                                 |
 | `NEXT_PUBLIC_GITHUB_REPO_OWNER` | The owner of the repo that we should pull issues from (e.g. linus in linus/oneblog). If you're using the Vercel deploy button, you don't need to provide this.                                                                                                                                                                                                                                    |
@@ -73,8 +71,6 @@ The project will load at [http://localhost:3000](http://localhost:3000).
 
 The project comes with setups for deploying to Google's Firebase, Zeit's Now, Netlify, and Fly.io.
 
-For each of these, you'll have to add the site that you're deploying to on the CORS origins on the OneGraph dashboard.
-
 ### Deploy with Vercel
 
 Use the deploy button to set up a new repo:
@@ -122,7 +118,7 @@ The `persistFunction` for the relay compiler is set to `/scripts/persistQuery.js
 
 That function will parse the query and pull out the `@persistedQueryConfiguration` directive to determine if any auth should be stored alongside the query. In the changelog, the queries for fetching posts use persisted auth, but the mutations for adding reactions require the user to log in with OneGraph and use their auth.
 
-The `@persistedQueryConfiguration` directive is stripped from the query and it is uploaded to OneGraph via a GraphQL mutation. Then the id for the persisted query is returned from the function. Relay stores the id in its generated file and it's used the next time the query is sent to the server.
+The `@persistedQueryConfiguration` directive is stripped from the query and a next api route is generated to execute the query.
 
 ### Server
 
