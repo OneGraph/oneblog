@@ -37,6 +37,7 @@ export const onegraphAuth = new AuthDummy();
 async function sendRequest({operation, variables}) {
   if (typeof window !== 'undefined') {
     const url = `/api/__generated__/${
+      // $FlowFixMe
       operation.id
     }?variables=${encodeURIComponent(JSON.stringify(stableCopy(variables)))}`;
     const response = await fetch(url);

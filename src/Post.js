@@ -31,7 +31,7 @@ import CommentsIcon from './CommentsIcon';
 import parseMarkdown from './lib/parseMarkdown';
 import Head from 'next/head';
 
-import type {Post_post} from './__generated__/Post_post.graphql';
+import type {Post_post$data} from './__generated__/Post_post.graphql';
 import config from './config';
 
 // n.b. no accessToken in the persistedQueryConfiguration for these mutations,
@@ -249,7 +249,7 @@ const EmojiPicker = ({
 
 type Props = {
   relay: RelayProp,
-  post: Post_post,
+  post: Post_post$data,
   context: 'list' | 'details',
 };
 

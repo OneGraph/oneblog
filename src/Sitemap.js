@@ -7,7 +7,7 @@ import {fetchQuery} from 'react-relay/hooks';
 import graphql from 'babel-plugin-relay/macro';
 import useBasePath from './lib/useBasePath';
 
-import type {Sitemap_QueryResponse} from './__generated__/Sitemap_Query.graphql';
+import type {Sitemap_Query$data} from './__generated__/Sitemap_Query.graphql';
 
 const sitemapQuery = graphql`
   query Sitemap_Query($repoOwner: String!, $repoName: String!, $cursor: String)
@@ -50,7 +50,7 @@ export async function buildSitemap({siteHostname}: {siteHostname: string}) {
   let reqCount = 0;
 
   while (hasNextPage && reqCount <= 10) {
-    const data: ?Sitemap_QueryResponse = await fetchQuery(
+    const data: ?Sitemap_Query$data = await fetchQuery(
       environment,
       sitemapQuery,
       {cursor},

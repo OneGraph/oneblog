@@ -132,7 +132,7 @@ export const ogImage = async (req: any, res: any) => {
     if (bodyImage.type === 'code') {
       return await respondWithCodeImage(res, bodyImage);
     } else if (bodyImage.type === 'url') {
-      return await proxyImage(res, bodyImage.url);
+      return await proxyImage(res, new URL(bodyImage.url));
     }
   } else {
     const avatarUrl =
@@ -140,7 +140,7 @@ export const ogImage = async (req: any, res: any) => {
       data.repository?.owner?.avatarUrl;
 
     if (avatarUrl) {
-      return await proxyImage(res, avatarUrl);
+      return await proxyImage(res, new URL(avatarUrl));
     } else {
       res.status(500);
       res.send('Error');

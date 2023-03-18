@@ -16,8 +16,8 @@ import parseMarkdown from './lib/parseMarkdown';
 import {useRouter} from 'next/router';
 
 import type {
-  PostRoot_PostQuery,
-  PostRoot_PostQueryResponse,
+  PostRoot_PostQuery$data,
+  PostRoot_PostQuery$variables,
 } from './__generated__/PostRoot_PostQuery.graphql';
 
 export const query = graphql`
@@ -85,14 +85,16 @@ function buildDescription(body) {
 export const PostRoot = ({issueNumber}: {issueNumber: number}) => {
   const {config} = React.useContext(ConfigContext);
   const {basePath} = useRouter();
-  const data: ?PostRoot_PostQueryResponse =
-    useLazyLoadQuery<PostRoot_PostQuery>(
-      query,
-      // $FlowFixMe: expects persisted variables
-      {issueNumber},
-      // TODO: fill store with dataID for root record from list view so that partial rendering works
-      {fetchPolicy: 'store-and-network', UNSTABLE_renderPolicy: 'partial'},
-    );
+  const data: ?PostRoot_PostQuery$data = useLazyLoadQuery<
+    PostRoot_PostQuery$variables,
+    PostRoot_PostQuery$data,
+  >(
+    query,
+    // $FlowFixMe: expects persisted variables
+    {issueNumber},
+    // TODO: fill store with dataID for root record from list view so that partial rendering works
+    {fetchPolicy: 'store-and-network', UNSTABLE_renderPolicy: 'partial'},
+  );
 
   if (!data) {
     return null;

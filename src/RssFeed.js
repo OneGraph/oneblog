@@ -13,7 +13,7 @@ import inlineCss from 'inline-css/lib/inline-css';
 import {Grommet} from 'grommet/components/Grommet';
 import appCss from './App.css';
 import config from './config';
-import type {RssFeed_QueryResponse} from './__generated__/RssFeed_Query.graphql';
+import type {RssFeed_Query$data} from './__generated__/RssFeed_Query.graphql';
 import theme from './lib/theme';
 
 const feedQuery = graphql`
@@ -85,7 +85,7 @@ export async function buildFeed({
       markdowns.push(m);
     },
   });
-  const data: ?RssFeed_QueryResponse = await fetchQuery(
+  const data: ?RssFeed_Query$data = await fetchQuery(
     environment,
     feedQuery,
     {},

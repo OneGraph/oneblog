@@ -9,7 +9,7 @@ import ErrorBox from './ErrorBox';
 
 import type {
   PostsRoot_Query,
-  PostsRoot_QueryResponse,
+  PostsRoot_Query$data,
 } from './__generated__/PostsRoot_Query.graphql';
 
 export const query = graphql`
@@ -27,7 +27,7 @@ export const query = graphql`
 `;
 
 export const PostsRoot = () => {
-  const data: ?PostsRoot_QueryResponse = useLazyLoadQuery<PostsRoot_Query>(
+  const data: ?PostsRoot_Query$data = useLazyLoadQuery<PostsRoot_Query, null>(
     query,
     // $FlowFixMe: expects variables that were persisted
     {},

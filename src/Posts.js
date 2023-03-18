@@ -4,7 +4,7 @@ import React from 'react';
 import graphql from 'babel-plugin-relay/macro';
 import {createPaginationContainer, type RelayPaginationProp} from 'react-relay';
 import Post from './Post';
-import type {Posts_repository} from './__generated__/Posts_repository.graphql';
+import type {Posts_repository$data} from './__generated__/Posts_repository.graphql';
 import LoadingSpinner from './loadingSpinner';
 import {Box} from 'grommet/components/Box';
 import {useInView} from 'react-intersection-observer';
@@ -13,7 +13,7 @@ import 'intersection-observer';
 
 type Props = {|
   relay: RelayPaginationProp,
-  repository: Posts_repository,
+  repository: Posts_repository$data,
 |};
 
 // TODO: pagination. Can do pages or infinite scroll
