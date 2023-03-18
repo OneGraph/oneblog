@@ -3,7 +3,6 @@
 export type Config = {
   repoName: string,
   repoOwner: string,
-  appId: string,
   title: string,
   description: ?string,
   defaultLogin: ?string,
@@ -67,11 +66,6 @@ const config: Config = {
   repoName: ensureEnv(
     process.env.NEXT_PUBLIC_GITHUB_REPO_NAME,
     'NEXT_PUBLIC_GITHUB_REPO_NAME',
-  ),
-  // Your OneGraph app id
-  appId: ensureEnv(
-    process.env.NEXT_PUBLIC_ONEGRAPH_APP_ID,
-    'NEXT_PUBLIC_ONEGRAPH_APP_ID',
   ),
   title: process.env.NEXT_PUBLIC_TITLE || 'OneBlog',
   description: process.env.NEXT_PUBLIC_DESCRIPTION,

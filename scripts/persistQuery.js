@@ -1,14 +1,16 @@
 const https = require('https');
 const GraphQLLanguage = require('graphql/language');
 const {parse, print} = require('graphql');
+const fs = require('fs');
+const prettier = require('prettier');
 
 require('dotenv').config();
 
 if (
   (!process.env.REPOSITORY_FIXED_VARIABLES &&
     // Backwards compat with older apps that started with razzle
-    (process.env.RAZZLE_GITHUB_REPO_OWNER &&
-      process.env.RAZZLE_GITHUB_REPO_NAME)) ||
+    process.env.RAZZLE_GITHUB_REPO_OWNER &&
+    process.env.RAZZLE_GITHUB_REPO_NAME) ||
   (process.env.NEXT_PUBLIC_GITHUB_REPO_OWNER &&
     process.env.NEXT_PUBLIC_GITHUB_REPO_NAME) ||
   (process.env.VERCEL_GITHUB_ORG && process.env.VERCEL_GITHUB_REPO)
@@ -26,88 +28,34 @@ if (
   ] = `{"repoName": "${repoName}", "repoOwner": "${repoOwner}"}`;
 }
 
-const PERSIST_QUERY_MUTATION = `
-  mutation PersistQuery(
-    $freeVariables: [String!]!
-    $appId: String!
-    $accessToken: String
-    $query: String!
-    $fixedVariables: JSON
-    $cacheStrategy: OneGraphPersistedQueryCacheStrategyArg
-    $fallbackOnError: Boolean!
-  ) {
-    oneGraph {
-      createPersistedQuery(
-        input: {
-          query: $query
-          accessToken: $accessToken
-          appId: $appId
-          cacheStrategy: $cacheStrategy
-          freeVariables: $freeVariables
-          fixedVariables: $fixedVariables
-          fallbackOnError: $fallbackOnError
-        }
-      ) {
-        persistedQuery {
-          id
-        }
-      }
-    }
-  }
-`;
-
 async function persistQuery(queryText) {
   const ast = parse(queryText, {noLocation: true});
 
   const freeVariables = new Set([]);
-  let accessToken = null;
   let fixedVariables = null;
   let cacheSeconds = null;
+  let operationName = null;
   let transformedAst = GraphQLLanguage.visit(ast, {
     OperationDefinition: {
       enter(node) {
+        operationName = node.name.value;
+        operationType = node.operation;
         for (const directive of node.directives) {
           if (directive.name.value === 'persistedQueryConfiguration') {
-            const accessTokenArg = directive.arguments.find(
-              a => a.name.value === 'accessToken',
-            );
             const fixedVariablesArg = directive.arguments.find(
-              a => a.name.value === 'fixedVariables',
+              (a) => a.name.value === 'fixedVariables',
             );
             const freeVariablesArg = directive.arguments.find(
-              a => a.name.value === 'freeVariables',
+              (a) => a.name.value === 'freeVariables',
             );
 
             const cacheSecondsArg = directive.arguments.find(
-              a => a.name.value === 'cacheSeconds',
+              (a) => a.name.value === 'cacheSeconds',
             );
-
-            if (accessTokenArg) {
-              const envArg = accessTokenArg.value.fields.find(
-                f => f.name.value === 'environmentVariable',
-              );
-              if (envArg) {
-                if (accessToken) {
-                  throw new Error(
-                    'Access token is already defined for operation=' +
-                      node.name.value,
-                  );
-                }
-                const envVar = envArg.value.value;
-                accessToken = process.env[envVar];
-                if (!accessToken) {
-                  throw new Error(
-                    'Cannot persist query. Missing environment variable `' +
-                      envVar +
-                      '`.',
-                  );
-                }
-              }
-            }
 
             if (fixedVariablesArg) {
               const envArg = fixedVariablesArg.value.fields.find(
-                f => f.name.value === 'environmentVariable',
+                (f) => f.name.value === 'environmentVariable',
               );
               if (envArg) {
                 if (fixedVariables) {
@@ -117,7 +65,11 @@ async function persistQuery(queryText) {
                   );
                 }
                 const envVar = envArg.value.value;
-                fixedVariables = JSON.parse(process.env[envVar]);
+                try {
+                  fixedVariables = JSON.parse(process.env[envVar]);
+                } catch (e) {
+                  console.error(e);
+                }
                 if (!fixedVariables) {
                   throw new Error(
                     'Cannot persist query. Missing environment variable `' +
@@ -142,83 +94,85 @@ async function persistQuery(queryText) {
         return {
           ...node,
           directives: node.directives.filter(
-            d => d.name.value !== 'persistedQueryConfiguration',
+            (d) => d.name.value !== 'persistedQueryConfiguration',
           ),
         };
       },
     },
   });
 
-  const appId =
-    process.env.NEXT_PUBLIC_ONEGRAPH_APP_ID ||
-    // Backwards compat with older apps that started with razzle
-    process.env.RAZZLE_ONEGRAPH_APP_ID;
+  const apiHandler =
+    operationType === 'query'
+      ? `
+    import fetch from 'node-fetch';
+    const query = \`${print(transformedAst)}\`;
+    const token = process.env.GITHUB_TOKEN;
+    const fixedVariables = ${JSON.stringify(fixedVariables || {}, null, 2)};
+    const freeVariables = new Set(${JSON.stringify([...freeVariables])});
 
-  const variables = {
-    query: print(transformedAst),
-    // This is your app's app id, edit `/.env` to change it
-    appId,
-    accessToken: accessToken || null,
-    freeVariables: [...freeVariables],
-    fixedVariables: fixedVariables,
-    cacheStrategy: cacheSeconds
-      ? {
-          timeToLiveSeconds: cacheSeconds,
-        }
-      : null,
-    fallbackOnError: cacheSeconds ? true : false,
-  };
-
-  const body = JSON.stringify({
-    query: PERSIST_QUERY_MUTATION,
-    variables,
-  });
-
-  function persist(appId) {
-    return new Promise((resolve, reject) => {
-      let data = '';
-      const req = https.request(
-        {
-          hostname: 'serve.onegraph.com',
-          port: 443,
-          path: `/graphql?app_id=${appId}`,
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Content-Length': body.length,
-            Authorization: 'Bearer ' + process.env.OG_DASHBOARD_ACCESS_TOKEN,
-          },
-        },
-        (res) => {
-          res.on('data', (chunk) => {
-            data += chunk;
-          });
-          res.on('end', () => {
-            const resp = JSON.parse(data);
-            if (resp.errors) {
-              reject(
-                new Error(
-                  'Error persisting query, errors=' +
-                    JSON.stringify(resp.errors),
-                ),
-              );
-            } else {
-              resolve(
-                resp.data.oneGraph.createPersistedQuery.persistedQuery.id,
-              );
-            }
-          });
-        },
+    function logRateLimit(resp) {
+      const reset = new Date(
+        parseInt(resp.headers.get('x-ratelimit-reset')) * 1000,
       );
-      req.write(body);
-      req.end();
-    });
-  }
-  return persist(appId).catch(() =>
-    // This is the app id for the OneGraph dashboard. Some older persist query tokens will require
-    // you to use this id. If persisting with the oneblog app id fails, then try with the dashboard id.
-    persist('0b066ba6-ed39-4db8-a497-ba0be34d5b2a'),
-  );
+      console.log(
+        'GitHub request for ${operationName}, rate limit: %s/%s resets at %s',
+        resp.headers.get('x-ratelimit-remaining'),
+        resp.headers.get('x-ratelimit-limit'),
+        reset,
+      );
+    }
+
+    export const fetchQuery = async (requestVariables) => {
+      const variables = {...fixedVariables};
+      if (freeVariables.size > 0 && requestVariables) {
+        for (const v of freeVariables) {
+          variables[v] = requestVariables[v];
+        }
+      }
+
+      const resp = await fetch('https://api.github.com/graphql', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+          Authorization: \`Bearer \${token}\`,
+          'User-Agent': 'oneblog',
+        },
+        body: JSON.stringify({query, variables})
+      });
+      logRateLimit(resp);
+      const json = await resp.json();
+      return json;
+    };
+
+    const ${operationName} = async (req, res) => {
+      const json = await fetchQuery(req.query.variables ? JSON.parse(req.query.variables) : null);
+      res.setHeader('Content-Type', 'application/json');
+      if (${cacheSeconds}) {
+        res.setHeader(
+          'Cache-Control',
+          'public, s-maxage=${cacheSeconds}, stale-while-revalidate=${cacheSeconds}'
+        );
+      }
+      res.status(200).send(json);
+    }
+    export default ${operationName};`
+      : `
+    const ${operationName} = async (req, res) => {
+      const json = {"errors": [{"message": "Mutations are not yet supported"}]};
+      res.setHeader('Content-Type', 'application/json');
+      res.status(200).send(json);
+    }
+    export default ${operationName};
+`;
+
+  fs.mkdirSync('./src/pages/api/__generated__/', {recursive: true});
+
+  const filename = `./src/pages/api/__generated__/${operationName}.js`;
+
+  fs.writeFileSync(filename, prettier.format(apiHandler, {filepath: filename}));
+
+  return operationName;
 }
 
 exports.default = persistQuery;

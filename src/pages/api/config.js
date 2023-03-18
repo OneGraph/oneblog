@@ -6,7 +6,6 @@ export default (req: any, res: any) => {
   res.setHeader('access-control-allow-origin', '*');
   res.json({
     version: '1.0.0',
-    oneGraphAppId: Config.appId,
     repoName: Config.repoName,
     repoOwner: Config.repoOwner,
     codeTheme: Config.codeTheme,

@@ -111,21 +111,6 @@ function App({Component, pageProps}: any) {
     }
   }
 
-  React.useEffect(() => {
-    Promise.all([
-      onegraphAuth.isLoggedIn('github'),
-      fetchQuery(environment, loginQuery, {})
-        .toPromise()
-        .catch((e) => null),
-    ])
-      .then(([isLoggedIn]) => {
-        setLoginStatus(isLoggedIn ? 'logged-in' : 'logged-out');
-      })
-      .catch((e) => {
-        console.error('Error checking login status', e);
-      });
-  }, [environment]);
-
   const login = () => {
     onegraphAuth.login('github').then(() =>
       Promise.all([

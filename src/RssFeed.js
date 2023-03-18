@@ -19,20 +19,17 @@ import theme from './lib/theme';
 const feedQuery = graphql`
   query RssFeed_Query($repoOwner: String!, $repoName: String!)
   @persistedQueryConfiguration(
-    accessToken: {environmentVariable: "OG_GITHUB_TOKEN"}
     fixedVariables: {environmentVariable: "REPOSITORY_FIXED_VARIABLES"}
     cacheSeconds: 300
   ) {
-    gitHub {
-      repository(name: $repoName, owner: $repoOwner) {
-        issues(
-          first: 20
-          orderBy: {direction: DESC, field: CREATED_AT}
-          labels: ["publish", "Publish"]
-        ) {
-          nodes {
-            ...Post_post @relay(mask: false)
-          }
+    repository(name: $repoName, owner: $repoOwner) {
+      issues(
+        first: 20
+        orderBy: {direction: DESC, field: CREATED_AT}
+        labels: ["publish", "Publish"]
+      ) {
+        nodes {
+          ...Post_post @relay(mask: false)
         }
       }
     }
@@ -94,7 +91,7 @@ export async function buildFeed({
     {},
   ).toPromise();
 
-  const posts = data?.gitHub?.repository?.issues.nodes || [];
+  const posts = data?.repository?.issues.nodes || [];
   const latestPost = posts[0];
 
   const baseUrl = removeTrailingSlash(

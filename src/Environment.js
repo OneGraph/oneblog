@@ -11,8 +11,6 @@ import {
 } from 'relay-runtime';
 import config from './config';
 
-import OneGraphAuth from 'onegraph-auth';
-
 import type {RecordMap, Handler} from 'relay-runtime/store/RelayStoreTypes';
 import type {NotificationContextType} from './Notifications';
 
@@ -34,81 +32,23 @@ class AuthDummy {
   }
 }
 
-export const onegraphAuth =
-  typeof window !== 'undefined'
-    ? new OneGraphAuth({
-        appId: config.appId,
-      })
-    : new AuthDummy();
+export const onegraphAuth = new AuthDummy();
 
-async function sendRequest({onegraphAuth, operation, variables}) {
-  if (
-    operation.operationKind === 'query' &&
-    operation.id &&
-    // Bypass the cache if we're logged in. The CDN won't cache content or serve
-    // cached content when there is an Authorization header, but the browser may.
-    Object.keys(onegraphAuth.authHeaders()).length === 0
-  ) {
-    const url = new URL('https://serve.onegraph.com/graphql');
-    url.searchParams.set('app_id', config.appId);
-    url.searchParams.set('doc_id', operation.id);
-    url.searchParams.set('variables', JSON.stringify(stableCopy(variables)));
-    const response = await fetch(url.toString(), {
-      method: 'GET',
-      mode: 'cors',
-      headers: {
-        Accept: 'application/json',
-        ...onegraphAuth.authHeaders(),
-      },
-    });
-    return await response.json();
-  } else {
-    const requestBody = JSON.stringify({
-      doc_id: operation.id,
-      query: operation.text,
-      variables,
-    });
-
-    const response = await fetch(
-      'https://serve.onegraph.com/graphql?app_id=' + config.appId,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Accept: 'application/json',
-          ...onegraphAuth.authHeaders(),
-        },
-        body: requestBody,
-      },
-    );
-    return await response.json();
-  }
-}
-
-async function checkifCorsRequired(): Promise<boolean> {
-  try {
-    const response = await fetch(
-      'https://serve.onegraph.com/is-cors-origin-allowed?app_id=' +
-        config.appId,
-    );
+async function sendRequest({operation, variables}) {
+  if (typeof window !== 'undefined') {
+    const url = `/api/__generated__/${
+      operation.id
+    }?variables=${encodeURIComponent(JSON.stringify(stableCopy(variables)))}`;
+    const response = await fetch(url);
     const json = await response.json();
-    // Default to false on any error
-    return json.allowed === false;
-  } catch (e) {
-    console.error('Error checking if CORS required');
-    return false;
-  }
-}
 
-// Fix problem where relay gets nonnull `data` field and does weird things to the cache
-function maybeNullOutQuery(json) {
-  if (json.data && !json.data.gitHub) {
-    return {
-      ...json,
-      data: null,
-    };
+    return json;
+  } else {
+    const {fetchQuery} = await import(
+      `./pages/api/__generated__/${operation.id}.js`
+    );
+    return await fetchQuery(variables);
   }
-  return json;
 }
 
 type Opts = {
@@ -117,54 +57,13 @@ type Opts = {
 };
 
 function createFetchQuery(opts: ?Opts) {
-  return async function fetchQuery(operation, rawVariables, cacheConfig) {
-    const variables = {};
-    // Bit of a hack to prevent Relay from sending null values for variables
-    // we provided to OneGraph via fixedVariables.
-    for (const k of Object.keys(rawVariables)) {
-      if (rawVariables[k] != null) {
-        variables[k] = rawVariables[k];
-      }
-    }
+  return async function fetchQuery(operation, variables, cacheConfig) {
+    const json = await sendRequest({
+      operation,
+      variables,
+    });
 
-    try {
-      const json = await sendRequest({
-        operation,
-        variables,
-        onegraphAuth,
-      });
-
-      // eslint-disable-next-line no-unused-expressions
-      opts?.notificationContext?.clearCorsViolation();
-
-      if (json.errors && Object.keys(onegraphAuth.authHeaders()).length) {
-        // Clear auth on any error and try again
-        onegraphAuth.destroy();
-        const newJson = await sendRequest({
-          onegraphAuth,
-          headers: {},
-          operation,
-          variables,
-        });
-        return maybeNullOutQuery(newJson);
-      } else {
-        return maybeNullOutQuery(json);
-      }
-    } catch (e) {
-      if (typeof window !== 'undefined') {
-        const isCorsRequired = await checkifCorsRequired();
-        if (isCorsRequired) {
-          const error = new Error('Missing CORS origin.');
-          (error: any).type = 'missing-cors';
-
-          // eslint-disable-next-line no-unused-expressions
-          opts?.notificationContext?.setCorsViolation();
-
-          throw error;
-        }
-      }
-      throw e;
-    }
+    return json;
   };
 }
 
@@ -223,10 +122,7 @@ let globalEnvironment;
 
 export function initEnvironment(initialRecords: ?RecordMap, opts?: ?Opts) {
   const environment = globalEnvironment ?? createEnvironment(opts);
-  if (
-    initialRecords &&
-    environment.getStore().getSource().getRecordIDs().length <= 1
-  ) {
+  if (initialRecords) {
     environment.getStore().publish(new RecordSource(initialRecords));
   }
 
@@ -239,6 +135,10 @@ export function initEnvironment(initialRecords: ?RecordMap, opts?: ?Opts) {
 }
 
 export function useEnvironment(initialRecords: ?RecordMap, opts?: ?Opts) {
-  const store = React.useRef(initEnvironment(initialRecords, opts));
-  return store.current;
+  const store = React.useMemo(
+    () => initEnvironment(initialRecords, opts),
+    [initialRecords, opts],
+  );
+
+  return store;
 }

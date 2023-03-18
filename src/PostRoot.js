@@ -28,33 +28,23 @@ export const query = graphql`
     $repoOwner: String!
   )
   @persistedQueryConfiguration(
-    accessToken: {environmentVariable: "OG_GITHUB_TOKEN"}
     fixedVariables: {environmentVariable: "REPOSITORY_FIXED_VARIABLES"}
     freeVariables: ["issueNumber"]
     cacheSeconds: 300
   ) {
-    gitHub {
-      viewer {
-        login
-        name
-        avatarUrl(size: 96)
-        url
-      }
-      ...Avatar_gitHub @arguments(repoName: $repoName, repoOwner: $repoOwner)
-      repository(name: $repoName, owner: $repoOwner) {
-        issue(number: $issueNumber) {
-          labels(first: 100) {
-            nodes {
-              name
-            }
+    repository(name: $repoName, owner: $repoOwner) {
+      issue(number: $issueNumber) {
+        labels(first: 100) {
+          nodes {
+            name
           }
-          title
-          id
-          number
-          body
-          ...Post_post
-          ...Comments_post
         }
+        title
+        id
+        number
+        body
+        ...Post_post
+        ...Comments_post
       }
     }
   }
@@ -95,23 +85,23 @@ function buildDescription(body) {
 export const PostRoot = ({issueNumber}: {issueNumber: number}) => {
   const {config} = React.useContext(ConfigContext);
   const {basePath} = useRouter();
-  const data: ?PostRoot_PostQueryResponse = useLazyLoadQuery<PostRoot_PostQuery>(
-    query,
-    // $FlowFixMe: expects persisted variables
-    {issueNumber},
-    // TODO: fill store with dataID for root record from list view so that partial rendering works
-    {fetchPolicy: 'store-and-network', UNSTABLE_renderPolicy: 'partial'},
-  );
+  const data: ?PostRoot_PostQueryResponse =
+    useLazyLoadQuery<PostRoot_PostQuery>(
+      query,
+      // $FlowFixMe: expects persisted variables
+      {issueNumber},
+      // TODO: fill store with dataID for root record from list view so that partial rendering works
+      {fetchPolicy: 'store-and-network', UNSTABLE_renderPolicy: 'partial'},
+    );
 
   if (!data) {
     return null;
   }
 
-  const post = data?.gitHub?.repository?.issue;
+  const post = data?.repository?.issue;
   const labels = post?.labels?.nodes;
-  const gitHub = data?.gitHub;
+
   if (
-    !gitHub ||
     !post ||
     !labels ||
     !labels.find((l) => l && l.name.toLowerCase() === 'publish')
@@ -151,18 +141,9 @@ export const PostRoot = ({issueNumber}: {issueNumber: number}) => {
             content={description}
           />
         </Head>
-        <Header
-          gitHub={gitHub}
-          adminLinks={[
-            {
-              label: 'Edit post',
-              href: editIssueUrl({issueNumber: post.number}),
-              icon: <Github size="16px" />,
-            },
-          ]}
-        />
+        <Header />
         <Post context="details" post={post} />
-        <Comments post={post} postId={post.id} viewer={gitHub.viewer} />
+        <Comments post={post} postId={post.id} />
         <Attribution />
       </>
     );

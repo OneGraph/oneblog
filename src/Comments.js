@@ -10,7 +10,7 @@ import {
 import {useRelayEnvironment} from 'react-relay/hooks';
 import {ConnectionHandler} from 'relay-runtime';
 import {PostBox} from './Post';
-import type {Comments_post} from './__generated__/Comments_post.graphql';
+import type {Comments_post$data} from './__generated__/Comments_post.graphql';
 import MarkdownRenderer from './MarkdownRenderer';
 import {Box} from 'grommet/components/Box';
 import {Text} from 'grommet/components/Text';
@@ -21,10 +21,11 @@ import Comment from './Comment';
 import {NotificationContext} from './Notifications';
 import UserContext from './UserContext';
 import GitHubLoginButton from './GitHubLoginButton';
+import config from './config';
 
 type Props = {
   relay: RelayPaginationProp,
-  post: Comments_post,
+  post: Comments_post$data,
   postId: string,
   viewer: {+login: string, +name: ?string, +avatarUrl: string, +url: string},
 };
@@ -33,14 +34,12 @@ type Props = {
 // because we want to add comments on behalf of the logged-in user, not the
 // persisted auth
 const addCommentMutation = graphql`
-  mutation Comments_AddCommentMutation($input: GitHubAddCommentInput!)
+  mutation Comments_AddCommentMutation($input: AddCommentInput!)
   @persistedQueryConfiguration(freeVariables: ["input"]) {
-    gitHub {
-      addComment(input: $input) {
-        commentEdge {
-          node {
-            ...Comment_comment
-          }
+    addComment(input: $input) {
+      commentEdge {
+        node {
+          ...Comment_comment
         }
       }
     }
@@ -78,9 +77,7 @@ function CommentInput({
   const saveComment = () => {
     setSaving(true);
     const updater = (store, data) => {
-      const newComment = store.get(
-        data.gitHub.addComment.commentEdge.node.__id,
-      );
+      const newComment = store.get(data.addComment.commentEdge.node.__id);
       const post = store.get(postId);
       if (newComment && post) {
         const comments = ConnectionHandler.getConnection(
@@ -92,7 +89,7 @@ function CommentInput({
             store,
             comments,
             newComment,
-            'GitHubIssueComment',
+            'IssueComment',
           );
           ConnectionHandler.insertEdgeAfter(comments, edge);
         }
@@ -123,23 +120,21 @@ function CommentInput({
         setSaving(false);
       },
       optimisticResponse: {
-        gitHub: {
-          addComment: {
-            commentEdge: {
-              node: {
-                id: `client:newComment:${tempId++}`,
-                body: comment,
-                createdViaEmail: false,
-                author: {
-                  __typename: 'GitHubUser',
-                  name: viewer.name,
-                  avatarUrl: viewer.avatarUrl,
-                  login: viewer.login,
-                  url: viewer.url,
-                },
-                createdAt: new Date().toString(),
-                reactionGroups: [],
+        addComment: {
+          commentEdge: {
+            node: {
+              id: `client:newComment:${tempId++}`,
+              body: comment,
+              createdViaEmail: false,
+              author: {
+                __typename: 'User',
+                name: viewer.name,
+                avatarUrl: viewer.avatarUrl,
+                login: viewer.login,
+                url: viewer.url,
               },
+              createdAt: new Date().toString(),
+              reactionGroups: [],
             },
           },
         },
@@ -154,7 +149,8 @@ function CommentInput({
       <Stack
         guidingChild="first"
         interactiveChild={isLoggedIn ? 'first' : 'last'}
-        anchor="center">
+        anchor="center"
+      >
         <Box style={{opacity: isLoggedIn ? 1 : 0.3}}>
           <Box height={{min: 'small'}}>
             <Box pad="small" direction="row" gap="medium">
@@ -168,7 +164,8 @@ function CommentInput({
                       color: activeTab === 'write' ? 'black' : 'brand',
                       side: 'bottom',
                       size: 'small',
-                    }}>
+                    }}
+                  >
                     <Text size="small">Write</Text>
                   </Box>
                 }
@@ -184,7 +181,8 @@ function CommentInput({
                       color: activeTab === 'preview' ? 'black' : 'brand',
                       side: 'bottom',
                       size: 'small',
-                    }}>
+                    }}
+                  >
                     <Text size="small">Preview</Text>
                   </Box>
                 }
@@ -243,8 +241,14 @@ function Comments({post, relay, postId, viewer}: Props) {
       {comments.map((comment) => {
         return <Comment key={comment.id} comment={comment} />;
       })}
-      <CommentInput viewer={viewer} postId={postId} />
-      <Box height="xsmall" />
+
+      <PostBox>
+        <Box pad="small">
+          <a href="https://github.com/${config.repoOwner}/${config.repoName}">
+            Leave your comment on GitHub
+          </a>
+        </Box>
+      </PostBox>
     </Box>
   );
 }
@@ -253,7 +257,7 @@ export default createPaginationContainer(
   Comments,
   {
     post: graphql`
-      fragment Comments_post on GitHubIssue
+      fragment Comments_post on Issue
       @argumentDefinitions(
         count: {type: "Int", defaultValue: 100}
         cursor: {type: "String"}
@@ -293,17 +297,14 @@ export default createPaginationContainer(
         $repoOwner: String!
       )
       @persistedQueryConfiguration(
-        accessToken: {environmentVariable: "OG_GITHUB_TOKEN"}
         freeVariables: ["count", "cursor", "issueNumber"]
         fixedVariables: {environmentVariable: "REPOSITORY_FIXED_VARIABLES"}
         cacheSeconds: 300
       ) {
-        gitHub {
-          repository(name: $repoName, owner: $repoOwner) {
-            __typename
-            issue(number: $issueNumber) {
-              ...Comments_post @arguments(count: $count, cursor: $cursor)
-            }
+        repository(name: $repoName, owner: $repoOwner) {
+          __typename
+          issue(number: $issueNumber) {
+            ...Comments_post @arguments(count: $count, cursor: $cursor)
           }
         }
       }

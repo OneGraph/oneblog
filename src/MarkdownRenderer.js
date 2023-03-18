@@ -379,7 +379,7 @@ const defaultRenderers = ({
       if (!props.href) {
         return <span>[{props.children}]</span>;
       }
-      return <Link {...props} />;
+      return <Link legacBehavior {...props} />;
     },
     table: TableWrapper,
     tableHead: TableHeader,

@@ -43,31 +43,6 @@ function genId() {
   return (_id++).toString(36);
 }
 
-function CorsViolation({corsViolation}) {
-  return corsViolation ? (
-    <Header justify="center" background="status-error">
-      <Box pad="small" align="center" width="large">
-        <Text style={{textAlign: 'center'}}>
-          Missing CORS origin.
-          <br />
-          Allow the current URL on the CORS Origins form on the{' '}
-          <Anchor
-            color="white"
-            target="_blank"
-            rel="noreferrer noopener"
-            href={`https://www.onegraph.com/dashboard/app/${config.appId}`}>
-            OneGraph Dashboard
-          </Anchor>
-          .
-        </Text>
-      </Box>
-    </Header>
-  ) : (
-    // Empty header to prevent re-render
-    <Header />
-  );
-}
-
 export class NotificationContainer extends React.PureComponent<Props, State> {
   state = {
     notifications: {},
@@ -114,7 +89,6 @@ export class NotificationContainer extends React.PureComponent<Props, State> {
     return (
       <>
         <NotificationContext.Provider value={this._notificationContext}>
-          <CorsViolation corsViolation={this.state.corsViolation} />
           {this.props.children}
 
           <Layer

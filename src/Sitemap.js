@@ -12,28 +12,25 @@ import type {Sitemap_QueryResponse} from './__generated__/Sitemap_Query.graphql'
 const sitemapQuery = graphql`
   query Sitemap_Query($repoOwner: String!, $repoName: String!, $cursor: String)
   @persistedQueryConfiguration(
-    accessToken: {environmentVariable: "OG_GITHUB_TOKEN"}
     fixedVariables: {environmentVariable: "REPOSITORY_FIXED_VARIABLES"}
     freeVariables: ["cursor"]
     cacheSeconds: 300
   ) {
-    gitHub {
-      repository(name: $repoName, owner: $repoOwner) {
-        issues(
-          first: 100
-          after: $cursor
-          orderBy: {direction: DESC, field: CREATED_AT}
-          labels: ["publish", "Publish"]
-        ) {
-          pageInfo {
-            hasNextPage
-            endCursor
-          }
-          nodes {
-            number
-            title
-            updatedAt
-          }
+    repository(name: $repoName, owner: $repoOwner) {
+      issues(
+        first: 100
+        after: $cursor
+        orderBy: {direction: DESC, field: CREATED_AT}
+        labels: ["publish", "Publish"]
+      ) {
+        pageInfo {
+          hasNextPage
+          endCursor
+        }
+        nodes {
+          number
+          title
+          updatedAt
         }
       }
     }
@@ -41,7 +38,6 @@ const sitemapQuery = graphql`
 `;
 
 export async function buildSitemap({siteHostname}: {siteHostname: string}) {
-  // eslint-disable-next-line react-hooks/rules-of-hooks
   const basePath = useBasePath();
   const smStream = new SitemapStream({hostname: `${siteHostname}`});
   smStream.write({url: `${basePath}/`});
@@ -61,7 +57,7 @@ export async function buildSitemap({siteHostname}: {siteHostname: string}) {
     ).toPromise();
     reqCount++;
 
-    for (const node of data?.gitHub?.repository?.issues?.nodes || []) {
+    for (const node of data?.repository?.issues?.nodes || []) {
       if (node) {
         smStream.write({
           url: `${basePath}${postPath({post: node})}`,
@@ -69,7 +65,7 @@ export async function buildSitemap({siteHostname}: {siteHostname: string}) {
         });
       }
     }
-    const pageInfo = data?.gitHub?.repository?.issues?.pageInfo;
+    const pageInfo = data?.repository?.issues?.pageInfo;
     hasNextPage = pageInfo?.hasNextPage;
     cursor = pageInfo?.endCursor;
     hasNextPage = cursor ? pageInfo?.hasNextPage : false;

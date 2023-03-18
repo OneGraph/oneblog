@@ -5,8 +5,6 @@ export const query = graphql`
   @persistedQueryConfiguration(
     fixedVariables: {environmentVariable: "REPOSITORY_FIXED_VARIABLES"}
   ) {
-    gitHub {
-      ...Avatar_gitHub @arguments(repoName: $repoName, repoOwner: $repoOwner)
-    }
+    ...Avatar_gitHub @arguments(repoName: $repoName, repoOwner: $repoOwner)
   }
 `;
