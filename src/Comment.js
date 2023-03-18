@@ -20,29 +20,29 @@ type Props = {
 export default function Comment({comment}: Props) {
   const data = useFragment(
     graphql`
-      fragment Comment_comment on GitHubIssueComment {
+      fragment Comment_comment on IssueComment {
         id
         body @__clientField(handle: "registerMarkdown")
         createdViaEmail
         author {
-          ... on GitHubUser {
+          ... on User {
             name
             avatarUrl(size: 96)
             login
             url
           }
-          ... on GitHubBot {
+          ... on Bot {
             avatarUrl(size: 96)
             login
             url
           }
-          ... on GitHubOrganization {
+          ... on Organization {
             name
             avatarUrl(size: 96)
             login
             url
           }
-          ... on GitHubMannequin {
+          ... on Mannequin {
             id
             login
             url

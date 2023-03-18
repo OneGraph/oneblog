@@ -317,7 +317,8 @@ function Gfycat({uri, fallback}) {
   );
 }
 
-const AUDIO_EXTENSIONS = /\.(m4a|mp4a|mpga|mp2|mp2a|mp3|m2a|m3a|wav|weba|aac|oga|spx)($|\?)/i;
+const AUDIO_EXTENSIONS =
+  /\.(m4a|mp4a|mpga|mp2|mp2a|mp3|m2a|m3a|wav|weba|aac|oga|spx)($|\?)/i;
 
 function defaultBlock(uri) {
   if (ReactPlayer.canPlay(uri.url)) {

@@ -21,10 +21,10 @@ import type {LoginStatus} from './UserContext';
 import type {
   Avatar_gitHub$key,
   Avatar_gitHub$data,
-  GitHubRepositoryPermission,
+  RepositoryPermission,
 } from './__generated__/Avatar_gitHub.graphql';
 
-const MANAGE_LABEL_ROLES: Array<GitHubRepositoryPermission> = [
+const MANAGE_LABEL_ROLES: Array<RepositoryPermission> = [
   'ADMIN',
   'MAINTAIN',
   'WRITE',
@@ -34,7 +34,7 @@ const MANAGE_LABEL_ROLES: Array<GitHubRepositoryPermission> = [
 function checkIsAdmin(
   loginStatus: LoginStatus,
   repository: ?{|
-    +viewerPermission: ?GitHubRepositoryPermission,
+    +viewerPermission: ?RepositoryPermission,
     +viewerCanAdminister: boolean,
   |},
 ) {
@@ -60,7 +60,7 @@ export default function Avatar({gitHub, adminLinks: extraAdminLinks}: Props) {
 
   const data: Avatar_gitHub$data = useFragment(
     graphql`
-      fragment Avatar_gitHub on GitHubQuery
+      fragment Avatar_gitHub on Query
       @argumentDefinitions(
         repoName: {type: "String!"}
         repoOwner: {type: "String!"}

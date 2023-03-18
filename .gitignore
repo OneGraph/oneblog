@@ -11,6 +11,7 @@
 # production
 /build
 src/__generated__
+src/pages/api/__generated__
 
 # misc
 .DS_Store

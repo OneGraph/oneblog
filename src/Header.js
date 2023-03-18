@@ -7,15 +7,12 @@ import ConfigContext from './ConfigContext';
 import {PostBox} from './Post';
 import {useRouter} from 'next/router';
 
-function Header({gitHub, adminLinks}) {
+function Header({adminLinks}) {
   const {config} = React.useContext(ConfigContext);
   const {pathname} = useRouter();
 
   return (
     <>
-      <Box margin="medium" style={{position: 'absolute', top: 0, right: 0}}>
-        <Avatar gitHub={gitHub} adminLinks={adminLinks} />
-      </Box>
       <Box
         pad={{horizontal: 'medium'}}
         style={{
@@ -31,7 +28,7 @@ function Header({gitHub, adminLinks}) {
             color: 'rgba(0,0,0,0.1)',
           }}>
           <Heading style={{marginTop: 0}} level={1}>
-            <Link href="/">
+            <Link legacyBehavior href="/">
               <a
                 style={
                   pathname === '/'

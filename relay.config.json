@@ -1,0 +1,10 @@
+{
+  "src": "./src/",
+  "language": "flow",
+  "schema": "./schema.graphql",
+  "exclude": ["**/node_modules/**", "**/__generated__/**"],
+  "schemaExtensions": ["./src/"],
+  "persistConfig": {
+    "url": "http://localhost:2999"
+  }
+}

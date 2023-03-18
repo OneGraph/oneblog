@@ -12,28 +12,25 @@ export const query = graphql`
     $cursor: String
   )
   @persistedQueryConfiguration(
-    accessToken: {environmentVariable: "OG_GITHUB_TOKEN"}
     fixedVariables: {environmentVariable: "REPOSITORY_FIXED_VARIABLES"}
     freeVariables: ["count", "cursor"]
     cacheSeconds: 60
   ) {
-    gitHub {
-      repository(name: $repoName, owner: $repoOwner) {
-        issues(
-          first: $count
-          filterBy: {labels: ["publish", "Publish"]}
-          orderBy: {field: CREATED_AT, direction: DESC}
-          after: $cursor
-        ) {
-          pageInfo {
-            hasNextPage
-            endCursor
-          }
-          nodes {
-            title
-            id
-            number
-          }
+    repository(name: $repoName, owner: $repoOwner) {
+      issues(
+        first: $count
+        filterBy: {labels: ["publish", "Publish"]}
+        orderBy: {field: CREATED_AT, direction: DESC}
+        after: $cursor
+      ) {
+        pageInfo {
+          hasNextPage
+          endCursor
+        }
+        nodes {
+          title
+          id
+          number
         }
       }
     }
@@ -50,12 +47,12 @@ export async function getStaticPaths() {
       count: 100,
       cursor,
     }).toPromise();
-    cursor = data.gitHub.repository.issues.pageInfo.endCursor;
+    cursor = data.repository.issues.pageInfo.endCursor;
     // Only get the newest 100 for now to prevent API limits
     // TODO: Find a way to satisfy `getStaticProps` with the results of the
     //       query in this file
     hasNextPage = false; //data.gitHub.repository.issues.pageInfo.hasNextPage;
-    for (const issue of data.gitHub.repository.issues.nodes) {
+    for (const issue of data.repository.issues.nodes) {
       issues.push(issue);
     }
   }

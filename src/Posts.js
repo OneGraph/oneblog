@@ -4,7 +4,7 @@ import React from 'react';
 import graphql from 'babel-plugin-relay/macro';
 import {createPaginationContainer, type RelayPaginationProp} from 'react-relay';
 import Post from './Post';
-import type {Posts_repository} from './__generated__/Posts_repository.graphql';
+import type {Posts_repository$data} from './__generated__/Posts_repository.graphql';
 import LoadingSpinner from './loadingSpinner';
 import {Box} from 'grommet/components/Box';
 import {useInView} from 'react-intersection-observer';
@@ -13,7 +13,7 @@ import 'intersection-observer';
 
 type Props = {|
   relay: RelayPaginationProp,
-  repository: Posts_repository,
+  repository: Posts_repository$data,
 |};
 
 // TODO: pagination. Can do pages or infinite scroll
@@ -74,12 +74,12 @@ export default createPaginationContainer(
   Posts,
   {
     repository: graphql`
-      fragment Posts_repository on GitHubRepository
+      fragment Posts_repository on Repository
       @argumentDefinitions(
         count: {type: "Int", defaultValue: 10}
         cursor: {type: "String"}
         orderBy: {
-          type: "GitHubIssueOrder"
+          type: "IssueOrder"
           defaultValue: {direction: DESC, field: CREATED_AT}
         }
       ) {
@@ -118,22 +118,19 @@ export default createPaginationContainer(
       query PostsPaginationQuery(
         $count: Int!
         $cursor: String
-        $orderBy: GitHubIssueOrder
+        $orderBy: IssueOrder
         $repoOwner: String!
         $repoName: String!
       )
       @persistedQueryConfiguration(
-        accessToken: {environmentVariable: "OG_GITHUB_TOKEN"}
         freeVariables: ["count", "cursor", "orderBy"]
         fixedVariables: {environmentVariable: "REPOSITORY_FIXED_VARIABLES"}
         cacheSeconds: 300
       ) {
-        gitHub {
-          repository(name: $repoName, owner: $repoOwner) {
-            __typename
-            ...Posts_repository
-              @arguments(count: $count, cursor: $cursor, orderBy: $orderBy)
-          }
+        repository(name: $repoName, owner: $repoOwner) {
+          __typename
+          ...Posts_repository
+            @arguments(count: $count, cursor: $cursor, orderBy: $orderBy)
         }
       }
     `,

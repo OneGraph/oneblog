@@ -13,26 +13,23 @@ import inlineCss from 'inline-css/lib/inline-css';
 import {Grommet} from 'grommet/components/Grommet';
 import appCss from './App.css';
 import config from './config';
-import type {RssFeed_QueryResponse} from './__generated__/RssFeed_Query.graphql';
+import type {RssFeed_Query$data} from './__generated__/RssFeed_Query.graphql';
 import theme from './lib/theme';
 
 const feedQuery = graphql`
   query RssFeed_Query($repoOwner: String!, $repoName: String!)
   @persistedQueryConfiguration(
-    accessToken: {environmentVariable: "OG_GITHUB_TOKEN"}
     fixedVariables: {environmentVariable: "REPOSITORY_FIXED_VARIABLES"}
     cacheSeconds: 300
   ) {
-    gitHub {
-      repository(name: $repoName, owner: $repoOwner) {
-        issues(
-          first: 20
-          orderBy: {direction: DESC, field: CREATED_AT}
-          labels: ["publish", "Publish"]
-        ) {
-          nodes {
-            ...Post_post @relay(mask: false)
-          }
+    repository(name: $repoName, owner: $repoOwner) {
+      issues(
+        first: 20
+        orderBy: {direction: DESC, field: CREATED_AT}
+        labels: ["publish", "Publish"]
+      ) {
+        nodes {
+          ...Post_post @relay(mask: false)
         }
       }
     }
@@ -88,13 +85,13 @@ export async function buildFeed({
       markdowns.push(m);
     },
   });
-  const data: ?RssFeed_QueryResponse = await fetchQuery(
+  const data: ?RssFeed_Query$data = await fetchQuery(
     environment,
     feedQuery,
     {},
   ).toPromise();
 
-  const posts = data?.gitHub?.repository?.issues.nodes || [];
+  const posts = data?.repository?.issues.nodes || [];
   const latestPost = posts[0];
 
   const baseUrl = removeTrailingSlash(

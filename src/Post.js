@@ -31,29 +31,28 @@ import CommentsIcon from './CommentsIcon';
 import parseMarkdown from './lib/parseMarkdown';
 import Head from 'next/head';
 
-import type {Post_post} from './__generated__/Post_post.graphql';
+import type {Post_post$data} from './__generated__/Post_post.graphql';
+import config from './config';
 
 // n.b. no accessToken in the persistedQueryConfiguration for these mutations,
 // because we want to add reactions on behalf of the logged-in user, not the
 // persisted auth
 const addReactionMutation = graphql`
-  mutation Post_AddReactionMutation($input: GitHubAddReactionInput!)
+  mutation Post_AddReactionMutation($input: AddReactionInput!)
   @persistedQueryConfiguration(freeVariables: ["input"]) {
-    gitHub {
-      addReaction(input: $input) {
-        reaction {
-          content
-          user {
-            login
-            name
+    addReaction(input: $input) {
+      reaction {
+        content
+        user {
+          login
+          name
+        }
+        reactable {
+          ... on Issue {
+            ...Post_post
           }
-          reactable {
-            ... on GitHubIssue {
-              ...Post_post
-            }
-            ... on GitHubComment {
-              ...Comment_comment
-            }
+          ... on Comment {
+            ...Comment_comment
           }
         }
       }
@@ -62,23 +61,21 @@ const addReactionMutation = graphql`
 `;
 
 const removeReactionMutation = graphql`
-  mutation Post_RemoveReactionMutation($input: GitHubRemoveReactionInput!)
+  mutation Post_RemoveReactionMutation($input: RemoveReactionInput!)
   @persistedQueryConfiguration(freeVariables: ["input"]) {
-    gitHub {
-      removeReaction(input: $input) {
-        reaction {
-          content
-          user {
-            login
-            name
+    removeReaction(input: $input) {
+      reaction {
+        content
+        user {
+          login
+          name
+        }
+        reactable {
+          ... on Issue {
+            ...Post_post
           }
-          reactable {
-            ... on GitHubIssue {
-              ...Post_post
-            }
-            ... on GitHubComment {
-              ...Comment_comment
-            }
+          ... on Comment {
+            ...Comment_comment
           }
         }
       }
@@ -252,7 +249,7 @@ const EmojiPicker = ({
 
 type Props = {
   relay: RelayProp,
-  post: Post_post,
+  post: Post_post$data,
   context: 'list' | 'details',
 };
 
@@ -290,9 +287,6 @@ export const ReactionBar = ({
   const [showReactionPopover, setShowReactionPopover] = React.useState(false);
   const [sourceTooltip, targetTooltip] = useSingleton();
   const [sourceAdd, targetAdd] = useSingleton();
-  const {loginStatus, login} = React.useContext(UserContext);
-
-  const isLoggedIn = loginStatus === 'logged-in';
 
   const usedReactions = (reactionGroups || [])
     .filter((g) => g.users.totalCount > 0)
@@ -329,70 +323,12 @@ export const ReactionBar = ({
           delay={0}
           hideOnClick={true}
         />
-        <Tippy
-          singleton={targetAdd}
-          arrow={true}
-          content={
-            <Box>
-              <EmojiPicker
-                isLoggedIn={isLoggedIn}
-                login={login}
-                viewerReactions={usedReactions
-                  .filter((x) => x.viewerHasReacted)
-                  .map((x) => x.content)}
-                onDeselect={async (content) => {
-                  // eslint-disable-next-line no-unused-expressions
-                  sourceAdd?.data?.instance?.hide();
-                  try {
-                    await removeReaction({
-                      environment,
-                      content,
-                      subjectId,
-                    });
-                  } catch (e) {
-                    notifyError('Error removing reaction.');
-                  }
-                }}
-                onSelect={async (content) => {
-                  // eslint-disable-next-line no-unused-expressions
-                  sourceAdd?.data?.instance?.hide();
-                  try {
-                    await addReaction({
-                      environment,
-                      content,
-                      subjectId,
-                    });
-                  } catch (e) {
-                    notifyError('Error adding reaction.');
-                  }
-                }}
-              />
-            </Box>
-          }>
-          <span
-            style={{padding: '8px 16px'}}
-            className="add-reaction-emoji"
-            onClick={() => setShowReactionPopover(!showReactionPopover)}>
-            <AddIcon width="12" />
-            <EmojiIcon
-              width="24"
-              style={{marginLeft: 2, stroke: 'rgba(0,0,0,0)'}}
-            />
-          </span>
-        </Tippy>
         <Box direction="row" style={{overflowY: 'scroll'}}>
-          {usedReactions.map((g) => {
+          {usedReactions.map((g, i) => {
             const total = g.users.totalCount;
             const reactors = [];
-            if (isLoggedIn && g.viewerHasReacted) {
-              reactors.push('You');
-            }
             for (const user of g.users.nodes || []) {
-              if (
-                user &&
-                (!isLoggedIn || !user.isViewer) &&
-                (user.name || user.login)
-              ) {
+              if (user && (user.name || user.login)) {
                 reactors.push(user.name || user.login);
               }
             }
@@ -421,7 +357,8 @@ export const ReactionBar = ({
                   key={g.content}
                   style={{
                     padding: '0 16px',
-                    borderLeft: '1px solid rgba(0,0,0,0.12)',
+                    borderLeft:
+                      i !== 0 ? '1px solid rgba(0,0,0,0.12)' : undefined,
                     display: 'flex',
                     alignItems: 'center',
                   }}>
@@ -437,7 +374,7 @@ export const ReactionBar = ({
       </Box>
       {commentsInfo ? (
         <Box direction="row" wrap={true}>
-          <Link as={commentsInfo.as} href={commentsInfo.href}>
+          <Link legacyBehavior as={commentsInfo.as} href={commentsInfo.href}>
             <button
               title={commentsInfo.count ? 'View comments' : 'Leave a comment'}
               style={{
@@ -466,12 +403,12 @@ export const ReactionBar = ({
 
 export function slugify(s: string): string {
   return lowerCase(s)
-    .trim()
     .replace(/\s+/g, '-') // Replace spaces with -
     .replace(/&/g, '-and-') // Replace & with 'and'
     .replace(/[^\w-]+/g, '') // Remove all non-word characters
     .replace(/--+/g, '-') // Replace multiple - with single -
-    .trim();
+    .trimStart() // Trim from start of text
+    .trimEnd(); // Trim from end of text
 }
 
 export function postPath({
@@ -545,7 +482,7 @@ export const Post = ({relay, post, context}: Props) => {
       loginStatus === 'logged-in'
     ) {
       // Refetch post if we log in to reset `viewerHasReacted` and friends
-      loadQuery.loadQuery(
+      loadQuery(
         environment,
         postRootQuery,
         {issueNumber: number},
@@ -561,14 +498,14 @@ export const Post = ({relay, post, context}: Props) => {
   // from OneGraph once the client-side code is loaded, esp. when logged in
   React.useEffect(() => {
     if (context === 'list') {
-      loadQuery.loadQuery(
+      loadQuery(
         environment,
         postRootQuery,
         {issueNumber: number},
         {fetchPolicy: 'store-or-network'},
       );
     } else if (context === 'details') {
-      loadQuery.loadQuery(
+      loadQuery(
         environment,
         postsRootQuery,
         {},
@@ -622,7 +559,11 @@ export const Post = ({relay, post, context}: Props) => {
           {context === 'details' ? (
             post.title
           ) : (
-            <Link href="/post/[...slug]" as={postPath({post})} shallow={true}>
+            <Link
+              legacyBehavior
+              href="/post/[...slug]"
+              as={postPath({post})}
+              shallow={true}>
               <a style={{color: 'inherit'}}>{post.title}</a>
             </Link>
           )}
@@ -675,6 +616,7 @@ export const Post = ({relay, post, context}: Props) => {
             HashLink={function HashLink(props) {
               return (
                 <Link
+                  legacBehavior
                   href="/post/[...slug]"
                   as={`${postPath({post})}${props.hash}`}>
                   <a>{props.children}</a>
@@ -704,7 +646,7 @@ export const Post = ({relay, post, context}: Props) => {
 
 export default createFragmentContainer(Post, {
   post: graphql`
-    fragment Post_post on GitHubIssue {
+    fragment Post_post on Issue {
       id
       number
       title
