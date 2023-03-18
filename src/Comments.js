@@ -149,8 +149,7 @@ function CommentInput({
       <Stack
         guidingChild="first"
         interactiveChild={isLoggedIn ? 'first' : 'last'}
-        anchor="center"
-      >
+        anchor="center">
         <Box style={{opacity: isLoggedIn ? 1 : 0.3}}>
           <Box height={{min: 'small'}}>
             <Box pad="small" direction="row" gap="medium">
@@ -164,8 +163,7 @@ function CommentInput({
                       color: activeTab === 'write' ? 'black' : 'brand',
                       side: 'bottom',
                       size: 'small',
-                    }}
-                  >
+                    }}>
                     <Text size="small">Write</Text>
                   </Box>
                 }
@@ -181,8 +179,7 @@ function CommentInput({
                       color: activeTab === 'preview' ? 'black' : 'brand',
                       side: 'bottom',
                       size: 'small',
-                    }}
-                  >
+                    }}>
                     <Text size="small">Preview</Text>
                   </Box>
                 }
