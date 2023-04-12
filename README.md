@@ -14,7 +14,7 @@ You can learn more about [persisted queries in the docs](https://www.onegraph.co
 
 ## Setup
 
-Use an existing OneGraph app or sign up sign up at [OneGraph](https://www.onegraph.com) to create a new app.
+Use an existing OneGraph app or sign up at [OneGraph](https://www.onegraph.com) to create a new app.
 
 Copy `/.env.example` to `/.env` and set the following environment variables.
 
